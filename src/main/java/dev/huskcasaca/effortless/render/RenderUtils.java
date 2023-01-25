@@ -1,11 +1,14 @@
 package dev.huskcasaca.effortless.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.huskcasaca.effortless.render.modifier.BuildRenderType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
@@ -116,7 +119,7 @@ public class RenderUtils {
 //        var modifierSettings = ModifierSettingsManager.getModifierSettings(mc.player);
 //        if (!BuildModifiers.isEnabled(modifierSettings, pos)) return;
 //
-//        List<BlockPos> coordinates = BuildModifiers.findCoordinates(mc.player, pos);
+//        List<BlockPos> coordinates = BuildModifiers.preview(mc.player, pos);
 //        for (int i = 1; i < coordinates.size(); i++) {
 //            var coordinate = coordinates.get(i);
 //            if (SurvivalHelper.canBreak(mc.world, mc.player, coordinate)) {

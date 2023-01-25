@@ -2,9 +2,9 @@ package dev.huskcasaca.effortless.buildmode.threeclick;
 
 import dev.huskcasaca.effortless.building.BuildAction;
 import dev.huskcasaca.effortless.building.BuildActionHandler;
+import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmode.ThreeClickBuildable;
 import dev.huskcasaca.effortless.buildmode.twoclick.Floor;
-import dev.huskcasaca.effortless.building.ReachHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 
@@ -82,7 +82,7 @@ public class SlopeFloor extends ThreeClickBuildable {
 
     @Override
     protected BlockPos findThirdPos(Player player, BlockPos firstPos, BlockPos secondPos, boolean skipRaytrace) {
-        return findHeight(player, secondPos, skipRaytrace);
+        return findLineY(player, secondPos, skipRaytrace);
     }
 
     @Override

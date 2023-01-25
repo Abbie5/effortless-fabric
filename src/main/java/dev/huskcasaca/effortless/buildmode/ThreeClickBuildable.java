@@ -3,245 +3,171 @@ package dev.huskcasaca.effortless.buildmode;
 import dev.huskcasaca.effortless.building.ReachHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
 public abstract class ThreeClickBuildable extends MultipleClickBuildable {
-    protected Dictionary<UUID, BlockPos> secondPosTable = new Hashtable<>();
 
-    //Finds height after floor has been chosen in buildmodes with 3 clicks
-    public static BlockPos findHeight(Player player, BlockPos secondPos, boolean skipRaytrace) {
+    protected Dictionary<UUID, BlockHitResult> secondHitResultTable = new Hashtable<>();
+
+    private static BlockPos findLineByAxis(Player player, BlockPos secondPos, boolean skipRaytrace, Axis axis) {
         var look = BuildModeHandler.getPlayerLookVec(player);
-        var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+        var eye = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
 
-        List<HeightCriteria> criteriaList = new ArrayList<>(3);
+        var criteriaList = new ArrayList<AxisLineCriteria>(3);
 
-        //X
-        var xBound = BuildModeHandler.findXBound(secondPos.getX(), start, look);
-        criteriaList.add(new HeightCriteria(xBound, secondPos, start));
+        for (var a : Axis.values()) {
+            if (a == axis) continue;
+            criteriaList.add(new AxisLineCriteria(secondPos.getCenter(), eye, look, a));
+        }
 
-        //Z
-        var zBound = BuildModeHandler.findZBound(secondPos.getZ(), start, look);
-        criteriaList.add(new HeightCriteria(zBound, secondPos, start));
-
-        //Remove invalid criteria
         int reach = ReachHelper.getPlacementReach(player) * 4; //4 times as much as normal placement reach
-        criteriaList.removeIf(criteria -> !criteria.isValid(start, look, reach, player, skipRaytrace));
+        criteriaList.removeIf(criteria -> !criteria.isInRange(player, reach, skipRaytrace));
 
-        //If none are valid, return empty list of blocks
         if (criteriaList.isEmpty()) return null;
-
-        //If only 1 is valid, choose that one
         var selected = criteriaList.get(0);
 
-        //If multiple are valid, choose based on criteria
         if (criteriaList.size() > 1) {
-            //Select the one that is closest (from wall position to its line counterpart)
             for (int i = 1; i < criteriaList.size(); i++) {
-                HeightCriteria criteria = criteriaList.get(i);
-                if (criteria.distToLineSq < 2.0 && selected.distToLineSq < 2.0) {
+                var criteria = criteriaList.get(i);
+                if (criteria.distanceToLineSqr() < 2.0 && selected.distanceToLineSqr() < 2.0) {
                     //Both very close to line, choose closest to player
-                    if (criteria.distToPlayerSq < selected.distToPlayerSq)
+                    if (criteria.distanceToEyeSqr() < selected.distanceToEyeSqr())
                         selected = criteria;
                 } else {
                     //Pick closest to line
-                    if (criteria.distToLineSq < selected.distToLineSq)
+                    if (criteria.distanceToLineSqr() < selected.distanceToLineSqr())
                         selected = criteria;
                 }
             }
         }
-        return new BlockPos(selected.lineBound);
+        return selected.traceLine(axis);
     }
 
+    public static BlockPos findLineY(Player player, BlockPos secondPos, boolean skipRaytrace) {
+        return findLineByAxis(player, secondPos, skipRaytrace, Axis.Y);
+    }
 
-    //Finds depth after wall has been chosen in buildmodes with 3 clicks
-    public static BlockPos findDepth(Player player, BlockPos secondPos, boolean skipRaytrace) {
+    public static BlockPos findLineX(Player player, BlockPos secondPos, boolean skipRaytrace) {
+        return findLineByAxis(player, secondPos, skipRaytrace, Axis.X);
+    }
+
+    public static BlockPos findLineZ(Player player, BlockPos secondPos, boolean skipRaytrace) {
+        return findLineByAxis(player, secondPos, skipRaytrace, Axis.Z);
+    }
+
+    private static BlockPos findPlaneByAxis(Player player, BlockPos secondPos, boolean skipRaytrace, Axis axis) {
         var look = BuildModeHandler.getPlayerLookVec(player);
-        var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+        var eye = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
 
-        List<HeightCriteria> criteriaList = new ArrayList<>(3);
+        var criteriaList = new ArrayList<AxisLineCriteria>(3);
 
-        //Y
-//        var yBound = BuildModeHandler.findYBound(secondPos.getY(), start, look);
-//        criteriaList.add(new HeightCriteria(yBound, secondPos, start));
+        criteriaList.add(new AxisLineCriteria(secondPos.getCenter(), eye, look, axis));
 
-        //X
-        var xBound = BuildModeHandler.findXBound(secondPos.getX(), start, look);
-        criteriaList.add(new HeightCriteria(xBound, secondPos, start));
-
-        //Z
-        var zBound = BuildModeHandler.findZBound(secondPos.getZ(), start, look);
-        criteriaList.add(new HeightCriteria(zBound, secondPos, start));
-
-        //Remove invalid criteria
         int reach = ReachHelper.getPlacementReach(player) * 4; //4 times as much as normal placement reach
-        criteriaList.removeIf(criteria -> !criteria.isValid(start, look, reach, player, skipRaytrace));
+        criteriaList.removeIf(criteria -> !criteria.isInRange(player, reach, skipRaytrace));
 
-        //If none are valid, return empty list of blocks
         if (criteriaList.isEmpty()) return null;
-
-        //If only 1 is valid, choose that one
         var selected = criteriaList.get(0);
 
-        //If multiple are valid, choose based on criteria
         if (criteriaList.size() > 1) {
-            //Select the one that is closest (from wall position to its line counterpart)
             for (int i = 1; i < criteriaList.size(); i++) {
-                HeightCriteria criteria = criteriaList.get(i);
-                if (criteria.distToLineSq < 2.0 && selected.distToLineSq < 2.0) {
+                var criteria = criteriaList.get(i);
+                if (criteria.distanceToLineSqr() < 2.0 && selected.distanceToLineSqr() < 2.0) {
                     //Both very close to line, choose closest to player
-                    if (criteria.distToPlayerSq < selected.distToPlayerSq)
+                    if (criteria.distanceToEyeSqr() < selected.distanceToEyeSqr())
                         selected = criteria;
                 } else {
                     //Pick closest to line
-                    if (criteria.distToLineSq < selected.distToLineSq)
+                    if (criteria.distanceToLineSqr() < selected.distanceToLineSqr())
                         selected = criteria;
                 }
             }
         }
-        return new BlockPos(selected.planeBound);
+        return selected.tracePlane();
     }
 
-    public static BlockPos findXDepth(Player player, BlockPos secondPos, boolean skipRaytrace) {
-        var look = BuildModeHandler.getPlayerLookVec(player);
-        var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
-
-        List<HeightCriteria> criteriaList = new ArrayList<>(3);
-
-        //X
-        var xBound = BuildModeHandler.findXBound(secondPos.getX(), start, look);
-        criteriaList.add(new HeightCriteria(xBound, secondPos, start));
-
-        //Remove invalid criteria
-        int reach = ReachHelper.getPlacementReach(player) * 4; //4 times as much as normal placement reach
-        criteriaList.removeIf(criteria -> !criteria.isValid(start, look, reach, player, skipRaytrace));
-
-        //If none are valid, return empty list of blocks
-        if (criteriaList.isEmpty()) return null;
-
-        //If only 1 is valid, choose that one
-        var selected = criteriaList.get(0);
-
-        //If multiple are valid, choose based on criteria
-        if (criteriaList.size() > 1) {
-            //Select the one that is closest (from wall position to its line counterpart)
-            for (int i = 1; i < criteriaList.size(); i++) {
-                HeightCriteria criteria = criteriaList.get(i);
-                if (criteria.distToLineSq < 2.0 && selected.distToLineSq < 2.0) {
-                    //Both very close to line, choose closest to player
-                    if (criteria.distToPlayerSq < selected.distToPlayerSq)
-                        selected = criteria;
-                } else {
-                    //Pick closest to line
-                    if (criteria.distToLineSq < selected.distToLineSq)
-                        selected = criteria;
-                }
-            }
-        }
-        return new BlockPos(selected.planeBound);
+    public static BlockPos findPlaneY(Player player, BlockPos secondPos, boolean skipRaytrace) {
+        return findPlaneByAxis(player, secondPos, skipRaytrace, Axis.Y);
     }
 
-    public static BlockPos findZDepth(Player player, BlockPos secondPos, boolean skipRaytrace) {
-        var look = BuildModeHandler.getPlayerLookVec(player);
-        var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
-
-        List<HeightCriteria> criteriaList = new ArrayList<>(3);
-
-        //Z
-        var zBound = BuildModeHandler.findZBound(secondPos.getZ(), start, look);
-        criteriaList.add(new HeightCriteria(zBound, secondPos, start));
-
-        //Remove invalid criteria
-        int reach = ReachHelper.getPlacementReach(player) * 4; //4 times as much as normal placement reach
-        criteriaList.removeIf(criteria -> !criteria.isValid(start, look, reach, player, skipRaytrace));
-
-        //If none are valid, return empty list of blocks
-        if (criteriaList.isEmpty()) return null;
-
-        //If only 1 is valid, choose that one
-        var selected = criteriaList.get(0);
-
-        //If multiple are valid, choose based on criteria
-        if (criteriaList.size() > 1) {
-            //Select the one that is closest (from wall position to its line counterpart)
-            for (int i = 1; i < criteriaList.size(); i++) {
-                HeightCriteria criteria = criteriaList.get(i);
-                if (criteria.distToLineSq < 2.0 && selected.distToLineSq < 2.0) {
-                    //Both very close to line, choose closest to player
-                    if (criteria.distToPlayerSq < selected.distToPlayerSq)
-                        selected = criteria;
-                } else {
-                    //Pick closest to line
-                    if (criteria.distToLineSq < selected.distToLineSq)
-                        selected = criteria;
-                }
-            }
-        }
-        return new BlockPos(selected.planeBound);
+    public static BlockPos findPlaneX(Player player, BlockPos secondPos, boolean skipRaytrace) {
+        return findPlaneByAxis(player, secondPos, skipRaytrace, Axis.X);
     }
 
+    public static BlockPos findPlaneZ(Player player, BlockPos secondPos, boolean skipRaytrace) {
+        return findPlaneByAxis(player, secondPos, skipRaytrace, Axis.Z);
+    }
+
+    protected BlockHitResult getSecondHitResult(Player player) {
+        return secondHitResultTable.get(player.getUUID());
+    }
+
+    protected BlockHitResult putSecondResult(Player player, BlockHitResult hitResult) {
+        return secondHitResultTable.put(player.getUUID(), hitResult);
+    }
 
     @Override
     public void initialize(Player player) {
         super.initialize(player);
-        secondPosTable.put(player.getUUID(), BlockPos.ZERO);
+        putSecondResult(player, new BlockHitResult(Vec3.ZERO, Direction.UP, BlockPos.ZERO, false));
     }
 
     @Override
-    public List<BlockPos> onUse(Player player, BlockPos blockPos, Direction hitSide, Vec3 hitVec, boolean skipRaytrace) {
+    public List<BlockPos> trace(Player player, BlockHitResult hitResult, boolean skipRaytrace) {
+        var blockPos = hitResult.getBlockPos();
+
         List<BlockPos> list = new ArrayList<>();
 
-        var rightClickTable = player.level.isClientSide ? rightClickTableClient : rightClickTableServer;
-        int rightClickNr = rightClickTable.get(player.getUUID());
-        rightClickNr++;
-        rightClickTable.put(player.getUUID(), rightClickNr);
+        int useCount = getUseCount(player);
+        useCount++;
+        putUseCount(player, useCount);
 
-        if (rightClickNr == 1) {
+        if (useCount == 1) {
             //If clicking in air, reset and try again
             if (blockPos == null) {
-                rightClickTable.put(player.getUUID(), 0);
+                putUseCount(player, 0);
                 return list;
             }
 
             //First click, remember starting position
-            firstPosTable.put(player.getUUID(), blockPos);
-            hitSideTable.put(player.getUUID(), hitSide);
-            hitVecTable.put(player.getUUID(), hitVec);
+            putFirstResult(player, hitResult);
             //Keep list empty, dont place any blocks yet
-        } else if (rightClickNr == 2) {
+        } else if (useCount == 2) {
             //Second click, find other floor point
-            var firstPos = firstPosTable.get(player.getUUID());
+            var firstPos = getFirstHitResult(player).getBlockPos();
             var secondPos = findSecondPos(player, firstPos, true);
 
             if (secondPos == null) {
-                rightClickTable.put(player.getUUID(), 1);
+                putUseCount(player, 1);
                 return list;
             }
 
-            secondPosTable.put(player.getUUID(), secondPos);
+            putSecondResult(player, hitResult.withPosition(secondPos));
 
         } else {
             //Third click, place diagonal wall with height
-            list = findCoordinates(player, blockPos, skipRaytrace);
-            rightClickTable.put(player.getUUID(), 0);
+            list = preview(player, hitResult, skipRaytrace);
+            putUseCount(player, 0);
         }
 
         return list;
     }
 
     @Override
-    public List<BlockPos> findCoordinates(Player player, BlockPos blockPos, boolean skipRaytrace) {
+    public List<BlockPos> preview(Player player, BlockHitResult hitResult, boolean skipRaytrace) {
         List<BlockPos> list = new ArrayList<>();
-        var rightClickTable = player.level.isClientSide ? rightClickTableClient : rightClickTableServer;
-        int rightClickNr = rightClickTable.get(player.getUUID());
+        int useCount = getUseCount(player);
 
-        if (rightClickNr == 0) {
-            if (blockPos != null)
-                list.add(blockPos);
-        } else if (rightClickNr == 1) {
-            var firstPos = firstPosTable.get(player.getUUID());
+        if (useCount == 0) {
+            if (hitResult != null)
+                list.add(hitResult.getBlockPos());
+        } else if (useCount == 1) {
+            var firstPos = getFirstHitResult(player).getBlockPos();
 
             var secondPos = findSecondPos(player, firstPos, true);
             if (secondPos == null) return list;
@@ -265,8 +191,8 @@ public abstract class ThreeClickBuildable extends MultipleClickBuildable {
             list.addAll(getIntermediateBlocks(player, x1, y1, z1, x2, y2, z2));
 
         } else {
-            var firstPos = firstPosTable.get(player.getUUID());
-            var secondPos = secondPosTable.get(player.getUUID());
+            var firstPos = getFirstHitResult(player).getBlockPos();
+            var secondPos = getSecondHitResult(player).getBlockPos();
 
             var thirdPos = findThirdPos(player, firstPos, secondPos, skipRaytrace);
             if (thirdPos == null) return list;
@@ -312,13 +238,13 @@ public abstract class ThreeClickBuildable extends MultipleClickBuildable {
     //After first, second and third pos are known, we want all the blocks
     public abstract List<BlockPos> getFinalBlocks(Player player, int x1, int y1, int z1, int x2, int y2, int z2, int x3, int y3, int z3);
 
-    static class HeightCriteria {
+    static class Criteria_Dep {
         Vec3 planeBound;
         Vec3 lineBound;
         double distToLineSq;
         double distToPlayerSq;
 
-        HeightCriteria(Vec3 planeBound, BlockPos secondPos, Vec3 start) {
+        Criteria_Dep(Vec3 planeBound, BlockPos secondPos, Vec3 start) {
             this.planeBound = planeBound;
             this.lineBound = toLongestLine(this.planeBound, secondPos);
             this.distToLineSq = this.lineBound.subtract(this.planeBound).lengthSqr();
@@ -337,5 +263,40 @@ public abstract class ThreeClickBuildable extends MultipleClickBuildable {
 
             return BuildModeHandler.isCriteriaValid(start, look, reach, player, skipRaytrace, lineBound, planeBound, distToPlayerSq);
         }
+
+        public double distanceToEyeSqr() {
+            return distToPlayerSq;
+        }
+
+        public double distanceToLineSqr() {
+            return distToLineSq;
+        }
+    }
+
+    public static class AxisLineCriteria extends AxisCriteria {
+
+        public AxisLineCriteria(Vec3 center, Vec3 eye, Vec3 look, Axis axis) {
+            super(center, eye, look, axis);
+        }
+
+        @Override
+        public Vec3 lineVec() {
+            return lineVec(axis);
+        }
+
+        public Vec3 lineVec(Axis axis) {
+            var pos = new BlockPos(center);
+            var bound = new BlockPos(planeVec());
+            return switch (axis) {
+                case X -> new Vec3(bound.getX(), pos.getY(), pos.getZ());
+                case Y -> new Vec3(pos.getX(), bound.getY(), pos.getZ());
+                case Z -> new Vec3(pos.getX(), pos.getY(), bound.getZ());
+            };
+        }
+
+        public BlockPos traceLine(Axis axis) {
+            return new BlockPos(lineVec(axis));
+        }
+
     }
 }

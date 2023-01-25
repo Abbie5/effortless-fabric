@@ -11,7 +11,8 @@
     "PlayerPickupMixin",
     "PlayerTagMixin",
     "ServerPacketListenerMixin",
-    "ServerPlayerEventMixin"
+    "ServerPlayerEventMixin",
+    "SubtitleOverlayMixin"
   ],
   "client": [
     "ClientPacketListenerMixin",

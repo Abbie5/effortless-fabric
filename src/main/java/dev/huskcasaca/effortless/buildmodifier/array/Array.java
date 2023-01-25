@@ -1,18 +1,18 @@
 package dev.huskcasaca.effortless.buildmodifier.array;
 
-import dev.huskcasaca.effortless.buildmodifier.Modifier;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
+import dev.huskcasaca.effortless.buildmodifier.Modifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
 public class Array implements Modifier {
 
-    public static Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
+    @Override
+    public Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
         var coordinates = new LinkedHashSet<BlockPos>();
 
         //find arraysettings for the player
@@ -30,7 +30,8 @@ public class Array implements Modifier {
         return coordinates;
     }
 
-    public static Map<BlockPos, BlockState> findBlockStates(Player player, BlockPos startPos, BlockState blockState, ItemStack itemStack, List<ItemStack> itemStacks) {
+    @Override
+    public Map<BlockPos, BlockState> findBlockStates(Player player, BlockPos startPos, BlockState blockState) {
         var blockStates = new LinkedHashMap<BlockPos, BlockState>();
 
         //find arraysettings for the player that placed the block
@@ -61,7 +62,6 @@ public class Array implements Modifier {
             //blockState = blockState.getBlock().getStateForPlacement(player.world, pos, )
             if (blockStates.get(pos) == null) {
                 blockStates.put(pos, blockState);
-                itemStacks.add(itemStack);
             }
         }
 

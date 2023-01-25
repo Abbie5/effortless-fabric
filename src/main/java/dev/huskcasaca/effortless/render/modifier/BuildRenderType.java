@@ -1,6 +1,5 @@
-package dev.huskcasaca.effortless.render;
+package dev.huskcasaca.effortless.render.modifier;
 
-import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;

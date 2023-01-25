@@ -2,9 +2,9 @@ package dev.huskcasaca.effortless.buildmode.twoclick;
 
 import dev.huskcasaca.effortless.building.BuildAction;
 import dev.huskcasaca.effortless.building.BuildActionHandler;
+import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
 import dev.huskcasaca.effortless.buildmode.TwoClickBuildable;
-import dev.huskcasaca.effortless.building.ReachHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -12,29 +12,26 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.minecraft.core.Direction.Axis;
+
 public class Floor extends TwoClickBuildable {
 
     public static BlockPos findFloor(Player player, BlockPos firstPos, boolean skipRaytrace) {
         var look = BuildModeHandler.getPlayerLookVec(player);
-        var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+        var eye = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
 
-        List<Criteria> criteriaList = new ArrayList<>(3);
+        var criteriaList = new ArrayList<Criteria>(3);
 
-        //Y
-        var yBound = BuildModeHandler.findYBound(firstPos.getY(), start, look);
-        criteriaList.add(new Criteria(yBound, start));
+        criteriaList.add(new Criteria(firstPos.getCenter(), eye, look, Axis.Y));
 
-        //Remove invalid criteria
         int reach = ReachHelper.getPlacementReach(player) * 4; //4 times as much as normal placement reach
-        criteriaList.removeIf(criteria -> !criteria.isValid(start, look, reach, player, skipRaytrace));
+        criteriaList.removeIf(criteria -> !criteria.isInRange(player, reach, skipRaytrace));
 
-        //If none are valid, return empty list of blocks
         if (criteriaList.isEmpty()) return null;
 
-        //Then only 1 can be valid, return that one
-        Criteria selected = criteriaList.get(0);
+        AxisCriteria selected = criteriaList.get(0);
 
-        return new BlockPos(selected.planeBound);
+        return selected.tracePlane();
     }
 
     public static List<BlockPos> getFloorBlocks(Player player, int x1, int y1, int z1, int x2, int y2, int z2) {
@@ -76,20 +73,12 @@ public class Floor extends TwoClickBuildable {
         return getFloorBlocks(player, x1, y1, z1, x2, y2, z2);
     }
 
-    static class Criteria {
-        Vec3 planeBound;
-        double distToPlayerSq;
+    public static class Criteria extends AxisCriteria {
 
-        Criteria(Vec3 planeBound, Vec3 start) {
-            this.planeBound = planeBound;
-            this.distToPlayerSq = this.planeBound.subtract(start).lengthSqr();
+        public Criteria(Vec3 center, Vec3 eye, Vec3 look, Axis axis) {
+            super(center, eye, look, axis);
         }
 
-        //check if its not behind the player and its not too close and not too far
-        //also check if raytrace from player to block does not intersect blocks
-        public boolean isValid(Vec3 start, Vec3 look, int reach, Player player, boolean skipRaytrace) {
-
-            return BuildModeHandler.isCriteriaValid(start, look, reach, player, skipRaytrace, planeBound, planeBound, distToPlayerSq);
-        }
     }
+
 }

@@ -1,263 +1,231 @@
 package dev.huskcasaca.effortless.buildmodifier;
 
-import dev.huskcasaca.effortless.entity.player.EffortlessDataProvider;
-import dev.huskcasaca.effortless.render.BlockPreviewRenderer;
 import dev.huskcasaca.effortless.buildmodifier.array.Array;
 import dev.huskcasaca.effortless.buildmodifier.mirror.Mirror;
 import dev.huskcasaca.effortless.buildmodifier.mirror.RadialMirror;
+import dev.huskcasaca.effortless.entity.player.EffortlessDataProvider;
 import dev.huskcasaca.effortless.entity.player.ModifierSettings;
-import dev.huskcasaca.effortless.utils.CompatHelper;
-import dev.huskcasaca.effortless.utils.InventoryHelper;
-import dev.huskcasaca.effortless.utils.SurvivalHelper;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.ClientboundPlayerBuildModifierPacket;
+import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
+import dev.huskcasaca.effortless.utils.InventoryHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
 public class BuildModifierHandler {
 
-    //Called from BuildModes
-    public static void onBlockPlaced(Player player, List<BlockPos> startCoordinates, Direction hitSide, Vec3 hitVec, boolean placeStartPos) {
-        var level = player.level;
-//		AbstractRandomizerBagItem.renewRandomness();
-
-        //Format hitvec to 0.x
-        hitVec = new Vec3(Math.abs(hitVec.x - ((int) hitVec.x)), Math.abs(hitVec.y - ((int) hitVec.y)), Math.abs(hitVec.z - ((int) hitVec.z)));
-
-        //find coordinates and blockstates
-        var coordinates = findCoordinates(player, startCoordinates);
-        var itemStacks = new ArrayList<ItemStack>();
-        var blockStates = findBlockStates(player, startCoordinates, hitVec, hitSide, itemStacks);
-
-        //check if valid blockstates
-        if (blockStates.size() == 0 || coordinates.size() != blockStates.size()) return;
-
-        //remember previous blockstates for undo
-        var previousBlockStates = new ArrayList<BlockState>(coordinates.size());
-        var newBlockStates = new ArrayList<BlockState>(coordinates.size());
-        for (var coordinate : coordinates) {
-            previousBlockStates.add(level.getBlockState(coordinate));
+    public static void placeBlocks(Player player, List<BlockHitResult> hitResults) {
+        if (player.getLevel().isClientSide()) {
+            BlockPreviewRenderer.getInstance().saveCurrentPreview();
         }
+        var blockPosStates = BuildModifierHandler.getBlockPosStateForPlacing(player, hitResults);
 
-        if (level.isClientSide) {
+        for (var blockPosState : blockPosStates) {
+            if (!blockPosState.place()) continue;
 
-            BlockPreviewRenderer.getInstance().onBlocksPlaced();
-//            if (!itemStacks.isEmpty()) {
-            var blockLeft = new HashMap<Block, Integer>();
+            var slot = InventoryHelper.findItemSlot(player.getInventory(), blockPosState.blockState().getBlock().asItem());
+            var swap = InventoryHelper.swapSlot(player.getInventory(), slot);
+            if (!swap) continue;
 
-            for (int i = placeStartPos ? 0 : 1; i < coordinates.size(); i++) {
-                var blockPos = coordinates.get(i);
-                var blockState = blockStates.get(blockPos);
-                var itemStack = itemStacks.get(i);
-                if (!blockLeft.containsKey(blockState.getBlock())) {
-                    blockLeft.put(blockState.getBlock(), InventoryHelper.findTotalBlocksInInventory(player, blockState.getBlock()));
-                }
-                var count = blockLeft.getOrDefault(blockState.getBlock(), 0);
-                if (player.isCreative() || count > 0) {
-                    if (level.isLoaded(blockPos)) {
-                        SurvivalHelper.placeBlock(level, player, blockPos, blockState, itemStack.copy(), hitSide, hitVec, false, false, false);
-                        if (!player.isCreative()) {
-                            blockLeft.put(blockState.getBlock(), count - 1);
-                        }
-                    }
-                }
-            }
-//            }
-            //find actual new blockstates for undo
-            for (var coordinate : coordinates) {
-                newBlockStates.add(level.getBlockState(coordinate));
-            }
-        } else {
-
-            //place blocks
-            for (int i = placeStartPos ? 0 : 1; i < coordinates.size(); i++) {
-                var blockPos = coordinates.get(i);
-                var blockState = blockStates.get(blockPos);
-                var itemStack = itemStacks.get(i);
-
-                if (level.isLoaded(blockPos)) {
-                    //check itemstack empty
-                    if (itemStack.isEmpty()) {
-                        //try to find new stack, otherwise continue
-                        itemStack = InventoryHelper.findItemStackInInventory(player, blockState.getBlock());
-                        if (itemStack.isEmpty()) continue;
-                    }
-                    SurvivalHelper.placeBlock(level, player, blockPos, blockState, itemStack, hitSide, hitVec, false, false, false);
-                }
-            }
-            //find actual new blockstates for undo
-            for (var coordinate : coordinates) {
-                newBlockStates.add(level.getBlockState(coordinate));
-            }
-        }
-
-        //Set first previousBlockState to empty if in NORMAL mode, to make undo/redo work
-        //(Block is placed by the time it gets here, and unplaced after this)
-        if (!placeStartPos) previousBlockStates.set(0, Blocks.AIR.defaultBlockState());
-
-        //If all new blockstates are air then no use in adding it, no block was actually placed
-        //Can happen when e.g. placing one block in yourself
-        if (Collections.frequency(newBlockStates, Blocks.AIR.defaultBlockState()) != newBlockStates.size()) {
-            //add to undo stack
-            var firstPos = startCoordinates.get(0);
-            var secondPos = startCoordinates.get(startCoordinates.size() - 1);
-            UndoRedo.addUndo(player, new BlockSet(coordinates, previousBlockStates, newBlockStates, hitVec, firstPos, secondPos));
+            blockPosState.placeBy(player, InteractionHand.MAIN_HAND);
+            InventoryHelper.swapSlot(player.getInventory(), slot);
         }
     }
 
-    public static void onBlockBroken(Player player, List<BlockPos> startCoordinates, boolean breakStartPos) {
-        var level = player.level;
-
-        var coordinates = findCoordinates(player, startCoordinates);
-
-        if (coordinates.isEmpty()) return;
-
-        //remember previous blockstates for undo
-        List<BlockState> previousBlockStates = new ArrayList<>(coordinates.size());
-        List<BlockState> newBlockStates = new ArrayList<>(coordinates.size());
-
-        for (var coordinate : coordinates) {
-            previousBlockStates.add(level.getBlockState(coordinate));
+    public static void destroyBlocks(Player player, List<BlockHitResult> hitResults) {
+        if (player.getLevel().isClientSide()) {
+            BlockPreviewRenderer.getInstance().saveCurrentPreview();
         }
+        var blockPosStates = BuildModifierHandler.getBlockPosStateForBreaking(player, hitResults);
 
-        if (level.isClientSide) {
-            BlockPreviewRenderer.getInstance().onBlocksBroken();
-
-            //list of air blockstates
-//            for (int i = 0; i < coordinates.size(); i++) {
-//                newBlockStates.add(Blocks.AIR.defaultBlockState());
-//            }
-
+        for (var blockPosState : blockPosStates) {
+//            if (!blockPosState.place()) continue;
+            blockPosState.destroyBy(player);
         }
-//        else {
-        //If the player is going to inst-break grass or a plant, make sure to only break other inst-breakable things
-        boolean onlyInstaBreaking = !player.isCreative() &&
-                level.getBlockState(startCoordinates.get(0)).getDestroySpeed(level, startCoordinates.get(0)) == 0f;
+    }
 
-        //break all those blocks
-        for (int i = breakStartPos ? 0 : 1; i < coordinates.size(); i++) {
-            var coordinate = coordinates.get(i);
-            if (level.isLoaded(coordinate) && !level.isEmptyBlock(coordinate)) {
-                if (!onlyInstaBreaking || level.getBlockState(coordinate).getDestroySpeed(level, coordinate) == 0f) {
-                    SurvivalHelper.breakBlock(level, player, coordinate, false);
-                }
-            }
-        }
-
-        //find actual new blockstates for undo
-        for (var coordinate : coordinates) {
-            newBlockStates.add(level.getBlockState(coordinate));
-        }
+//    public static void breakBlocks(Player player, List<BlockPos> startCoordinates, boolean breakStartPos) {
+//        var level = player.level;
+//
+//        var coordinates = preview(player, startCoordinates);
+//
+//        if (coordinates.isEmpty()) return;
+//
+//        //remember previous blockstates for undo
+//        List<BlockState> previousBlockStates = new ArrayList<>(coordinates.size());
+//        List<BlockState> newBlockStates = new ArrayList<>(coordinates.size());
+//
+//        for (var coordinate : coordinates) {
+//            previousBlockStates.add(level.getBlockState(coordinate));
 //        }
+//
+//        if (level.isClientSide) {
+//            BlockPreviewRenderer.getInstance().saveCurrentBreakPreview();
+//
+//            //list of air blockstates
+////            for (int i = 0; i < coordinates.size(); i++) {
+////                newBlockStates.add(Blocks.AIR.defaultBlockState());
+////            }
+//
+//        }
+////        else {
+//        //If the player is going to inst-break grass or a plant, make sure to only break other inst-breakable things
+//        boolean onlyInstaBreaking = !player.isCreative() &&
+//                level.getBlockState(startCoordinates.get(0)).getDestroySpeed(level, startCoordinates.get(0)) == 0f;
+//
+//        for (var coordinate : coordinates) {
+//            if (level.isLoaded(coordinate) && !level.isEmptyBlock(coordinate)) {
+//                if (!onlyInstaBreaking || level.getBlockState(coordinate).getDestroySpeed(level, coordinate) == 0f) {
+//                    SurvivalHelper.destroyBlock(level, player, coordinate, false);
+//                }
+//            }
+//        }
+//
+//        //find actual new blockstates for undo
+//        for (var coordinate : coordinates) {
+//            newBlockStates.add(level.getBlockState(coordinate));
+//        }
+////        }
+//
+//        //Set first newBlockState to empty if in NORMAL mode, to make undo/redo work
+//        //(Block isn't broken yet by the time it gets here, and broken after this)
+//        if (!breakStartPos) newBlockStates.set(0, Blocks.AIR.defaultBlockState());
+//
+//        //add to undo stack
+//        var firstPos = startCoordinates.get(0);
+//        var secondPos = startCoordinates.get(startCoordinates.size() - 1);
+//        var hitVec = new Vec3(0.5, 0.5, 0.5);
+//        UndoRedo.addUndo(player, new BlockSet(coordinates, previousBlockStates, newBlockStates, hitVec, firstPos, secondPos));
+//
+//    }
 
-        //Set first newBlockState to empty if in NORMAL mode, to make undo/redo work
-        //(Block isn't broken yet by the time it gets here, and broken after this)
-        if (!breakStartPos) newBlockStates.set(0, Blocks.AIR.defaultBlockState());
+    public static List<BlockPosState> getBlockPosStateForPlacing(Player player, List<BlockHitResult> blockHitResults) {
 
-        //add to undo stack
-        var firstPos = startCoordinates.get(0);
-        var secondPos = startCoordinates.get(startCoordinates.size() - 1);
-        var hitVec = new Vec3(0.5, 0.5, 0.5);
-        UndoRedo.addUndo(player, new BlockSet(coordinates, previousBlockStates, newBlockStates, hitVec, firstPos, secondPos));
+        var level = player.getLevel();
+        var blockStates = findBlockStates(player, blockHitResults);
+        var result = new ArrayList<BlockPosState>(blockStates.size());
 
+        blockStates.forEach((blockPos, blockState) -> {
+            var blockPosState = new BlockPosState(level, blockPos, blockState, true);
+            if (blockPosState.canPlaceBy(player)) {
+                result.add(blockPosState);
+            } else {
+//                result.add(new BlockPosState(level, blockPos, blockState, false));
+            }
+        });
+
+        return result;
     }
 
-    public static List<BlockPos> findCoordinates(Player player, List<BlockPos> posList) {
-        //Add current blocks being placed too
-        var coordinates = new LinkedHashSet<>(posList);
+    public static List<BlockPosState> getBlockPosStateForBreaking(Player player, List<BlockHitResult> blockHitResults) {
 
-        //Find mirror/array/radial mirror coordinates for each blockpos
-        for (var blockPos : posList) {
-            var arrayCoordinates = Array.findCoordinates(player, blockPos);
+        var level = player.getLevel();
+        var blockPoses = findCoordinatesByHitResult(player, blockHitResults);
+        var result = new ArrayList<BlockPosState>(blockPoses.size());
+
+        blockPoses.forEach(blockPos -> {
+            var blockPosState = new BlockPosState(level, blockPos, level.getBlockState(blockPos), true);
+            if (blockPosState.canBreakBy(player)) {
+                result.add(blockPosState);
+            } else {
+//                result.add(new BlockPosState(level, blockPos, level.getBlockState(blockPos), false));
+            }
+        });
+
+        return result;
+    }
+
+    public static Set<BlockPos> findCoordinatesByHitResult(Player player, BlockHitResult blockHitResult) {
+        return findCoordinatesByHitResult(player, Collections.singletonList(blockHitResult));
+    }
+
+    public static Set<BlockPos> findCoordinatesByHitResult(Player player, List<BlockHitResult> blockHitResults) {
+        var coordinates = new LinkedHashSet<BlockPos>();
+        for (var hitResult : blockHitResults) {
+            coordinates.add(hitResult.getBlockPos());
+        }
+
+        for (var hitResult : blockHitResults) {
+            var arrayCoordinates = BuildModifier.getArray().findCoordinates(player, hitResult.getBlockPos());
             coordinates.addAll(arrayCoordinates);
-            coordinates.addAll(Mirror.findCoordinates(player, blockPos));
-            coordinates.addAll(RadialMirror.findCoordinates(player, blockPos));
+            coordinates.addAll(BuildModifier.getMirror().findCoordinates(player, hitResult.getBlockPos()));
+            coordinates.addAll(BuildModifier.getRadialMirror().findCoordinates(player, hitResult.getBlockPos()));
             //get mirror for each array coordinate
             for (var coordinate : arrayCoordinates) {
-                coordinates.addAll(Mirror.findCoordinates(player, coordinate));
-                coordinates.addAll(RadialMirror.findCoordinates(player, coordinate));
+                coordinates.addAll(BuildModifier.getMirror().findCoordinates(player, coordinate));
+                coordinates.addAll(BuildModifier.getRadialMirror().findCoordinates(player, coordinate));
             }
         }
 
-        return coordinates.stream().toList();
+        return coordinates;
     }
 
-    public static List<BlockPos> findCoordinates(Player player, BlockPos blockPos) {
-        return findCoordinates(player, new ArrayList<>(Collections.singletonList(blockPos)));
+    public static Set<BlockPos> findCoordinates(Player player, BlockPos blockPos) {
+        return findCoordinates(player, Collections.singletonList(blockPos));
     }
 
-    public static Map<BlockPos, BlockState> findBlockStates(Player player, List<BlockPos> posList, Vec3 hitVec, Direction facing, List<ItemStack> itemStacks) {
+    public static Set<BlockPos> findCoordinates(Player player, List<BlockPos> blockPosList) {
+        //Add current blocks being placed too
+        var coordinates = new LinkedHashSet<>(blockPosList);
+
+        //Find mirror/array/radial mirror coordinates for each blockpos
+        for (var blockPos : blockPosList) {
+            var arrayCoordinates = BuildModifier.getArray().findCoordinates(player, blockPos);
+            coordinates.addAll(arrayCoordinates);
+            coordinates.addAll(BuildModifier.getMirror().findCoordinates(player, blockPos));
+            coordinates.addAll(BuildModifier.getRadialMirror().findCoordinates(player, blockPos));
+            //get mirror for each array coordinate
+            for (var coordinate : arrayCoordinates) {
+                coordinates.addAll(BuildModifier.getMirror().findCoordinates(player, coordinate));
+                coordinates.addAll(BuildModifier.getRadialMirror().findCoordinates(player, coordinate));
+            }
+        }
+
+        return coordinates;
+    }
+
+    public static Map<BlockPos, BlockState> findBlockStates(Player player, List<BlockHitResult> hitResults) {
         var blockStates = new LinkedHashMap<BlockPos, BlockState>();
-        itemStacks.clear();
 
-        //Get itemstack
-        ItemStack itemStack = player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (itemStack.isEmpty() || !CompatHelper.isItemBlockProxy(itemStack)) {
-            itemStack = player.getItemInHand(InteractionHand.OFF_HAND);
-        }
-        if (itemStack.isEmpty() || !CompatHelper.isItemBlockProxy(itemStack)) {
-            return Collections.emptyMap();
-        }
-
-        //Get ItemBlock stack
-        ItemStack itemBlock = ItemStack.EMPTY;
-        if (itemStack.getItem() instanceof BlockItem) itemBlock = itemStack;
-        else itemBlock = CompatHelper.getItemBlockFromStack(itemStack);
-//		AbstractRandomizerBagItem.resetRandomness();
-
-        //Add blocks in posList first
-        for (var blockPos : posList) {
-            if (!(itemStack.getItem() instanceof BlockItem)) itemBlock = CompatHelper.getItemBlockFromStack(itemStack);
-            BlockState blockState = getBlockStateFromItem(itemBlock, player, blockPos, facing, hitVec, InteractionHand.MAIN_HAND);
-//            Effortless.log(player, "getBlockStateFromItem " + blockState);
-            if (blockState == null) continue;
-
+        for (var hitResult : hitResults) {
+            var itemStack = player.getMainHandItem();
+            var blockPos = hitResult.getBlockPos();
+            var blockState = getBlockStateFromItem(player, InteractionHand.MAIN_HAND, itemStack, hitResult);
+//            if (blockState == null) continue;
             blockStates.put(blockPos, blockState);
-            itemStacks.add(itemBlock);
         }
 
-        for (var blockPos : posList) {
-            BlockState blockState = getBlockStateFromItem(itemBlock, player, blockPos, facing, hitVec, InteractionHand.MAIN_HAND);
-            if (blockState == null) continue;
+        // TODO: 11/1/23 use states over coordinates
+        for (var hitResult : hitResults) {
+            var itemStack = player.getMainHandItem();
+            var blockPos = hitResult.getBlockPos();
+            var blockState = getBlockStateFromItem(player, InteractionHand.MAIN_HAND, itemStack, hitResult);
+//            if (blockState == null) continue;
 
-            var arrayBlockStates = Array.findBlockStates(player, blockPos, blockState, itemStack, itemStacks);
+            var arrayBlockStates = BuildModifier.getArray().findBlockStates(player, blockPos, blockState);
             blockStates.putAll(arrayBlockStates);
 
-            blockStates.putAll(Mirror.findBlockStates(player, blockPos, blockState, itemStack, itemStacks));
-            blockStates.putAll(RadialMirror.findBlockStates(player, blockPos, blockState, itemStack, itemStacks));
+            blockStates.putAll(BuildModifier.getMirror().findBlockStates(player, blockPos, blockState));
+            blockStates.putAll(BuildModifier.getRadialMirror().findBlockStates(player, blockPos, blockState));
             //add mirror for each array coordinate
-            for (BlockPos coordinate : Array.findCoordinates(player, blockPos)) {
+            for (BlockPos coordinate : BuildModifier.getArray().findCoordinates(player, blockPos)) {
                 var blockState1 = arrayBlockStates.get(coordinate);
-                if (blockState1 == null) continue;
+//                if (blockState1 == null) continue;
 
-                blockStates.putAll(Mirror.findBlockStates(player, coordinate, blockState1, itemStack, itemStacks));
-                blockStates.putAll(RadialMirror.findBlockStates(player, coordinate, blockState1, itemStack, itemStacks));
-
+                blockStates.putAll(BuildModifier.getMirror().findBlockStates(player, coordinate, blockState1));
+                blockStates.putAll(BuildModifier.getRadialMirror().findBlockStates(player, coordinate, blockState1));
             }
-
-            //Adjust blockstates for torches and ladders etc to place on a valid side
-            //TODO optimize findCoordinates (done twice now)
-            //TODO fix mirror
-//            List<BlockPos> coordinates = findCoordinates(player, startPos);
-//            for (int i = 0; i < blockStates.size(); i++) {
-//                blockStates.set(i, blockStates.get(i).getBlock().getStateForPlacement(player.world, coordinates.get(i), facing,
-//                        (float) hitVec.x, (float) hitVec.y, (float) hitVec.z, itemStacks.get(i).getMetadata(), player, EnumHand.MAIN_HAND));
-//            }
         }
 
         return blockStates;
@@ -270,16 +238,16 @@ public class BuildModifierHandler {
                 modifierSettings.enableQuickReplace();
     }
 
-    public static BlockState getBlockStateFromItem(ItemStack itemStack, Player player, BlockPos blockPos, Direction facing, Vec3 hitVec, InteractionHand hand) {
-        var hitresult = new BlockHitResult(hitVec, facing, blockPos, false);
+    public static BlockState getBlockStateFromItem(Player player, InteractionHand hand, ItemStack itemStack, BlockHitResult hitResult) {
 
+        var blockPlaceContext = new BlockPlaceContext(player, hand, itemStack, hitResult);
         var item = itemStack.getItem();
 
-        if (item instanceof BlockItem) {
-            // FIXME: 23/11/22
-            return ((BlockItem) Item.byBlock(((BlockItem) item).getBlock())).getPlacementState(new BlockPlaceContext(player, hand, itemStack, hitresult));
+        if (item instanceof BlockItem blockItem) {
+            var state = blockItem.getPlacementState(blockPlaceContext);
+            return state != null ? state : Blocks.AIR.defaultBlockState();
         } else {
-            return Block.byItem(item).getStateForPlacement(new BlockPlaceContext(new UseOnContext(player, hand, new BlockHitResult(hitVec, facing, blockPos, false))));
+            return Block.byItem(item).getStateForPlacement(blockPlaceContext);
         }
     }
 

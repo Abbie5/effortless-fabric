@@ -3,203 +3,190 @@ package dev.huskcasaca.effortless.utils;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-
-import javax.annotation.Nullable;
 
 public class SurvivalHelper {
 
-    //Used for all placing of blocks in this mod.
-    //Checks if area is loaded, if player has the right permissions, if existing block can be replaced (drops it if so) and consumes an item from the stack.
-    //Based on ItemBlock#onItemUse
-    public static boolean placeBlock(Level level, Player player, BlockPos pos, BlockState blockState,
-                                     ItemStack origstack, Direction facing, Vec3 hitVec, boolean skipPlaceCheck,
-                                     boolean skipCollisionCheck, boolean playSound) {
-        if (!level.isLoaded(pos)) return false;
-        ItemStack itemstack = origstack;
-
-        if (blockState.isAir() || itemstack.isEmpty()) {
-            dropBlock(level, player, pos);
-            level.removeBlock(pos, false);
-            return true;
+    public static InteractionResult placeBlockByState(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
+        if (!(player.getMainHandItem().getItem() instanceof BlockItem)) {
+            return InteractionResult.FAIL;
+        }
+        if (!canPlace(level, player, blockPos, blockState)) {
+            return InteractionResult.FAIL;
+        }
+        if ((blockState.isAir() || !level.getBlockState(blockPos).isAir()) && !canBreak(level, player, blockPos)) {
+            return InteractionResult.FAIL;
         }
 
-        //Randomizer bag, other proxy item synergy
-        //Preliminary compatibility code for other items that hold blocks
-        if (CompatHelper.isItemBlockProxy(itemstack))
-            itemstack = CompatHelper.getItemBlockByState(itemstack, blockState);
-
-        if (!(itemstack.getItem() instanceof BlockItem))
-            return false;
-        Block block = ((BlockItem) itemstack.getItem()).getBlock();
-
-
-        //More manual with ItemBlock#placeBlockAt
-        if (canPlace(level, player, pos, blockState /*, itemstack, skipCollisionCheck, facing.getOpposite()*/)) {
-            //Drop existing block
-            dropBlock(level, player, pos);
-
-            //TryPlace sets block with offset and reduces itemstack count in creative, so we copy only parts of it
-//            BlockItemUseContext blockItemUseContext = new BlockItemUseContext(level, player, itemstack, pos, facing, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z);
-//            EnumActionResult result = ((ItemBlock) itemstack.getItem()).tryPlace(blockItemUseContext);
-            if (!level.setBlock(pos, blockState, 3)) return false;
-            BlockItem.updateCustomBlockEntityTag(level, player, pos, itemstack); //Actually BlockItem::onBlockPlaced but that is protected
-            block.setPlacedBy(level, pos, blockState, player, itemstack);
-            if (player instanceof ServerPlayer) {
-                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, itemstack);
-                ((ServerPlayer) player).getStats().increment(
-                        player,
-                        Stats.ITEM_USED.get(itemstack.getItem()),
-                        1
-                );
-            }
-
-            BlockState afterState = level.getBlockState(pos);
-
-            if (playSound) {
-                SoundType soundtype = afterState.getBlock().getSoundType(afterState);
-                level.playSound(null, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-            }
-
-            if (!player.isCreative() && Block.byItem(itemstack.getItem()) == block) {
-                itemstack.shrink(1);
-            }
-
-            return true;
-        }
-        return false;
-
-        //Using ItemBlock#onItemUse
-//        EnumActionResult result;
-//        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock(player, EnumHand.MAIN_HAND, pos, facing, net.minecraftforge.common.ForgeHooks.rayTraceEyeHitVec(player, ReachHelper.getPlacementReach(player)));
-//        if (true)
-//        {
-//            int i = itemstack.getMetadata();
-//            int j = itemstack.getCount();
-//            if (event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY) {
-//                EnumActionResult enumactionresult = itemstack.getItem().onItemUse(player, level, pos, EnumHand.MAIN_HAND, facing, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z);
-//                itemstack.setItemDamage(i);
-//                itemstack.setCount(j);
-//                return enumactionresult == EnumActionResult.SUCCESS;
-//            } else return false;
-//        }
-//        else
-//        {
-//            ItemStack copyForUse = itemstack.copy();
-//            if (event.getUseItem() != net.minecraftforge.fml.common.eventhandler.Event.Result.DENY)
-//                result = itemstack.getItem().onItemUse(player, level, pos, EnumHand.MAIN_HAND, facing, (float) hitVec.x, (float) hitVec.y, (float) hitVec.z);
-//            if (itemstack.isEmpty()) net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, copyForUse, EnumHand.MAIN_HAND);
-//            return false;
-//        }
-
-    }
-
-    public static boolean useBlock(Level level, Player player, BlockPos pos, BlockState blockState) {
-        if (!level.isLoaded(pos)) return false;
-        var itemStack = player.isCreative() ? new ItemStack(blockState.getBlock()) : InventoryHelper.findItemStackInInventory(player, blockState.getBlock());
-
-        // FIXME: 27/12/22
-        if (blockState.isAir()) {
-            dropBlock(level, player, pos);
-            level.removeBlock(pos, false);
-            return true;
-        }
-
-        if (!(itemStack.getItem() instanceof BlockItem)) return false;
-        Block block = ((BlockItem) itemStack.getItem()).getBlock();
-
-        if (!canPlace(level, player, pos, blockState /*, itemStack, skipCollisionCheck, facing.getOpposite()*/)) {
-            return false;
-        }
-        dropBlock(level, player, pos);
-
-        if (!level.setBlock(pos, blockState, 3)) return false;
-        BlockItem.updateCustomBlockEntityTag(level, player, pos, itemStack); //Actually BlockItem::onBlockPlaced but that is protected
-        block.setPlacedBy(level, pos, blockState, player, itemStack);
         if (player instanceof ServerPlayer) {
-            CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, pos, itemStack);
-            ((ServerPlayer) player).getStats().increment(player, Stats.ITEM_USED.get(itemStack.getItem()), 1);
-        }
-
-        var afterState = level.getBlockState(pos);
-
-        if (true) {
-            var soundtype = afterState.getBlock().getSoundType(afterState);
-            level.playSound(null, pos, soundtype.getPlaceSound(), SoundSource.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-        }
-
-        if (!player.isCreative() && Block.byItem(itemStack.getItem()) == block) {
-            itemStack.shrink(1);
-        }
-
-        return true;
-
-    }
-
-    public static boolean breakBlock(Level level, Player player, BlockPos blockPos, boolean skipChecks) {
-//        if (!level.isLoaded(blockPos) && !level.isEmptyBlock(blockPos)) return false;
-        if (!skipChecks && !canBreak(level, player, blockPos)) return false;
-        //Drop existing block
-        if (level.isClientSide()) {
-            Minecraft.getInstance().gameMode.destroyBlock(blockPos);
+            return placeBlockByStateServer(level, (ServerPlayer) player, interactionHand, blockPos, blockState);
         } else {
-            ((ServerPlayer) player).gameMode.destroyBlock(blockPos);
+            return placeBlockByStateClient(level, (LocalPlayer) player, interactionHand, blockPos, blockState);
         }
-        return true;
     }
 
-    //Gives items directly to player
-    public static boolean dropBlock(Level level, Player player, BlockPos pos) {
-        if (!(player instanceof ServerPlayer)) return false;
-        if (player.isCreative()) return false;
-//        if (!level.isLoaded(pos) && !level.isEmptyBlock(pos)) return false;
+    private static InteractionResult placeBlockByStateServer(Level level, ServerPlayer player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState)  {
+        var itemStack = player.getItemInHand(interactionHand);
+        var fakeResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
-        var blockState = level.getBlockState(pos);
-//        if (blockState.isAir()) return false;
+        var blockStateInWorld = level.getBlockState(blockPos);
+        if (!blockStateInWorld.getBlock().isEnabled(level.enabledFeatures())) {
+            return InteractionResult.FAIL;
+        }
+        if (player.isSpectator()) {
+            return InteractionResult.PASS;
+        }
+        var itemStack2 = itemStack.copy();
 
-        var block = blockState.getBlock();
+        if (itemStack.isEmpty()) {
+            return InteractionResult.PASS;
+        }
+        var blockStatePlaceContext = new BlockStatePlaceContext(level, player, interactionHand, itemStack, fakeResult, blockState);
+        InteractionResult interactionResult;
+        if (player.isCreative()) {
+            int i = itemStack.getCount();
+            interactionResult = ItemStackUtils.useBlockItemStackOn(blockStatePlaceContext);
+            itemStack.setCount(i);
+        } else {
+            interactionResult = ItemStackUtils.useBlockItemStackOn(blockStatePlaceContext);
+        }
 
-        if (!player.hasCorrectToolForDrops(blockState)) {
+        if (interactionResult.consumesAction()) {
+            CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(player, blockPos, itemStack2);
+        }
+
+        return interactionResult;
+
+    }
+
+    private static InteractionResult placeBlockByStateClient(Level level, LocalPlayer localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState)  {
+        var itemStack = localPlayer.getItemInHand(interactionHand);
+        var blockHitResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
+
+        if (localPlayer.isSpectator()) {
+            return InteractionResult.SUCCESS;
+        }
+
+        if (itemStack.isEmpty()) {
+            return InteractionResult.PASS;
+        }
+        var blockStatePlaceContext = new BlockStatePlaceContext(level, localPlayer, interactionHand, itemStack, blockHitResult, blockState);
+//        UseOnContext useOnContext = new UseOnContext(localPlayer, interactionHand, blockHitResult);
+        InteractionResult interactionResult2;
+        if (localPlayer.isCreative()) {
+            int i = itemStack.getCount();
+//            interactionResult2 = itemStack.useOn(useOnContext);
+            interactionResult2 = ItemStackUtils.useBlockItemStackOn(blockStatePlaceContext);
+            itemStack.setCount(i);
+        } else {
+//            interactionResult2 = itemStack.useOn(useOnContext);
+            interactionResult2 = ItemStackUtils.useBlockItemStackOn(blockStatePlaceContext);
+        }
+
+        return interactionResult2;
+    }
+
+    public static boolean destroyBlock(Level level, Player player, BlockPos blockPos, boolean skipChecks) {
+        if (!skipChecks && !canBreak(level, player, blockPos)) return false;
+        if (player instanceof ServerPlayer) {
+            return destroyBlockServer(level, (ServerPlayer) player, blockPos);
+        } else {
+            return destroyBlockClient(level, (LocalPlayer) player, blockPos);
+        }
+    }
+
+    private static boolean destroyBlockClient(Level level, LocalPlayer player, BlockPos blockPos) {
+        if (player.blockActionRestricted(level, blockPos, Minecraft.getInstance().gameMode.getPlayerMode())) {
             return false;
         }
+        var blockState = level.getBlockState(blockPos);
+        if (!player.getMainHandItem().getItem().canAttackBlock(blockState, level, blockPos, player)) {
+            return false;
+        }
+        var block = blockState.getBlock();
+        if (block instanceof GameMasterBlock && !player.canUseGameMasterBlocks()) {
+            return false;
+        }
+        if (blockState.isAir()) {
+            return false;
+        }
+        block.playerWillDestroy(level, blockPos, blockState, player);
+        var fluidState = level.getFluidState(blockPos);
+        boolean removed = level.setBlock(blockPos, fluidState.createLegacyBlock(), 11);
+        if (removed) {
+            block.destroy(level, blockPos, blockState);
+        }
+        return removed;
+    }
 
-        block.playerDestroy(level, player, pos, blockState, level.getBlockEntity(pos), player.getMainHandItem());
-        //TODO drop items in inventory instead of level
+    private static boolean destroyBlockServer(Level level, ServerPlayer player, BlockPos blockPos) {
+        var blockState = level.getBlockState(blockPos);
+        if (!player.getMainHandItem().getItem().canAttackBlock(blockState, level, blockPos, player)) {
+            return false;
+        }
+        var blockEntity = level.getBlockEntity(blockPos);
+        var block = blockState.getBlock();
+        if (block instanceof GameMasterBlock && !player.canUseGameMasterBlocks()) {
+            level.sendBlockUpdated(blockPos, blockState, blockState, 3);
+            return false;
+        }
+        if (player.blockActionRestricted(level, blockPos, player.gameMode.getGameModeForPlayer())) {
+            return false;
+        }
+        block.playerWillDestroy(level, blockPos, blockState, player);
+        var removed = level.removeBlock(blockPos, false);
+        if (removed) {
+            block.destroy(level, blockPos, blockState);
+        }
+        if (player.isCreative()) {
+            return true;
+        }
+        var itemStack = player.getMainHandItem();
+        var itemStack2 = itemStack.copy();
+        var correctTool = player.hasCorrectToolForDrops(blockState);
+        itemStack.mineBlock(level, blockState, blockPos, player);
+        if (removed && correctTool) {
+            block.playerDestroy(level, player, blockPos, blockState, blockEntity, itemStack2);
+        }
         return true;
     }
 
-
-    public static boolean canPlace(Level level, Player player, BlockPos pos, BlockState newBlockState) {
-        if (!level.mayInteract(player, pos)) return false;
-        if (!player.getAbilities().mayBuild) return false;
+    public static boolean canPlace(Level level, Player player, BlockPos blockPos, BlockState newBlockState) {
+        var gameMode = level.isClientSide() ? Minecraft.getInstance().gameMode.getPlayerMode() : ((ServerPlayer) player).gameMode.getGameModeForPlayer();
+        if (player.blockActionRestricted(level, blockPos, gameMode)) {
+            return false;
+        }
         if (BuildModifierHelper.isReplace(player)) {
             if (player.isCreative()) return true;
-            return !level.getBlockState(pos).is(BlockTags.FEATURES_CANNOT_REPLACE); // fluid
+            return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE); // fluid
         }
-        return level.getBlockState(pos).canBeReplaced(); // fluid
+        return level.getBlockState(blockPos).canBeReplaced(); // fluid
     }
 
-    //Can break using held tool? (or in creative)
-    public static boolean canBreak(Level level, Player player, BlockPos pos) {
-        if (!level.mayInteract(player, pos)) return false;
-        if (!player.getAbilities().mayBuild) return false;
-        if (player.isCreative()) return true;
-        return !level.getBlockState(pos).is(BlockTags.FEATURES_CANNOT_REPLACE);
+    public static boolean canBreak(Level level, Player player, BlockPos blockPos) {
+        var gameMode = level.isClientSide() ? Minecraft.getInstance().gameMode.getPlayerMode() : ((ServerPlayer) player).gameMode.getGameModeForPlayer();
+        if (player.blockActionRestricted(level, blockPos, gameMode)) {
+            return false;
+        }
+        if (gameMode.isCreative()) {
+            return true;
+        }
+        return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE);
     }
 
     public static boolean doesBecomeDoubleSlab(Player player, BlockPos pos, Direction facing) {

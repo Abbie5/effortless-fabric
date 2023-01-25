@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.config;
 
 import com.google.gson.annotations.Expose;
-import dev.huskcasaca.effortless.render.BlockRenderOptions;
+import dev.huskcasaca.effortless.render.preview.BlockRenderOptions;
 
 public class PreviewConfig extends Config {
 

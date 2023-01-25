@@ -16,7 +16,7 @@ public class Cone extends ThreeClickBuildable {
 
     @Override
     protected BlockPos findThirdPos(Player player, BlockPos firstPos, BlockPos secondPos, boolean skipRaytrace) {
-        return findHeight(player, secondPos, skipRaytrace);
+        return findLineY(player, secondPos, skipRaytrace);
     }
 
     @Override

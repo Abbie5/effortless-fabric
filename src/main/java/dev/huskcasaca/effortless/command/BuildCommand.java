@@ -4,7 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import dev.huskcasaca.effortless.buildmode.BuildMode;
-import dev.huskcasaca.effortless.buildmode.OneClickBuildable;
+import dev.huskcasaca.effortless.buildmode.SingleClickBuildable;
 import dev.huskcasaca.effortless.buildmode.ThreeClickBuildable;
 import dev.huskcasaca.effortless.buildmode.TwoClickBuildable;
 import dev.huskcasaca.effortless.utils.SurvivalHelper;
@@ -30,7 +30,7 @@ public class BuildCommand {
 
         for (BuildMode buildMode : BuildMode.values()) {
             if (buildMode == BuildMode.DISABLE) continue;
-            if (buildMode.getInstance() instanceof OneClickBuildable) {
+            if (buildMode.getInstance() instanceof SingleClickBuildable) {
                 registerOneClickBuildModePlace(placeCommand, commandBuildContext, buildMode);
                 registerOneClickBuildModeBreak(breakCommand, commandBuildContext, buildMode);
             } else if (buildMode.getInstance() instanceof TwoClickBuildable) {
@@ -57,10 +57,10 @@ public class BuildCommand {
 
             var blockState = BlockStateArgument.getBlock(context, "block").getState();
 
-            var coordinates = ((OneClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ());
+            var coordinates = ((SingleClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ());
 
             for (var blockPos : coordinates) {
-                SurvivalHelper.useBlock(player.getLevel(), player, blockPos, blockState);
+                // TODO: 23/1/23  SurvivalHelper.useBlock(player.getLevel(), player, blockPos, blockState);
             }
             return 1;
         })));
@@ -81,7 +81,7 @@ public class BuildCommand {
             var coordinates = ((TwoClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ(), secondPos.getX(), secondPos.getY(), secondPos.getZ());
 
             for (var blockPos : coordinates) {
-                SurvivalHelper.useBlock(player.getLevel(), player, blockPos, blockState);
+                // TODO: 23/1/23  SurvivalHelper.useBlock(player.getLevel(), player, blockPos, blockState);
             }
             return 1;
         }))));
@@ -103,7 +103,7 @@ public class BuildCommand {
             var coordinates = ((ThreeClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ(), secondPos.getX(), secondPos.getY(), secondPos.getZ(), thirdPos.getX(), thirdPos.getY(), thirdPos.getZ());
 
             for (var blockPos : coordinates) {
-                SurvivalHelper.useBlock(player.getLevel(), player, blockPos, blockState);
+                // TODO: 23/1/23  SurvivalHelper.useBlock(player.getLevel(), player, blockPos, blockState);
             }
             return 1;
         })))));
@@ -118,10 +118,10 @@ public class BuildCommand {
 
             var firstPos = BlockPosArgument.getLoadedBlockPos(context, "firstPos");
 
-            var coordinates = ((OneClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ());
+            var coordinates = ((SingleClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ());
 
             for (var blockPos : coordinates) {
-                SurvivalHelper.breakBlock(player.getLevel(), player, blockPos, false);
+                SurvivalHelper.destroyBlock(player.getLevel(), player, blockPos, false);
             }
             return 1;
         }));
@@ -140,7 +140,7 @@ public class BuildCommand {
             var coordinates = ((TwoClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ(), secondPos.getX(), secondPos.getY(), secondPos.getZ());
 
             for (var blockPos : coordinates) {
-                SurvivalHelper.breakBlock(player.getLevel(), player, blockPos, false);
+                SurvivalHelper.destroyBlock(player.getLevel(), player, blockPos, false);
             }
             return 1;
         })));
@@ -160,7 +160,7 @@ public class BuildCommand {
             var coordinates = ((ThreeClickBuildable) buildMode.getInstance()).getFinalBlocks(context.getSource().getPlayer(), firstPos.getX(), firstPos.getY(), firstPos.getZ(), secondPos.getX(), secondPos.getY(), secondPos.getZ(), thirdPos.getX(), thirdPos.getY(), thirdPos.getZ());
 
             for (var blockPos : coordinates) {
-                SurvivalHelper.breakBlock(player.getLevel(), player, blockPos, false);
+                SurvivalHelper.destroyBlock(player.getLevel(), player, blockPos, false);
             }
             return 1;
         }))));

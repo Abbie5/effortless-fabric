@@ -1,13 +1,12 @@
 package dev.huskcasaca.effortless.buildmodifier;
 
 import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.render.BlockPreviewRenderer;
 import dev.huskcasaca.effortless.building.ReachHelper;
+import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
 import dev.huskcasaca.effortless.utils.FixedStack;
 import dev.huskcasaca.effortless.utils.InventoryHelper;
 import dev.huskcasaca.effortless.utils.SurvivalHelper;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -97,7 +96,7 @@ public class UndoRedo {
         if (undoStack.isEmpty()) return false;
 
         BlockSet blockSet = undoStack.pop();
-        List<BlockPos> coordinates = blockSet.coordinates();
+        List<BlockPos> coordinates = blockSet.coordinates().stream().toList();
         List<BlockState> previousBlockStates = blockSet.previousBlockStates();
         List<BlockState> newBlockStates = blockSet.newBlockStates();
         Vec3 hitVec = blockSet.hitVec();
@@ -106,7 +105,7 @@ public class UndoRedo {
         List<ItemStack> itemStacks = findItemStacksInInventory(player, previousBlockStates);
 
         if (player.level.isClientSide) {
-            BlockPreviewRenderer.getInstance().onBlocksBroken(coordinates, itemStacks, newBlockStates, blockSet.secondPos(), blockSet.firstPos());
+            BlockPreviewRenderer.getInstance().saveCurrentBreakPreview(coordinates, newBlockStates, blockSet.secondPos(), blockSet.firstPos());
         } else {
             //break all those blocks, reset to what they were
             for (int i = 0; i < coordinates.size(); i++) {
@@ -135,9 +134,9 @@ public class UndoRedo {
                             previousBlockState = Blocks.AIR.defaultBlockState();
                         }
                     }
-                    if (itemStack.isEmpty()) SurvivalHelper.breakBlock(player.level, player, coordinate, true);
-                    //if previousBlockState is air, placeBlock will set it to air
-                    SurvivalHelper.placeBlock(player.level, player, coordinate, previousBlockState, itemStack, Direction.UP, hitVec, true, false, false);
+                    if (itemStack.isEmpty()) SurvivalHelper.destroyBlock(player.level, player, coordinate, true);
+                    //if previousBlockState is air, useBlockItem will set it to air
+                    // TODO: 23/1/23  SurvivalHelper.useBlockItem(player.level, player, coordinate, previousBlockState, itemStack, Direction.UP, hitVec, true, false, false);
                 }
             }
         }
@@ -162,7 +161,7 @@ public class UndoRedo {
         if (redoStack.isEmpty()) return false;
 
         BlockSet blockSet = redoStack.pop();
-        List<BlockPos> coordinates = blockSet.coordinates();
+        List<BlockPos> coordinates = blockSet.coordinates().stream().toList();
         List<BlockState> previousBlockStates = blockSet.previousBlockStates();
         List<BlockState> newBlockStates = blockSet.newBlockStates();
         Vec3 hitVec = blockSet.hitVec();
@@ -171,7 +170,7 @@ public class UndoRedo {
         List<ItemStack> itemStacks = findItemStacksInInventory(player, newBlockStates);
 
         if (player.level.isClientSide) {
-            BlockPreviewRenderer.getInstance().onBlocksPlaced(coordinates, itemStacks, newBlockStates, blockSet.firstPos(), blockSet.secondPos());
+            BlockPreviewRenderer.getInstance().saveCurrentPreview(coordinates, newBlockStates, blockSet.firstPos(), blockSet.secondPos());
         } else {
             //place blocks
             for (int i = 0; i < coordinates.size(); i++) {
@@ -199,8 +198,8 @@ public class UndoRedo {
                             newBlockState = Blocks.AIR.defaultBlockState();
                         }
                     }
-                    if (itemStack.isEmpty()) SurvivalHelper.breakBlock(player.level, player, coordinate, true);
-                    SurvivalHelper.placeBlock(player.level, player, coordinate, newBlockState, itemStack, Direction.UP, hitVec, true, false, false);
+                    if (itemStack.isEmpty()) SurvivalHelper.destroyBlock(player.level, player, coordinate, true);
+                    // TODO: 23/1/23  SurvivalHelper.useBlockItem(player.level, player, coordinate, newBlockState, itemStack, Direction.UP, hitVec, true, false, false);
                 }
             }
         }

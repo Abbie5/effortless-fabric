@@ -1,14 +1,15 @@
-package dev.huskcasaca.effortless.render;
+package dev.huskcasaca.effortless.render.modifier;
 
-import com.mojang.blaze3d.vertex.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
+import dev.huskcasaca.effortless.render.RenderUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
@@ -31,8 +32,9 @@ public class ModifierRenderer {
         return INSTANCE;
     }
 
-    public void render(Player player, PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Camera camera) {
+    public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Camera camera) {
         //Mirror lines and areas
+        var player = minecraft.player;
         var mirrorSettings = BuildModifierHelper.getModifierSettings(player).mirrorSettings();
 
         if (mirrorSettings != null && mirrorSettings.enabled() && (mirrorSettings.mirrorX() || mirrorSettings.mirrorY() || mirrorSettings.mirrorZ())) {

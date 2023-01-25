@@ -2,9 +2,9 @@ package dev.huskcasaca.effortless.buildmode.twoclick;
 
 import dev.huskcasaca.effortless.building.BuildAction;
 import dev.huskcasaca.effortless.building.BuildActionHandler;
+import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
 import dev.huskcasaca.effortless.buildmode.TwoClickBuildable;
-import dev.huskcasaca.effortless.building.ReachHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -12,44 +12,36 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 
+import static net.minecraft.core.Direction.Axis;
+
 public class Wall extends TwoClickBuildable {
 
     public static BlockPos findWall(Player player, BlockPos firstPos, boolean skipRaytrace) {
         var look = BuildModeHandler.getPlayerLookVec(player);
-        var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
+        var eye = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
 
-        List<Criteria> criteriaList = new ArrayList<>(3);
+        var criteriaList = new ArrayList<Criteria>(3);
 
-        //X
-        var xBound = BuildModeHandler.findXBound(firstPos.getX(), start, look);
-        criteriaList.add(new Criteria(xBound, firstPos, start, look));
+        criteriaList.add(new Criteria(firstPos.getCenter(), eye, look, Axis.X));
+        criteriaList.add(new Criteria(firstPos.getCenter(), eye, look, Axis.Z));
 
-        //Z
-        var zBound = BuildModeHandler.findZBound(firstPos.getZ(), start, look);
-        criteriaList.add(new Criteria(zBound, firstPos, start, look));
-
-        //Remove invalid criteria
         int reach = ReachHelper.getPlacementReach(player) * 4; //4 times as much as normal placement reach
-        criteriaList.removeIf(criteria -> !criteria.isValid(start, look, reach, player, skipRaytrace));
+        criteriaList.removeIf(criteria -> !criteria.isInRange(player, reach, skipRaytrace));
 
-        //If none are valid, return empty list of blocks
         if (criteriaList.isEmpty()) return null;
 
-        //If only 1 is valid, choose that one
         var selected = criteriaList.get(0);
 
-        //If multiple are valid, choose based on criteria
         if (criteriaList.size() > 1) {
-            //Select the one that is closest
-            //Limit the angle to not be too extreme
             for (int i = 1; i < criteriaList.size(); i++) {
                 Criteria criteria = criteriaList.get(i);
-                if (criteria.distToPlayerSq < selected.distToPlayerSq && Math.abs(criteria.angle) - Math.abs(selected.angle) < 3)
+                if (criteria.distanceToEyeSqr() < selected.distanceToEyeSqr() && Math.abs(criteria.angle()) - Math.abs(selected.angle()) < 0) {
                     selected = criteria;
+                }
             }
         }
 
-        return new BlockPos(selected.planeBound);
+        return selected.tracePlane();
     }
 
     public static List<BlockPos> getWallBlocks(Player player, int x1, int y1, int z1, int x2, int y2, int z2) {
@@ -114,23 +106,16 @@ public class Wall extends TwoClickBuildable {
         return getWallBlocks(player, x1, y1, z1, x2, y2, z2);
     }
 
-    static class Criteria {
-        Vec3 planeBound;
-        double distToPlayerSq;
-        double angle;
+    public static class Criteria extends AxisCriteria {
 
-        Criteria(Vec3 planeBound, BlockPos firstPos, Vec3 start, Vec3 look) {
-            this.planeBound = planeBound;
-            this.distToPlayerSq = this.planeBound.subtract(start).lengthSqr();
-            Vec3 wall = this.planeBound.subtract(Vec3.atLowerCornerOf(firstPos));
-            this.angle = wall.x * look.x + wall.z * look.z; //dot product ignoring y (looking up/down should not affect this angle)
+        public Criteria(Vec3 center, Vec3 eye, Vec3 look, Axis axis) {
+            super(center, eye, look, axis);
         }
 
-        //check if its not behind the player and its not too close and not too far
-        //also check if raytrace from player to block does not intersect blocks
-        public boolean isValid(Vec3 start, Vec3 look, int reach, Player player, boolean skipRaytrace) {
-
-            return BuildModeHandler.isCriteriaValid(start, look, reach, player, skipRaytrace, planeBound, planeBound, distToPlayerSq);
+        public double angle() {
+            var wall = planeVec().subtract(startVec());
+            return wall.x * look.x + wall.z * look.z;
         }
     }
+
 }

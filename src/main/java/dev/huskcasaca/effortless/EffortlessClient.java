@@ -3,18 +3,18 @@ package dev.huskcasaca.effortless;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
 import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
 import dev.huskcasaca.effortless.control.Keys;
 import dev.huskcasaca.effortless.event.ClientReloadShadersEvent;
 import dev.huskcasaca.effortless.event.ClientScreenEvent;
 import dev.huskcasaca.effortless.event.ClientScreenInputEvent;
-import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.ServerboundPlayerSetBuildModePacket;
-import dev.huskcasaca.effortless.render.BlockPreviewRenderer;
-import dev.huskcasaca.effortless.render.BuildRenderType;
-import dev.huskcasaca.effortless.render.ModifierRenderer;
+import dev.huskcasaca.effortless.render.modifier.BuildRenderType;
+import dev.huskcasaca.effortless.render.modifier.ModifierRenderer;
+import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
 import dev.huskcasaca.effortless.screen.buildmode.PlayerSettingsScreen;
 import dev.huskcasaca.effortless.screen.buildmode.RadialMenuScreen;
 import dev.huskcasaca.effortless.screen.buildmodifier.ModifierSettingsScreen;
@@ -250,17 +250,15 @@ public class EffortlessClient implements ClientModInitializer {
     public static void renderBlockPreview(PoseStack poseStack, Camera camera) {
         var bufferBuilder = Tesselator.getInstance().getBuilder();
         var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-        var player = Minecraft.getInstance().player;
 
-        BlockPreviewRenderer.getInstance().render(player, poseStack, bufferSource, camera);
+        BlockPreviewRenderer.getInstance().render(poseStack, bufferSource);
     }
 
     public static void renderModifierSettings(PoseStack poseStack, Camera camera) {
         var bufferBuilder = Tesselator.getInstance().getBuilder();
         var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-        var player = Minecraft.getInstance().player;
 
-        ModifierRenderer.getInstance().render(player, poseStack, bufferSource, camera);
+        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
     }
 
 

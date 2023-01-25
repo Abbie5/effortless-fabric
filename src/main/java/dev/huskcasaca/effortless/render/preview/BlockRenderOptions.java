@@ -1,4 +1,4 @@
-package dev.huskcasaca.effortless.render;
+package dev.huskcasaca.effortless.render.preview;
 
 import dev.huskcasaca.effortless.Effortless;
 

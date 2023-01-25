@@ -138,12 +138,12 @@ public class Sphere extends ThreeClickBuildable {
     @Override
     public BlockPos findThirdPos(Player player, BlockPos firstPos, BlockPos secondPos, boolean skipRaytrace) {
         if (BuildActionHandler.getOrientation() == BuildAction.FACE_HORIZONTAL) {
-            return findHeight(player, secondPos, skipRaytrace);
+            return findLineY(player, secondPos, skipRaytrace);
         } else {
             if (firstPos.getX() == secondPos.getX()) {
-                return findZDepth(player, secondPos, skipRaytrace);
+                return findPlaneZ(player, secondPos, skipRaytrace);
             } else {
-                return findXDepth(player, secondPos, skipRaytrace);
+                return findPlaneX(player, secondPos, skipRaytrace);
             }
         }
     }

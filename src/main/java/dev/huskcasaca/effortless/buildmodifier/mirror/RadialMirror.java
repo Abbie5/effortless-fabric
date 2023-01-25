@@ -1,11 +1,10 @@
 package dev.huskcasaca.effortless.buildmodifier.mirror;
 
-import dev.huskcasaca.effortless.buildmodifier.Modifier;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
+import dev.huskcasaca.effortless.buildmodifier.Modifier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -15,7 +14,8 @@ import java.util.*;
 
 public class RadialMirror implements Modifier {
 
-    public static Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
+    @Override
+    public Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
         var coordinates = new LinkedHashSet<BlockPos>();
 
         //find radial mirror settings for the player
@@ -48,7 +48,8 @@ public class RadialMirror implements Modifier {
         return coordinates;
     }
 
-    public static Map<BlockPos, BlockState> findBlockStates(Player player, BlockPos startPos, BlockState blockState, ItemStack itemStack, List<ItemStack> itemStacks) {
+    @Override
+    public Map<BlockPos, BlockState> findBlockStates(Player player, BlockPos startPos, BlockState blockState) {
         var blockStates = new LinkedHashMap<BlockPos, BlockState>();
 
         //find radial mirror settings for the player that placed the block
@@ -101,7 +102,6 @@ public class RadialMirror implements Modifier {
             //rotate
             newBlockState = rotateBlockState(player, startPos, relNewVec, newBlockState, radialMirrorSettings.alternate && i % 2 == 1);
             blockStates.putIfAbsent(newBlockPos, newBlockState);
-            itemStacks.add(itemStack);
         }
 
         return blockStates;

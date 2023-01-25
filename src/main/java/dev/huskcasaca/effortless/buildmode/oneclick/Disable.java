@@ -1,31 +1,34 @@
 package dev.huskcasaca.effortless.buildmode.oneclick;
 
-import dev.huskcasaca.effortless.buildmode.OneClickBuildable;
+import dev.huskcasaca.effortless.buildmode.SingleClickBuildable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Disable extends OneClickBuildable {
+public class Disable extends SingleClickBuildable {
+
     @Override
     public void initialize(Player player) {
 
     }
 
     @Override
-    public List<BlockPos> onUse(Player player, BlockPos blockPos, Direction hitSide, Vec3 hitVec, boolean skipRaytrace) {
+    public List<BlockPos> trace(Player player, BlockHitResult hitResult, boolean skipRaytrace) {
+        var blockPos = hitResult.getBlockPos();
         if (blockPos == null) return Collections.emptyList();
         return getFinalBlocks(player, blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
 
     @Override
-    public List<BlockPos> findCoordinates(Player player, BlockPos blockPos, boolean skipRaytrace) {
-        if (blockPos == null) return Collections.emptyList();
-        return getFinalBlocks(player, blockPos.getX(), blockPos.getY(), blockPos.getZ());
+    public List<BlockPos> preview(Player player, BlockHitResult hitResult, boolean skipRaytrace) {
+        if (hitResult == null) return Collections.emptyList();
+        return getFinalBlocks(player, hitResult.getBlockPos().getX(), hitResult.getBlockPos().getY(), hitResult.getBlockPos().getZ());
     }
 
     @Override
