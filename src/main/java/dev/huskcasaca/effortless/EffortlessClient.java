@@ -6,6 +6,8 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
 import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
+import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
+import dev.huskcasaca.effortless.buildmodifier.UndoRedo;
 import dev.huskcasaca.effortless.control.Keys;
 import dev.huskcasaca.effortless.event.ClientReloadShadersEvent;
 import dev.huskcasaca.effortless.event.ClientScreenEvent;
@@ -82,71 +84,37 @@ public class EffortlessClient implements ClientModInitializer {
         }
     }
 
-
-    //    @SubscribeEvent(receiveCanceled = true)
     public static void onKeyPress(int key, int scanCode, int action, int modifiers) {
         var player = Minecraft.getInstance().player;
         if (player == null)
             return;
-//
-//        //Remember to send packet to server if necessary
-//        //Show Modifier Settings GUI
-        if (Keys.MODIFIER_MENU.getKeyMapping().consumeClick()) {
-            openModifierSettings();
-        }
-//
-//        //QuickReplace toggle
-//        if (keyBindings[1].consumeClick()) {
-//            var modifierSettings = ModifierSettingsManager.getModifierSettings(player);
-//            modifierSettings.setQuickReplace(!modifierSettings.enableQuickReplace());
-//            Effortless.log(player, ChatFormatting.GOLD + "Replace " + ChatFormatting.RESET + (
-//                    modifierSettings.enableQuickReplace() ? "ON" : "OFF"));
-//            Packets.sendToServer(new ModifierSettingsMessage(modifierSettings));
-//        }
-
-        //Radial menu
-        if (Keys.SHOW_RADIAL_MENU.isDown()) {
+        if (Keys.RADIAL_MENU.isDown()) {
             if (!RadialMenuScreen.getInstance().isVisible()) {
                 Minecraft.getInstance().setScreen(RadialMenuScreen.getInstance());
             }
-//            if (ReachHelper.getMaxReachDistance(player) > 0) {
-//            } else {
-//                Effortless.log(player, "Build modes are disabled until your reach has increased. Increase your reach with craftable reach upgrades.");
-//            }
         }
-//
-//        //Undo (Ctrl+Z)
-//        if (keyBindings[3].consumeClick()) {
-//            BuildAction undoAction = BuildAction.UNDO;
-//            BuildActionHandler.performAction(player, undoAction);
-//            Packets.sendToServer(new ModeActionMessage(undoAction));
+//        // remember to send packet to server if necessary
+        if (Keys.MODIFIER_MENU.getKeyMapping().consumeClick()) {
+            openModifierSettings();
+        }
+        if (Keys.UNDO.getKeyMapping().consumeClick()) {
+            UndoRedo.undo(player);
+        }
+        if (Keys.REDO.getKeyMapping().consumeClick()) {
+            UndoRedo.undo(player);
+        }
+        if (Keys.SETTINGS_MENU.getKeyMapping().consumeClick()) {
+            openSettings();
+        }
+//        if (Keys.CYCLE_REPLACE_MODE.getKeyMapping().consumeClick()) {
+//            BuildModifierHelper.cycleReplaceMode(player);
 //        }
-//
-//        //Redo (Ctrl+Y)
-//        if (keyBindings[4].consumeClick()) {
-//            BuildAction redoAction = BuildAction.REDO;
-//            BuildActionHandler.performAction(player, redoAction);
-//            Packets.sendToServer(new ModeActionMessage(redoAction));
+        if (Keys.TOGGLE_REPLACE.getKeyMapping().consumeClick()) {
+            BuildModifierHelper.cycleReplaceMode(player);
+        }
+//        if (Keys.TOGGLE_QUICK_REPLACE.getKeyMapping().consumeClick()) {
+//            BuildModifierHelper.toggleQuickReplaceMode(player);
 //        }
-//
-//        //Change placement mode
-//        if (keyBindings[5].consumeClick()) {
-//            //Toggle between first two actions of the first option of the current build mode
-//            BuildMode currentBuildMode = ModeSettingsManager.getModeSettings(player).buildMode();
-//            if (currentBuildMode.options.length > 0) {
-//                BuildOption option = currentBuildMode.options[0];
-//                if (option.actions.length >= 2) {
-//                    if (BuildActionHandler.getOptionSetting(option) == option.actions[0]) {
-//                        BuildActionHandler.performAction(player, option.actions[1]);
-//                        Packets.sendToServer(new ModeActionMessage(option.actions[1]));
-//                    } else {
-//                        BuildActionHandler.performAction(player, option.actions[0]);
-//                        Packets.sendToServer(new ModeActionMessage(option.actions[0]));
-//                    }
-//                }
-//            }
-//        }
-
     }
 
     public static void openModifierSettings() {

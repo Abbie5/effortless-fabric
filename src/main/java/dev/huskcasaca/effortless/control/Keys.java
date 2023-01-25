@@ -10,11 +10,14 @@ import org.lwjgl.glfw.GLFW;
 
 public enum Keys {
 
+    SETTINGS_MENU("settings_menu", InputConstants.UNKNOWN.getValue()),
     MODIFIER_MENU("modifier_menu", InputConstants.UNKNOWN.getValue()),
-    SHOW_RADIAL_MENU("radial_menu", InputConstants.KEY_LALT),
-    //	UNDO("undo", InputConstants.UNKNOWN.getValue()),
-//	REDO("redo", InputConstants.UNKNOWN.getValue()),
+    RADIAL_MENU("radial_menu", InputConstants.KEY_LALT),
+    UNDO("undo", InputConstants.KEY_LBRACKET),
+    REDO("redo", InputConstants.KEY_RBRACKET),
+//    CYCLE_REPLACE_MODE("cycle_replace", InputConstants.UNKNOWN.getValue()),
     TOGGLE_REPLACE("toggle_replace", InputConstants.UNKNOWN.getValue()),
+//    TOGGLE_QUICK_REPLACE("toggle_quick_replace", InputConstants.UNKNOWN.getValue()),
 //	TOGGLE_ALT_PLACE("toggle_alt_place", InputConstants.UNKNOWN.getValue()),
     ;
 

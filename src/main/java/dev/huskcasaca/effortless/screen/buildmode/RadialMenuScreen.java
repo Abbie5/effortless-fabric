@@ -2,12 +2,12 @@ package dev.huskcasaca.effortless.screen.buildmode;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
+import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.building.BuildAction;
 import dev.huskcasaca.effortless.building.BuildActionHandler;
-import net.minecraft.client.sounds.SoundManager;
-import org.joml.Vector4f;
-import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.buildmode.*;
+import dev.huskcasaca.effortless.buildmode.BuildMode;
+import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
+import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.control.Keys;
 import dev.huskcasaca.effortless.entity.player.ModeSettings;
@@ -23,18 +23,20 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import org.apache.commons.lang3.text.WordUtils;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static dev.huskcasaca.effortless.building.BuildActionHandler.*;
+import static dev.huskcasaca.effortless.building.BuildActionHandler.getOptions;
 
 /**
  * Initially from Chisels and Bits by AlgorithmX2
@@ -102,7 +104,7 @@ public class RadialMenuScreen extends Screen {
     public void tick() {
         super.tick();
 
-        if (!Keys.SHOW_RADIAL_MENU.isKeyDown()) {
+        if (!Keys.RADIAL_MENU.isKeyDown()) {
             onClose();
         }
     }
@@ -413,8 +415,14 @@ public class RadialMenuScreen extends Screen {
 
     private String findKeybind(MenuButton button, BuildMode currentBuildMode) {
         Keys keybindingIndex = null;
-        if (button.action == BuildAction.REPLACE) keybindingIndex = Keys.TOGGLE_REPLACE;
-        if (button.action == BuildAction.MODIFIER) keybindingIndex = Keys.MODIFIER_MENU;
+
+        switch (button.action) {
+            case SETTINGS -> keybindingIndex = Keys.SETTINGS_MENU;
+            case MODIFIER -> keybindingIndex = Keys.MODIFIER_MENU;
+            case UNDO -> keybindingIndex = Keys.UNDO;
+            case REDO -> keybindingIndex = Keys.REDO;
+            case REPLACE -> keybindingIndex = Keys.TOGGLE_REPLACE;
+        }
 
         if (keybindingIndex == null) {
             return "";

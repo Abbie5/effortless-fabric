@@ -45,17 +45,22 @@ public class BuildModifierHelper {
     }
 
     public static void setReplaceMode(Player player, ReplaceMode mode) {
-        ModifierSettings modifierSettings = getModifierSettings(player);
+        var modifierSettings = getModifierSettings(player);
         modifierSettings = new ModifierSettings(modifierSettings.arraySettings(), modifierSettings.mirrorSettings(), modifierSettings.radialMirrorSettings(), mode);
         BuildModifierHelper.setModifierSettings(player, modifierSettings);
         setModifierSettings(player, modifierSettings);
     }
 
     public static void cycleReplaceMode(Player player) {
-        ModifierSettings modifierSettings = getModifierSettings(player);
-        modifierSettings = new ModifierSettings(modifierSettings.arraySettings(), modifierSettings.mirrorSettings(), modifierSettings.radialMirrorSettings(), ReplaceMode.values()[(modifierSettings.replaceMode().ordinal() + 1) % ReplaceMode.values().length]);
-        BuildModifierHelper.setModifierSettings(player, modifierSettings);
-        setModifierSettings(player, modifierSettings);
+        setReplaceMode(player, ReplaceMode.values()[(getReplaceMode(player).ordinal() + 1) % ReplaceMode.values().length]);
+    }
+
+    public static void toggleReplaceMode(Player player) {
+        setReplaceMode(player, getReplaceMode(player) == ReplaceMode.DISABLED ? ReplaceMode.NORMAL : ReplaceMode.DISABLED);
+    }
+
+    public static void toggleQuickReplaceMode(Player player) {
+        setReplaceMode(player, getReplaceMode(player) == ReplaceMode.DISABLED ? ReplaceMode.QUICK : ReplaceMode.DISABLED);
     }
 
     public static void sync(Player player) {
