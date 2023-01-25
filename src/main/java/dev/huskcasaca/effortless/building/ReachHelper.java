@@ -115,6 +115,7 @@ public class ReachHelper {
         setReachSettings(player, reachSettings);
     }
 
+    @Deprecated
     public static boolean isCanBreakFar(Player player) {
         return getReachSettings(player).canBreakFar();
     }
