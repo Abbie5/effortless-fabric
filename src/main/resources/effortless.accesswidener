@@ -12,9 +12,18 @@ transitive-accessible class net/minecraft/client/renderer/RenderType$CompositeSt
 transitive-accessible class net/minecraft/client/renderer/RenderType$CompositeRenderType
 transitive-accessible class net/minecraft/client/renderer/RenderType$OutlineProperty
 
+transitive-accessible field  net/minecraft/client/gui/Gui autosaveIndicatorValue F
+transitive-accessible field  net/minecraft/client/gui/Gui lastAutosaveIndicatorValue F
+
 transitive-accessible method net/minecraft/world/item/BlockItem getPlacementState (Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/level/block/state/BlockState;
 transitive-accessible field net/minecraft/client/gui/components/AbstractSelectionList renderHeader Z
 transitive-accessible field net/minecraft/client/KeyMapping key Lcom/mojang/blaze3d/platform/InputConstants$Key;
 
 transitive-accessible field net/minecraft/client/gui/components/Button DEFAULT_NARRATION Lnet/minecraft/client/gui/components/Button$CreateNarration;
 transitive-accessible method net/minecraft/client/gui/components/Button <init> (IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;Lnet/minecraft/client/gui/components/Button$CreateNarration;)V
+
+# BlockItem
+transitive-accessible method net/minecraft/world/item/BlockItem placeBlock (Lnet/minecraft/world/item/context/BlockPlaceContext;Lnet/minecraft/world/level/block/state/BlockState;)Z
+transitive-accessible method net/minecraft/world/item/BlockItem updateBlockStateFromTag (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;
+transitive-accessible method net/minecraft/world/item/BlockItem updateCustomBlockEntityTag (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Z
+transitive-accessible method net/minecraft/world/item/BlockItem getPlaceSound (Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/sounds/SoundEvent;
