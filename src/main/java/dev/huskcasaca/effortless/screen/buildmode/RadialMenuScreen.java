@@ -55,9 +55,9 @@ public class RadialMenuScreen extends Screen {
     private static final int WATERMARK_TEXT_COLOR = 0x88888888;
     private static final int DESCRIPTION_TEXT_COLOR = 0xdd888888;
     private static final int OPTION_TEXT_COLOR = 0xeeeeeeff;
-    private static final double RING_INNER_EDGE = 38;
-    private static final double RING_OUTER_EDGE = 80;
-    private static final double CATEGORY_LINE_OUTER_EDGE = 42;
+    private static final double RING_INNER_EDGE = 36;
+    private static final double RING_OUTER_EDGE = 78;
+    private static final double CATEGORY_LINE_OUTER_EDGE = 40;
     private static final double TEXT_DISTANCE = 90;
     private static final double BUTTON_DISTANCE = 120;
     private static final float FADE_SPEED = 0.5f;
@@ -109,9 +109,8 @@ public class RadialMenuScreen extends Screen {
 
     @Override
     public void render(PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks) {
-        visibility += FADE_SPEED * partialTicks;
-        if (visibility > 1f) visibility = 1f;
-        if (minecraft.level != null) {
+        visibility = Math.min(visibility + FADE_SPEED * partialTicks, 1f);
+        if (minecraft != null && minecraft.level != null) {
             fillGradient(poseStack, 0, 0, this.width, this.height,  (int) (visibility * 0xC0) << 24 | 0x101010, (int) (visibility * 0xD0) << 24 | 0x101010);
         } else {
             this.renderDirtBackground(0);
@@ -186,8 +185,11 @@ public class RadialMenuScreen extends Screen {
         switchTo = null;
         doAction = null;
 
+        var innerEdge = RING_INNER_EDGE * 0.72f + RING_INNER_EDGE * visibility * 0.28f;
+        var outerEdge = RING_OUTER_EDGE * 0.5f + RING_OUTER_EDGE * visibility * 0.5f;
+        var categoryOuterEdge = CATEGORY_LINE_OUTER_EDGE * 0.72f + CATEGORY_LINE_OUTER_EDGE * visibility * 0.28f;
         //Draw buildmode backgrounds
-        drawRadialButtonBackgrounds(currentBuildMode, buffer, middleX, middleY, mouseXCenter, mouseYCenter, mouseRadians, RING_INNER_EDGE, RING_OUTER_EDGE, quarterCircle, modes);
+        drawRadialButtonBackgrounds(currentBuildMode, buffer, middleX, middleY, mouseXCenter, mouseYCenter, mouseRadians, innerEdge, outerEdge, categoryOuterEdge, quarterCircle, modes);
 
         //Draw action backgrounds
         drawSideButtonBackgrounds(buffer, middleX, middleY, mouseXCenter, mouseYCenter, buttons);
@@ -196,7 +198,7 @@ public class RadialMenuScreen extends Screen {
         RenderSystem.disableBlend();
         RenderSystem.enableTexture();
 
-        drawIcons(poseStack, tesselator, buffer, middleX, middleY, RING_INNER_EDGE, RING_OUTER_EDGE, modes, buttons);
+        drawIcons(poseStack, tesselator, buffer, middleX, middleY, innerEdge, outerEdge, modes, buttons);
 
         drawTexts(poseStack, currentBuildMode, middleX, middleY, TEXT_DISTANCE, BUTTON_DISTANCE, modes, buttons, optionsTexting);
 
@@ -223,7 +225,7 @@ public class RadialMenuScreen extends Screen {
         return btns.stream().map(btn -> btn.x1).min(Double::compare).get() <= mouseXCenter && btns.stream().map(btn -> btn.x2).max(Double::compare).get() >= mouseXCenter && btns.stream().map(btn -> btn.y1).min(Double::compare).get() <= mouseYCenter && btns.stream().map(btn -> btn.y2).max(Double::compare).get() >= mouseYCenter;
     }
 
-    private void drawRadialButtonBackgrounds(BuildMode currentBuildMode, BufferBuilder buffer, double middleX, double middleY, double mouseXCenter, double mouseYCenter, double mouseRadians, double ringInnerEdge, double ringOuterEdge, double quarterCircle, ArrayList<ModeRegion> modes) {
+    private void drawRadialButtonBackgrounds(BuildMode currentBuildMode, BufferBuilder buffer, double middleX, double middleY, double mouseXCenter, double mouseYCenter, double mouseRadians, double ringInnerEdge, double ringOuterEdge, double categoryOuterEdge, double quarterCircle, ArrayList<ModeRegion> modes) {
         if (modes.isEmpty()) {
             return;
         }
@@ -274,10 +276,10 @@ public class RadialMenuScreen extends Screen {
             //Category line
             color = modeRegion.mode.getCategory().getColor();
 
-            final double x1m3 = Math.cos(beginRadians + fragment) * CATEGORY_LINE_OUTER_EDGE;
-            final double x2m3 = Math.cos(endRadians - fragment) * CATEGORY_LINE_OUTER_EDGE;
-            final double y1m3 = Math.sin(beginRadians + fragment) * CATEGORY_LINE_OUTER_EDGE;
-            final double y2m3 = Math.sin(endRadians - fragment) * CATEGORY_LINE_OUTER_EDGE;
+            final double x1m3 = Math.cos(beginRadians + fragment) * categoryOuterEdge;
+            final double x2m3 = Math.cos(endRadians - fragment) * categoryOuterEdge;
+            final double y1m3 = Math.sin(beginRadians + fragment) * categoryOuterEdge;
+            final double y2m3 = Math.sin(endRadians - fragment) * categoryOuterEdge;
 
             buffer.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
             buffer.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
@@ -524,7 +526,7 @@ public class RadialMenuScreen extends Screen {
                 performedActionUsingMouse = true;
             }
             switch (action) {
-                case UNDO, REDO, SETTINGS, REPLACE -> onClose();
+                case UNDO, REDO, SETTINGS, REPLACE -> super.onClose();
             }
         }
     }
