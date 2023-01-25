@@ -64,6 +64,7 @@ Hold ALT key to switch build modes in the radial panel. There are buttons for un
 ### 1.7.0
 * Rewrite block rendering logic
 * Rewrite block tracing method
+* Add some key bindings
 * Fix radial menu crash on close
 
 ### 1.6.3
