@@ -1,6 +1,7 @@
 package dev.huskcasaca.effortless.config;
 
 import com.google.gson.annotations.Expose;
+import dev.huskcasaca.effortless.gui.BuildInfoOverlay;
 import dev.huskcasaca.effortless.render.preview.BlockRenderOptions;
 
 public class PreviewConfig extends Config {
@@ -9,7 +10,9 @@ public class PreviewConfig extends Config {
     public static final int MAX_SHADER_DISSOLVE_TIME_MULTIPLIER = 40;
 
     @Expose
-    private boolean showBuildInfo = true;
+    private int itemUsagePosition = BuildInfoOverlay.Position.RIGHT.ordinal();
+    @Expose
+    private int buildInfoPosition = BuildInfoOverlay.Position.LEFT.ordinal();
     @Expose
     private boolean alwaysShowBlockPreview = false;
     @Expose
@@ -25,12 +28,28 @@ public class PreviewConfig extends Config {
         return ConfigManager.getGlobalPreviewConfig().getBlockPreviewMode() == BlockRenderOptions.DISSOLVE_SHADER;
     }
 
-    public boolean isShowBuildInfo() {
-        return showBuildInfo;
+    public boolean isShowingBuildInfo() {
+        return buildInfoPosition != BuildInfoOverlay.Position.DISABLED.ordinal();
     }
 
-    public void setShowBuildInfo(boolean showBuildInfo) {
-        this.showBuildInfo = showBuildInfo;
+    public BuildInfoOverlay.Position getBuildInfoPosition() {
+        return BuildInfoOverlay.Position.values()[buildInfoPosition];
+    }
+
+    public void setBuildInfoPosition(BuildInfoOverlay.Position position) {
+        this.buildInfoPosition = position.ordinal();
+    }
+
+    public boolean isShowItemUsage() {
+        return itemUsagePosition != BuildInfoOverlay.Position.DISABLED.ordinal();
+    }
+
+    public BuildInfoOverlay.Position getItemUsagePosition() {
+        return BuildInfoOverlay.Position.values()[itemUsagePosition];
+    }
+
+    public void setItemUsagePosition(BuildInfoOverlay.Position position) {
+        this.itemUsagePosition = position.ordinal();
     }
 
     public boolean isAlwaysShowBlockPreview() {
@@ -59,7 +78,7 @@ public class PreviewConfig extends Config {
 
     @Override
     public boolean isValid() {
-         return shaderDissolveTimeMultiplier >= MIN_SHADER_DISSOLVE_TIME_MULTIPLIER &&
+        return shaderDissolveTimeMultiplier >= MIN_SHADER_DISSOLVE_TIME_MULTIPLIER &&
                 shaderDissolveTimeMultiplier <= MAX_SHADER_DISSOLVE_TIME_MULTIPLIER;
     }
 

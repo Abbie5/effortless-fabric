@@ -4,6 +4,7 @@ import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.config.ConfigManager;
 import dev.huskcasaca.effortless.config.EffortlessConfig;
 import dev.huskcasaca.effortless.config.PreviewConfig;
+import dev.huskcasaca.effortless.gui.BuildInfoOverlay;
 import dev.huskcasaca.effortless.render.preview.BlockRenderOptions;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -67,19 +68,25 @@ public class EffortlessConfigScreen {
 
         final var previewSubCat = entryBuilder.startSubCategory(Component.translatable(String.join(".", Effortless.MOD_ID, "settings", "category", "config", "preview", "title")));
 
-        final var showBuildInfo = new BooleanEntryData("show_build_info", defaults.getPreviewConfig().isShowBuildInfo(), config.getPreviewConfig().isShowBuildInfo(), config.getPreviewConfig()::setShowBuildInfo);
         final var alwaysShowBlockPreview = new BooleanEntryData("always_show_block_preview", defaults.getPreviewConfig().isAlwaysShowBlockPreview(), config.getPreviewConfig().isAlwaysShowBlockPreview(), config.getPreviewConfig()::setAlwaysShowBlockPreview);
 //        final var useShaders = new BooleanEntryData("use_shaders", defaults.getPreviewConfig().isUseShaders(), config.getPreviewConfig().isUseShaders(), config.getPreviewConfig()::setUseShaders);
 //        final var shaderThreshold = new SliderEntryData("shader_threshold", defaults.getPreviewConfig().getShaderThreshold(), config.getPreviewConfig().getShaderThreshold(), PreviewConfig.MIN_SHADER_THRESHOLD, PreviewConfig.MAX_SHADER_THRESHOLD, config.getPreviewConfig()::setShaderThreshold);
         final var dissolveTimeMultiplier = new SliderEntryData("shader_dissolve_time_multiplier", defaults.getPreviewConfig().getShaderDissolveTimeMultiplier(), config.getPreviewConfig().getShaderDissolveTimeMultiplier(), PreviewConfig.MIN_SHADER_DISSOLVE_TIME_MULTIPLIER, PreviewConfig.MAX_SHADER_DISSOLVE_TIME_MULTIPLIER, config.getPreviewConfig()::setShaderDissolveTimeMultiplier);
 
-
         previewSubCat.add(
-                entryBuilder.startBooleanToggle(Component.translatable(showBuildInfo.getTitleKey()), showBuildInfo.currentValue)
-                        .setTooltip(Component.translatable(showBuildInfo.getTooltipKey()))
-                        .setDefaultValue(showBuildInfo.defaultValue)
-                        .setSaveConsumer(showBuildInfo.saveConsumer)
-                        .setYesNoTextSupplier(yesNoTextSupplier)
+                entryBuilder.startEnumSelector(Component.translatable("effortless.settings.show_build_info.title"), BuildInfoOverlay.Position.class, config.getPreviewConfig().getBuildInfoPosition())
+                        .setTooltip(Component.translatable("effortless.settings.show_build_info.tooltip"))
+                        .setDefaultValue(defaults.getPreviewConfig().getBuildInfoPosition())
+                        .setSaveConsumer(config.getPreviewConfig()::setBuildInfoPosition)
+                        .setEnumNameProvider(anEnum -> Component.translatable(((BuildInfoOverlay.Position) anEnum).getNameKey()))
+                        .build()
+        );
+        previewSubCat.add(
+                entryBuilder.startEnumSelector(Component.translatable("effortless.settings.show_item_usage.title"), BuildInfoOverlay.Position.class, config.getPreviewConfig().getItemUsagePosition())
+                        .setTooltip(Component.translatable("effortless.settings.show_item_usage.tooltip"))
+                        .setDefaultValue(defaults.getPreviewConfig().getItemUsagePosition())
+                        .setSaveConsumer(config.getPreviewConfig()::setItemUsagePosition)
+                        .setEnumNameProvider(anEnum -> Component.translatable(((BuildInfoOverlay.Position) anEnum).getNameKey()))
                         .build()
         );
         previewSubCat.add(
@@ -98,6 +105,8 @@ public class EffortlessConfigScreen {
                         .setEnumNameProvider(anEnum -> Component.translatable(((BlockRenderOptions) anEnum).getNameKey()))
                         .build()
         );
+
+
 //        previewSubCat.add(
 //                entryBuilder.startBooleanToggle(Component.translatable(useShaders.getTitleKey()), useShaders.currentValue)
 //                        .setTooltip(Component.translatable(useShaders.getTooltipKey()))

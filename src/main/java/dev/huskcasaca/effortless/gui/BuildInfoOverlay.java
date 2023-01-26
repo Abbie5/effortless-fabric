@@ -1,6 +1,7 @@
 package dev.huskcasaca.effortless.gui;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.buildmode.BuildMode;
 import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
@@ -19,8 +20,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BuildInfoOverlay extends GuiComponent {
 
-    private static final Direction.AxisDirection itemSide = Direction.AxisDirection.POSITIVE;
-    private static final Direction.AxisDirection textSide = Direction.AxisDirection.POSITIVE;
+    public static int getLastRightEndTextHeight() {
+        if (ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis() == Direction.AxisDirection.POSITIVE) {
+            return lastBuildInfoTextHeight;
+        } else {
+            return 0;
+        }
+    }
+
     private static final int ITEM_SPACING_X = 18;
     private static final int ITEM_SPACING_Y = 18;
     private static int lastBuildInfoTextHeight = 0;
@@ -30,22 +37,10 @@ public class BuildInfoOverlay extends GuiComponent {
         this.minecraft = minecraft;
     }
 
-    public static int getLastRightEndTextHeight() {
-        if (textSide == Direction.AxisDirection.POSITIVE) {
-            return lastBuildInfoTextHeight;
-        } else {
-            return 0;
-        }
-    }
-
-    public void render(PoseStack poseStack) {
-        renderBuildMode(poseStack);
-        renderBuildingStack(poseStack);
-    }
-
     private void renderBuildMode(PoseStack poseStack) {
         lastBuildInfoTextHeight = 0;
-        if (!ConfigManager.getGlobalPreviewConfig().isShowBuildInfo()) {
+        var textSide = ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis();
+        if (textSide == null) {
             return;
         }
         if (textSide == Direction.AxisDirection.POSITIVE && (minecraft.options.showAutosaveIndicator().get() && (minecraft.gui.autosaveIndicatorValue > 0.0F || minecraft.gui.lastAutosaveIndicatorValue > 0.0F)) && Mth.floor(255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), minecraft.gui.lastAutosaveIndicatorValue, minecraft.gui.autosaveIndicatorValue), 0.0F, 1.0F)) > 8) {
@@ -93,7 +88,7 @@ public class BuildInfoOverlay extends GuiComponent {
             texts.add(BuildModifierHelper.getReplaceModeName(player));
         }
 
-        texts.add(Component.literal(ChatFormatting.AQUA + BuildModeHelper.getTranslatedModeOptionName(player) + ChatFormatting.RESET));
+        texts.add(Component.literal(ChatFormatting.WHITE + BuildModeHelper.getTranslatedModeOptionName(player) + ChatFormatting.RESET));
 
         lastBuildInfoTextHeight = texts.size() * 10;
         var font = minecraft.font;
@@ -106,8 +101,14 @@ public class BuildInfoOverlay extends GuiComponent {
 
     }
 
+    public void render(PoseStack poseStack) {
+        renderBuildMode(poseStack);
+        renderBuildingStack(poseStack);
+    }
+
     private void renderBuildingStack(PoseStack poseStack) {
-        if (!ConfigManager.getGlobalPreviewConfig().isShowBuildInfo()) {
+        var itemSide = ConfigManager.getGlobalPreviewConfig().getItemUsagePosition().getAxis();
+        if (itemSide == null) {
             return;
         }
         if (RadialMenuScreen.getInstance().isVisible()) {
@@ -157,5 +158,31 @@ public class BuildInfoOverlay extends GuiComponent {
             }
         }
 
+    }
+
+    public enum Position {
+
+        DISABLED("disabled"),
+        LEFT("left"),
+        RIGHT("right");
+
+        private final String name;
+
+        Position(String name) {
+            this.name = name;
+        }
+
+        public String getNameKey() {
+            // TODO: 15/9/22 use ResourceLocation
+            return Effortless.MOD_ID + ".position." + name;
+        }
+
+        public Direction.AxisDirection getAxis() {
+            return switch (this) {
+                case LEFT -> Direction.AxisDirection.NEGATIVE;
+                case RIGHT -> Direction.AxisDirection.POSITIVE;
+                default -> null;
+            };
+        }
     }
 }
