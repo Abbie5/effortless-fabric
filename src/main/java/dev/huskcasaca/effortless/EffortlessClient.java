@@ -149,7 +149,7 @@ public class EffortlessClient implements ClientModInitializer {
         if (player != null) {
             var modeSettings = BuildModeHelper.getModeSettings(player);
             BuildModeHelper.setModeSettings(player, modeSettings);
-            BuildModeHandler.initializeMode(player);
+            BuildModeHandler.reset(player);
             Packets.sendToServer(new ServerboundPlayerSetBuildModePacket(modeSettings));
         }
     }

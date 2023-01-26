@@ -58,20 +58,21 @@ public class RadialMenuScreen extends Screen {
     private static final int DESCRIPTION_TEXT_COLOR = 0xdd888888;
     private static final int OPTION_TEXT_COLOR = 0xeeeeeeff;
     private static final double RING_INNER_EDGE = 36;
-    private static final double RING_OUTER_EDGE = 78;
+    private static final double RING_OUTER_EDGE = 76;
     private static final double CATEGORY_LINE_OUTER_EDGE = 40;
     private static final double TEXT_DISTANCE = 90;
     private static final double BUTTON_DISTANCE = 120;
     private static final float FADE_SPEED = 0.5f;
     private static final int DESCRIPTION_HEIGHT = 100;
     private static final int MODE_OPTION_ROW_HEIGHT = 39;
-    public BuildMode switchTo = null;
-    public BuildAction doAction = null;
-    public boolean performedActionUsingMouse;
+    private static final float MOUSE_SCROLL_THRESHOLD = 1;
 
     private float visibility;
-
+    public BuildMode switchTo = null;
     private BuildAction lastAction = null;
+    public BuildAction doAction = null;
+    public boolean performedActionUsingMouse;
+    private float lastScrollOffset = 0;
 
     public RadialMenuScreen() {
         super(Component.translatable(String.join(".", Effortless.MOD_ID, "screen", "radial_menu")));
@@ -459,11 +460,26 @@ public class RadialMenuScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         performAction(true);
-
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
+    public boolean mouseScrolled(double d, double e, double f) {
+        var sign = lastScrollOffset * f;
+        if (sign < 0) {
+            lastScrollOffset = 0;
+        }
+        lastScrollOffset += f;
+        if (lastScrollOffset > MOUSE_SCROLL_THRESHOLD) {
+            BuildModeHelper.reverseBuildMode(minecraft.player);
+            lastScrollOffset = 0;
+        } else if (lastScrollOffset < -MOUSE_SCROLL_THRESHOLD) {
+            BuildModeHelper.cycleBuildMode(minecraft.player);
+            lastScrollOffset = 0;
+        }
+        return true;
+    }
+
     public void onClose() {
         //After onClose so it can open another screen
         if (!performedActionUsingMouse) {
@@ -513,7 +529,7 @@ public class RadialMenuScreen extends Screen {
             modeSettings = new ModeSettings(switchTo, modeSettings.enableMagnet());
             BuildModeHelper.setModeSettings(player, modeSettings);
             if (player != null) {
-                BuildModeHandler.initializeMode(player);
+                BuildModeHandler.reset(player);
             }
             Packets.sendToServer(new ServerboundPlayerSetBuildModePacket(modeSettings));
 

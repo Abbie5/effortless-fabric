@@ -46,6 +46,16 @@ public class BuildModeHelper {
         setModeSettings(player, modeSettings);
     }
 
+    public static void cycleBuildMode(Player player) {
+        setBuildMode(player, BuildMode.values()[(getBuildMode(player).ordinal() + 1) % BuildMode.values().length]);
+        BuildModeHandler.reset(player);
+    }
+
+    public static void reverseBuildMode(Player player) {
+        setBuildMode(player, BuildMode.values()[(getBuildMode(player).ordinal() + BuildMode.values().length - 1) % BuildMode.values().length]);
+        BuildModeHandler.reset(player);
+    }
+
     public static void sync(Player player) {
         if (player instanceof ServerPlayer) {
             Packets.sendToClient(new ClientboundPlayerBuildModePacket(getModeSettings(player)), (ServerPlayer) player);

@@ -90,7 +90,7 @@ public abstract class ServerPacketListenerMixin implements ServerEffortlessPacke
     public void handle(ServerboundPlayerSetBuildModePacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
         BuildModeHelper.setModeSettings(player, BuildModeHelper.sanitize(packet.modeSettings(), player));
-        BuildModeHandler.initializeMode(player);
+        BuildModeHandler.reset(player);
     }
 
     @Override
@@ -103,7 +103,7 @@ public abstract class ServerPacketListenerMixin implements ServerEffortlessPacke
     public void handle(ServerboundPlayerSetBuildReachPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
         ReachHelper.setReachSettings(player, ReachHelper.sanitize(packet.reachSettings(), player));
-        BuildModeHandler.initializeMode(player);
+        BuildModeHandler.reset(player);
     }
 
 }

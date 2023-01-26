@@ -29,7 +29,7 @@ public class BuildModeHandler {
 
     public static void onBlockPlacedPacketReceived(Player player, ServerboundPlayerPlaceBlockPacket packet) {
         if (isCurrentlyBreaking(player)) {
-            initializeMode(player);
+            reset(player);
             return;
         }
         var tracingResult = TracingResult.trace(player, packet.blockHitResult(), false, true);
@@ -49,7 +49,7 @@ public class BuildModeHandler {
 
     public static void onBlockBrokenPacketReceived(Player player, ServerboundPlayerBreakBlockPacket packet) {
         if (isCurrentlyPlacing(player)) {
-            initializeMode(player);
+            reset(player);
             return;
         }
         var tracingResult = TracingResult.trace(player, packet.blockHitResult(), true, true);
@@ -76,7 +76,7 @@ public class BuildModeHandler {
         return coordinates;
     }
 
-    public static void initializeMode(Player player) {
+    public static void reset(Player player) {
         if (player == null) {
             return;
         }

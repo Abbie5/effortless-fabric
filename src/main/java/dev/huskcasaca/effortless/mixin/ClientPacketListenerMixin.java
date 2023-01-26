@@ -70,7 +70,7 @@ public abstract class ClientPacketListenerMixin implements ClientEffortlessPacke
     @Override
     public void handle(ClientboundPlayerBuildModePacket packet) {
         BuildModeHelper.setModeSettings(minecraft.player, BuildModeHelper.sanitize(packet.modeSettings(), minecraft.player));
-        BuildModeHandler.initializeMode(minecraft.player);
+        BuildModeHandler.reset(minecraft.player);
     }
 
     @Override
@@ -82,7 +82,7 @@ public abstract class ClientPacketListenerMixin implements ClientEffortlessPacke
     public void handle(ClientboundPlayerReachPacket packet) {
 
         ReachHelper.setReachSettings(minecraft.player, ReachHelper.sanitize(packet.reachSettings(), minecraft.player));
-        BuildModeHandler.initializeMode(minecraft.player);
+        BuildModeHandler.reset(minecraft.player);
     }
 
     @Override
