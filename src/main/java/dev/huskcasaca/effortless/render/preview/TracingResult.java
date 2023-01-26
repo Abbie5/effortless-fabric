@@ -85,9 +85,7 @@ public record TracingResult(
             return TracingResult.missVec();
         }
 
-        var breaking = BuildModeHandler.isCurrentlyBreaking(player);
-
-        var skipRaytrace = true || BuildModifierHelper.isQuickReplace(player);
+        var skipRaytrace = BuildModifierHelper.isQuickReplace(player);
         var offset = ((BlockHitResult) hitResult).withPosition(startPos);
         var coordinates = use ? BuildModeHelper.getBuildMode(player).getInstance().trace(player, offset, skipRaytrace) : BuildModeHandler.findCoordinates(player, offset, skipRaytrace);
 

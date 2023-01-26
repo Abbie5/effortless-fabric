@@ -12,48 +12,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 
 public class ItemStackUtils {
 
-//    public static InteractionResult useBlockItemNoCooldown(Level level, ServerPlayer serverPlayer, ItemStack itemStack, InteractionHand interactionHand, BlockHitResult blockHitResult, BlockState blockState) {
-//
-//        var blockPos = blockHitResult.getBlockPos();
-//        var blockStateInWorld = level.getBlockState(blockPos);
-//        if (!blockStateInWorld.getBlock().isEnabled(level.enabledFeatures())) {
-//            return InteractionResult.FAIL;
-//        }
-//        if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) {
-//            return InteractionResult.PASS;
-//        }
-////        boolean bl = !serverPlayer.getMainHandItem().isEmpty();
-////        boolean bl2 = serverPlayer.isSecondaryUseActive() && bl;
-////        var itemStack2 = itemStack.copy();
-////        if (!bl2) {
-////            InteractionResult interactionResult = blockStateInWorld.use(level, serverPlayer, interactionHand, blockHitResult);
-////            if (interactionResult.consumesAction()) {
-////                CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(serverPlayer, blockPos, itemStack2);
-////                return interactionResult;
-////            }
-////        }
-//        var itemStack2 = itemStack.copy();
-//
-//        if (itemStack.isEmpty()) {
-//            return InteractionResult.PASS;
-//        }
-//        var blockStatePlaceContext = new BlockStatePlaceContext(serverPlayer.level, serverPlayer, interactionHand, itemStack, blockHitResult, blockState);
-//        InteractionResult interactionResult2;
-//        if (serverPlayer.isCreative()) {
-//            int i = itemStack.getCount();
-//            interactionResult2 = useBlockItemStackOn(blockStatePlaceContext);
-//            itemStack.setCount(i);
-//        } else {
-//            interactionResult2 = useBlockItemStackOn(blockStatePlaceContext);
-//        }
-//
-//        if (interactionResult2.consumesAction()) {
-//            CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(serverPlayer, blockPos, itemStack2);
-//        }
-//
-//        return interactionResult2;
-//    }
-
     public static InteractionResult useBlockItemStackOn(BlockStatePlaceContext blockStatePlaceContext) {
         var itemStack = blockStatePlaceContext.getItemInHand();
         var player = blockStatePlaceContext.getPlayer();
