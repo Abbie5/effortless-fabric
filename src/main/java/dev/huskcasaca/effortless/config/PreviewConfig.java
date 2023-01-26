@@ -12,7 +12,7 @@ public class PreviewConfig extends Config {
     @Expose
     private int itemUsagePosition = BuildInfoOverlay.Position.RIGHT.ordinal();
     @Expose
-    private int buildInfoPosition = BuildInfoOverlay.Position.LEFT.ordinal();
+    private int buildInfoPosition = BuildInfoOverlay.Position.RIGHT.ordinal();
     @Expose
     private boolean alwaysShowBlockPreview = false;
     @Expose
