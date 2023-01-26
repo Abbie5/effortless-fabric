@@ -40,7 +40,7 @@ public class SurvivalHelper {
         }
     }
 
-    private static InteractionResult placeBlockByStateServer(Level level, ServerPlayer player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState)  {
+    private static InteractionResult placeBlockByStateServer(Level level, ServerPlayer player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
         var itemStack = player.getItemInHand(interactionHand);
         var fakeResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
@@ -74,7 +74,7 @@ public class SurvivalHelper {
 
     }
 
-    private static InteractionResult placeBlockByStateClient(Level level, LocalPlayer localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState)  {
+    private static InteractionResult placeBlockByStateClient(Level level, LocalPlayer localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
         var itemStack = localPlayer.getItemInHand(interactionHand);
         var blockHitResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 

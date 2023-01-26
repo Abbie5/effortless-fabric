@@ -5,7 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import dev.huskcasaca.effortless.event.ClientReloadShadersEvent;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

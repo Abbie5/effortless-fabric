@@ -196,6 +196,20 @@ public class EffortlessClient implements ClientModInitializer {
         return ticksInGame;
     }
 
+    public static void renderBlockPreview(PoseStack poseStack, Camera camera) {
+        var bufferBuilder = Tesselator.getInstance().getBuilder();
+        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
+
+        BlockPreviewRenderer.getInstance().render(poseStack, bufferSource);
+    }
+
+    public static void renderModifierSettings(PoseStack poseStack, Camera camera) {
+        var bufferBuilder = Tesselator.getInstance().getBuilder();
+        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
+
+        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
+    }
+
     @Override
     public void onInitializeClient() {
         // register key bindings
@@ -213,20 +227,6 @@ public class EffortlessClient implements ClientModInitializer {
         WorldRenderEvents.AFTER_ENTITIES.register((context) -> renderBlockPreview(context.matrixStack(), context.camera()));
         WorldRenderEvents.LAST.register((context) -> renderModifierSettings(context.matrixStack(), context.camera()));
 
-    }
-
-    public static void renderBlockPreview(PoseStack poseStack, Camera camera) {
-        var bufferBuilder = Tesselator.getInstance().getBuilder();
-        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-
-        BlockPreviewRenderer.getInstance().render(poseStack, bufferSource);
-    }
-
-    public static void renderModifierSettings(PoseStack poseStack, Camera camera) {
-        var bufferBuilder = Tesselator.getInstance().getBuilder();
-        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-
-        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
     }
 
 

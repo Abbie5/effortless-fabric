@@ -110,47 +110,6 @@ public class Mirror implements Modifier {
         blockStates.put(newBlockPos, newBlockState);
     }
 
-    @Override
-    public Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
-        var coordinates = new LinkedHashSet<BlockPos>();
-
-        //find mirrorsettings for the player
-        var mirrorSettings = BuildModifierHelper.getModifierSettings(player).mirrorSettings();
-        if (!isEnabled(mirrorSettings, startPos)) return Collections.emptySet();
-
-        if (mirrorSettings.mirrorX) coordinateMirrorX(mirrorSettings, startPos, coordinates);
-        if (mirrorSettings.mirrorY) coordinateMirrorY(mirrorSettings, startPos, coordinates);
-        if (mirrorSettings.mirrorZ) coordinateMirrorZ(mirrorSettings, startPos, coordinates);
-
-        return coordinates;
-    }
-
-    @Override
-    public Map<BlockPos, BlockState> findBlockStates(Player player, BlockPos startPos, BlockState blockState) {
-        var blockStates = new LinkedHashMap<BlockPos, BlockState>();
-
-        //find mirrorsettings for the player
-        MirrorSettings mirrorSettings = BuildModifierHelper.getModifierSettings(player).mirrorSettings();
-        if (!isEnabled(mirrorSettings, startPos)) return Collections.emptyMap();
-
-        //Randomizer bag synergy
-//		AbstractRandomizerBagItem randomizerBagItem = null;
-        Container bagInventory = null;
-//		if (!itemStack.isEmpty() && itemStack.getItem() instanceof AbstractRandomizerBagItem) {
-//			randomizerBagItem = (AbstractRandomizerBagItem) itemStack.getItem() ;
-//			bagInventory = randomizerBagItem.getBagInventory(itemStack);
-//		}
-
-        if (mirrorSettings.mirrorX)
-            blockStateMirrorX(player, mirrorSettings, startPos, blockState, blockStates);
-        if (mirrorSettings.mirrorY)
-            blockStateMirrorY(player, mirrorSettings, startPos, blockState, blockStates);
-        if (mirrorSettings.mirrorZ)
-            blockStateMirrorZ(player, mirrorSettings, startPos, blockState, blockStates);
-
-        return blockStates;
-    }
-
     public static boolean isEnabled(MirrorSettings mirrorSettings, BlockPos startPos) {
         if (mirrorSettings == null || !mirrorSettings.enabled || (!mirrorSettings.mirrorX && !mirrorSettings.mirrorY && !mirrorSettings.mirrorZ))
             return false;
@@ -201,6 +160,47 @@ public class Mirror implements Modifier {
         }
 
         return blockState;
+    }
+
+    @Override
+    public Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
+        var coordinates = new LinkedHashSet<BlockPos>();
+
+        //find mirrorsettings for the player
+        var mirrorSettings = BuildModifierHelper.getModifierSettings(player).mirrorSettings();
+        if (!isEnabled(mirrorSettings, startPos)) return Collections.emptySet();
+
+        if (mirrorSettings.mirrorX) coordinateMirrorX(mirrorSettings, startPos, coordinates);
+        if (mirrorSettings.mirrorY) coordinateMirrorY(mirrorSettings, startPos, coordinates);
+        if (mirrorSettings.mirrorZ) coordinateMirrorZ(mirrorSettings, startPos, coordinates);
+
+        return coordinates;
+    }
+
+    @Override
+    public Map<BlockPos, BlockState> findBlockStates(Player player, BlockPos startPos, BlockState blockState) {
+        var blockStates = new LinkedHashMap<BlockPos, BlockState>();
+
+        //find mirrorsettings for the player
+        MirrorSettings mirrorSettings = BuildModifierHelper.getModifierSettings(player).mirrorSettings();
+        if (!isEnabled(mirrorSettings, startPos)) return Collections.emptyMap();
+
+        //Randomizer bag synergy
+//		AbstractRandomizerBagItem randomizerBagItem = null;
+        Container bagInventory = null;
+//		if (!itemStack.isEmpty() && itemStack.getItem() instanceof AbstractRandomizerBagItem) {
+//			randomizerBagItem = (AbstractRandomizerBagItem) itemStack.getItem() ;
+//			bagInventory = randomizerBagItem.getBagInventory(itemStack);
+//		}
+
+        if (mirrorSettings.mirrorX)
+            blockStateMirrorX(player, mirrorSettings, startPos, blockState, blockStates);
+        if (mirrorSettings.mirrorY)
+            blockStateMirrorY(player, mirrorSettings, startPos, blockState, blockStates);
+        if (mirrorSettings.mirrorZ)
+            blockStateMirrorZ(player, mirrorSettings, startPos, blockState, blockStates);
+
+        return blockStates;
     }
 
     public record MirrorSettings(

@@ -22,7 +22,7 @@ public class InventoryHelper {
         if (inventory.getSelected().is(item) && !inventory.getSelected().isEmpty()) {
             return inventory.selected;
         }
-        for(int itemSlot = 0; itemSlot < inventory.items.size(); ++itemSlot) {
+        for (int itemSlot = 0; itemSlot < inventory.items.size(); ++itemSlot) {
             var itemStack = inventory.items.get(itemSlot);
             if (itemStack.isEmpty() || !itemStack.is(item)) {
                 continue;

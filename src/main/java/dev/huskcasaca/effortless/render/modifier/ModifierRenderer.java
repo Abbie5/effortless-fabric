@@ -113,11 +113,12 @@ public class ModifierRenderer {
     }
 
     private void renderMirror(MultiBufferSource.BufferSource multiBufferSource, Vec3 pos, Integer radius, List<Direction.Axis> axis, boolean drawPlanes, boolean drawLines) {
-        if (drawPlanes) {for (Direction.Axis a : axis) {
-            VertexConsumer buffer = RenderUtils.beginPlanes(multiBufferSource);
-            drawAxisPlane(buffer, pos, radius, a, COLOR_PLANE);
-            multiBufferSource.endBatch();
-        }
+        if (drawPlanes) {
+            for (Direction.Axis a : axis) {
+                VertexConsumer buffer = RenderUtils.beginPlanes(multiBufferSource);
+                drawAxisPlane(buffer, pos, radius, a, COLOR_PLANE);
+                multiBufferSource.endBatch();
+            }
         }
         if (drawLines) {
             for (Direction.Axis a : axis) {

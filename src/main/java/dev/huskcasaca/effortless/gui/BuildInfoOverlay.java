@@ -20,14 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class BuildInfoOverlay extends GuiComponent {
 
-    public static int getLastRightEndTextHeight() {
-        if (ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis() == Direction.AxisDirection.POSITIVE) {
-            return lastBuildInfoTextHeight;
-        } else {
-            return 0;
-        }
-    }
-
     private static final int ITEM_SPACING_X = 18;
     private static final int ITEM_SPACING_Y = 18;
     private static int lastBuildInfoTextHeight = 0;
@@ -35,6 +27,14 @@ public class BuildInfoOverlay extends GuiComponent {
 
     public BuildInfoOverlay(Minecraft minecraft) {
         this.minecraft = minecraft;
+    }
+
+    public static int getLastRightEndTextHeight() {
+        if (ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis() == Direction.AxisDirection.POSITIVE) {
+            return lastBuildInfoTextHeight;
+        } else {
+            return 0;
+        }
     }
 
     private void renderBuildMode(PoseStack poseStack) {
@@ -125,12 +125,12 @@ public class BuildInfoOverlay extends GuiComponent {
         var sufficientItems = itemUsages.sufficientItems();
         var insufficientItems = itemUsages.insufficientItems();
 
-        var defaultWidth = minecraft.getWindow().getGuiScaledWidth() / 2 + ((itemSide == Direction.AxisDirection.POSITIVE) ? 10 : - 10 - ITEM_SPACING_X);
+        var defaultWidth = minecraft.getWindow().getGuiScaledWidth() / 2 + ((itemSide == Direction.AxisDirection.POSITIVE) ? 10 : -10 - ITEM_SPACING_X);
         var defaultHeight = minecraft.getWindow().getGuiScaledHeight() / 2 - 8 - (sufficientItems.size() + insufficientItems.size() - 1) / 9 * ITEM_SPACING_Y / 2;
         var positionX = new AtomicInteger(0);
         var positionY = new AtomicInteger(0);
 
-        var sign = itemSide == Direction.AxisDirection.POSITIVE ? 1 : - 1;
+        var sign = itemSide == Direction.AxisDirection.POSITIVE ? 1 : -1;
 
         for (var stack : sufficientItems) {
             var width = defaultWidth + positionX.get() * ITEM_SPACING_X * sign;

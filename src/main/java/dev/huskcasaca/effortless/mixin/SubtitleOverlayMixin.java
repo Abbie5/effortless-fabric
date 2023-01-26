@@ -2,19 +2,14 @@ package dev.huskcasaca.effortless.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.gui.BuildInfoOverlay;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.SubtitleOverlay;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(SubtitleOverlay.class)
 public abstract class SubtitleOverlayMixin {
-
-    @Shadow @Final private Minecraft minecraft;
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V", shift = At.Shift.AFTER))
     private void onScreenOpening(PoseStack poseStack, CallbackInfo ci) {

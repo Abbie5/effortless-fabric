@@ -64,9 +64,7 @@ public class RadialMenuScreen extends Screen {
     private static final double BUTTON_DISTANCE = 120;
     private static final float FADE_SPEED = 0.5f;
     private static final int DESCRIPTION_HEIGHT = 100;
-
-    public static final int MODE_OPTION_ROW_HEIGHT = 39;
-
+    private static final int MODE_OPTION_ROW_HEIGHT = 39;
     public BuildMode switchTo = null;
     public BuildAction doAction = null;
     public boolean performedActionUsingMouse;
@@ -113,7 +111,7 @@ public class RadialMenuScreen extends Screen {
     public void render(PoseStack poseStack, final int mouseX, final int mouseY, final float partialTicks) {
         visibility = Math.min(visibility + FADE_SPEED * partialTicks, 1f);
         if (minecraft != null && minecraft.level != null) {
-            fillGradient(poseStack, 0, 0, this.width, this.height,  (int) (visibility * 0xC0) << 24 | 0x101010, (int) (visibility * 0xD0) << 24 | 0x101010);
+            fillGradient(poseStack, 0, 0, this.width, this.height, (int) (visibility * 0xC0) << 24 | 0x101010, (int) (visibility * 0xD0) << 24 | 0x101010);
         } else {
             this.renderDirtBackground(0);
         }
@@ -160,10 +158,10 @@ public class RadialMenuScreen extends Screen {
         int baseY = -13;
         int buttonOffset = 26;
 
-        buttons.add(new MenuButton(BuildAction.UNDO,     -BUTTON_DISTANCE - buttonOffset, baseY + 0,            Direction.WEST));
-        buttons.add(new MenuButton(BuildAction.REDO,     -BUTTON_DISTANCE - 0,            baseY + 0,            Direction.EAST));
+        buttons.add(new MenuButton(BuildAction.UNDO, -BUTTON_DISTANCE - buttonOffset, baseY, Direction.WEST));
+        buttons.add(new MenuButton(BuildAction.REDO, -BUTTON_DISTANCE - 0, baseY, Direction.EAST));
         buttons.add(new MenuButton(BuildAction.MODIFIER, -BUTTON_DISTANCE - buttonOffset, baseY + buttonOffset, Direction.WEST));
-        buttons.add(new MenuButton(BuildAction.REPLACE,  -BUTTON_DISTANCE - 0,            baseY + buttonOffset, Direction.EAST));
+        buttons.add(new MenuButton(BuildAction.REPLACE, -BUTTON_DISTANCE - 0, baseY + buttonOffset, Direction.EAST));
 
         //Add buildmode dependent options
         var options = currentBuildMode.getOptions();
@@ -210,6 +208,7 @@ public class RadialMenuScreen extends Screen {
     private boolean isButtonHighlighted(MenuButton btn, double mouseXCenter, double mouseYCenter) {
         return btn.x1 <= mouseXCenter && btn.x2 >= mouseXCenter && btn.y1 <= mouseYCenter && btn.y2 >= mouseYCenter;
     }
+
     private boolean isButtonHighlighted(ArrayList<MenuButton> btns, double mouseXCenter, double mouseYCenter) {
         for (var btn : btns) {
             if (isButtonHighlighted(btn, mouseXCenter, mouseYCenter)) {
@@ -485,8 +484,10 @@ public class RadialMenuScreen extends Screen {
                 switch (lastAction) {
                     case UNDO -> Effortless.log(player, "Undo", true);
                     case REDO -> Effortless.log(player, "Redo", true);
-                    case REPLACE -> Effortless.log(player, ChatFormatting.GOLD + "Replace " + ChatFormatting.RESET + (modifierSettings.enableReplace() ? (modifierSettings.enableQuickReplace() ? (ChatFormatting.GREEN + "QUICK") : (ChatFormatting.GREEN + "ON")) : (ChatFormatting.RED + "OFF")) + ChatFormatting.RESET, true);
-                    case MAGNET -> Effortless.log(player, ChatFormatting.GOLD + "Item Magnet " + ChatFormatting.RESET + (modeSettings.enableMagnet() ? (ChatFormatting.GREEN + "ON") : (ChatFormatting.RED + "OFF")) + ChatFormatting.RESET, true);
+                    case REPLACE ->
+                            Effortless.log(player, ChatFormatting.GOLD + "Replace " + ChatFormatting.RESET + (modifierSettings.enableReplace() ? (modifierSettings.enableQuickReplace() ? (ChatFormatting.GREEN + "QUICK") : (ChatFormatting.GREEN + "ON")) : (ChatFormatting.RED + "OFF")) + ChatFormatting.RESET, true);
+                    case MAGNET ->
+                            Effortless.log(player, ChatFormatting.GOLD + "Item Magnet " + ChatFormatting.RESET + (modeSettings.enableMagnet() ? (ChatFormatting.GREEN + "ON") : (ChatFormatting.RED + "OFF")) + ChatFormatting.RESET, true);
                 }
                 lastAction = null;
             }
@@ -544,8 +545,10 @@ public class RadialMenuScreen extends Screen {
         private final BuildAction action;
         private final String name;
         private final Direction textSide;
-        private double x1, x2;
-        private double y1, y2;
+        private final double x1;
+        private final double x2;
+        private final double y1;
+        private final double y2;
         private boolean highlighted;
 
         public MenuButton(final BuildAction action, final double x, final double y,

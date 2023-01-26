@@ -57,7 +57,7 @@ public class ItemStackUtils {
             blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
             blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
             if (player instanceof ServerPlayer) {
-                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer)player, blockPos, itemStack);
+                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
             }
         }
         var soundType = blockState2.getSoundType();

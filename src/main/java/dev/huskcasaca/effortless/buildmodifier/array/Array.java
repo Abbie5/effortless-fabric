@@ -11,6 +11,11 @@ import java.util.*;
 
 public class Array implements Modifier {
 
+    public static boolean isEnabled(ArraySettings a) {
+        if (a == null || !a.enabled()) return false;
+        return a.offset.getX() != 0 || a.offset.getY() != 0 || a.offset.getZ() != 0;
+    }
+
     @Override
     public Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
         var coordinates = new LinkedHashSet<BlockPos>();
@@ -66,12 +71,6 @@ public class Array implements Modifier {
         }
 
         return blockStates;
-    }
-
-    public static boolean isEnabled(ArraySettings a) {
-        if (a == null || !a.enabled()) return false;
-
-        return a.offset.getX() != 0 || a.offset.getY() != 0 || a.offset.getZ() != 0;
     }
 
     public record ArraySettings(

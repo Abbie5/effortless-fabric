@@ -33,11 +33,11 @@ import java.util.Objects;
 public abstract class ClientPacketListenerMixin implements ClientEffortlessPacketListener {
 
     @Shadow
-    public abstract void send(Packet<?> packet);
-
-    @Shadow
     @Final
     private Minecraft minecraft;
+
+    @Shadow
+    public abstract void send(Packet<?> packet);
 
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, CallbackInfo ci) {

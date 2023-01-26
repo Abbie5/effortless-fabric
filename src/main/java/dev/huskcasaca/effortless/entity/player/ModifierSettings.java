@@ -4,11 +4,8 @@ import dev.huskcasaca.effortless.buildmodifier.ReplaceMode;
 import dev.huskcasaca.effortless.buildmodifier.array.Array;
 import dev.huskcasaca.effortless.buildmodifier.mirror.Mirror;
 import dev.huskcasaca.effortless.buildmodifier.mirror.RadialMirror;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public record ModifierSettings(
@@ -26,18 +23,6 @@ public record ModifierSettings(
     public ModifierSettings(Mirror.MirrorSettings mirrorSettings, Array.ArraySettings arraySettings,
                             RadialMirror.RadialMirrorSettings radialMirrorSettings) {
         this(arraySettings, mirrorSettings, radialMirrorSettings, ReplaceMode.DISABLED);
-    }
-
-    public boolean enableReplace() {
-        return replaceMode != ReplaceMode.DISABLED;
-    }
-
-    public boolean enableNormalReplace() {
-        return replaceMode == ReplaceMode.NORMAL;
-    }
-
-    public boolean enableQuickReplace() {
-        return replaceMode == ReplaceMode.QUICK;
     }
 
     public static ModifierSettings decodeBuf(FriendlyByteBuf friendlyByteBuf) {
@@ -128,6 +113,18 @@ public record ModifierSettings(
             friendlyByteBuf.writeBoolean(radialMirrorSettings.drawPlanes());
         }
         friendlyByteBuf.writeInt(modifierSettings.replaceMode().ordinal());
+    }
+
+    public boolean enableReplace() {
+        return replaceMode != ReplaceMode.DISABLED;
+    }
+
+    public boolean enableNormalReplace() {
+        return replaceMode == ReplaceMode.NORMAL;
+    }
+
+    public boolean enableQuickReplace() {
+        return replaceMode == ReplaceMode.QUICK;
     }
 
 }

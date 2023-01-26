@@ -3,7 +3,6 @@ package dev.huskcasaca.effortless.event;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceProvider;
 
 import java.io.IOException;

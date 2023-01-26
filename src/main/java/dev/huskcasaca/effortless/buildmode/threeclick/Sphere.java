@@ -42,7 +42,7 @@ public class Sphere extends ThreeClickBuildable {
             radiusY = Mth.abs(y3 - centerY);
             radiusZ = Mth.abs(z2 - centerZ);
         } else {
-            if  (x1 == x2) {
+            if (x1 == x2) {
                 if (BuildActionHandler.getCircleStart() == BuildAction.CIRCLE_START_CORNER) {
                     centerX = x1 + (x3 - x1) / 2f;
                     centerY = y1 + (y2 - y1) / 2f;

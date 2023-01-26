@@ -1,14 +1,14 @@
 package dev.huskcasaca.effortless.mixin;
 
-import dev.huskcasaca.effortless.entity.player.EffortlessDataProvider;
-import dev.huskcasaca.effortless.buildmodifier.ReplaceMode;
-import dev.huskcasaca.effortless.entity.player.ModeSettings;
-import dev.huskcasaca.effortless.entity.player.ModifierSettings;
-import dev.huskcasaca.effortless.entity.player.ReachSettings;
 import dev.huskcasaca.effortless.buildmode.BuildMode;
+import dev.huskcasaca.effortless.buildmodifier.ReplaceMode;
 import dev.huskcasaca.effortless.buildmodifier.array.Array;
 import dev.huskcasaca.effortless.buildmodifier.mirror.Mirror;
 import dev.huskcasaca.effortless.buildmodifier.mirror.RadialMirror;
+import dev.huskcasaca.effortless.entity.player.EffortlessDataProvider;
+import dev.huskcasaca.effortless.entity.player.ModeSettings;
+import dev.huskcasaca.effortless.entity.player.ModifierSettings;
+import dev.huskcasaca.effortless.entity.player.ReachSettings;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;

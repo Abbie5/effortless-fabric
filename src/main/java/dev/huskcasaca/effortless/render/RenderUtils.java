@@ -98,15 +98,15 @@ public class RenderUtils {
     private static void renderShape(PoseStack poseStack, VertexConsumer vertexConsumer, VoxelShape voxelShape, double d, double e, double f, float g, float h, float i, float j) {
         PoseStack.Pose pose = poseStack.last();
         voxelShape.forAllEdges((k, l, m, n, o, p) -> {
-            float q = (float)(n - k);
-            float r = (float)(o - l);
-            float s = (float)(p - m);
+            float q = (float) (n - k);
+            float r = (float) (o - l);
+            float s = (float) (p - m);
             float t = Mth.sqrt(q * q + r * r + s * s);
             q /= t;
             r /= t;
             s /= t;
-            vertexConsumer.vertex(pose.pose(), (float)(k + d), (float)(l + e), (float)(m + f)).color(g, h, i, j).normal(pose.normal(), q, r, s).endVertex();
-            vertexConsumer.vertex(pose.pose(), (float)(n + d), (float)(o + e), (float)(p + f)).color(g, h, i, j).normal(pose.normal(), q, r, s).endVertex();
+            vertexConsumer.vertex(pose.pose(), (float) (k + d), (float) (l + e), (float) (m + f)).color(g, h, i, j).normal(pose.normal(), q, r, s).endVertex();
+            vertexConsumer.vertex(pose.pose(), (float) (n + d), (float) (o + e), (float) (p + f)).color(g, h, i, j).normal(pose.normal(), q, r, s).endVertex();
         });
     }
 

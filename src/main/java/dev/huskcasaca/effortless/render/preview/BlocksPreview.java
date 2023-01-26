@@ -32,7 +32,7 @@ public record BlocksPreview(
     public static BlocksPreview snapshot(Player player, List<BlockPosState> blockPosStates, boolean breaking) {
         return new BlocksPreview(
                 blockPosStates,
-                breaking ? Collections.emptyList() :player.getInventory().items.stream().map(ItemStack::copy).toList(),
+                breaking ? Collections.emptyList() : player.getInventory().items.stream().map(ItemStack::copy).toList(),
                 EffortlessClient.getTicksInGame(),
                 breaking,
                 player.isCreative()

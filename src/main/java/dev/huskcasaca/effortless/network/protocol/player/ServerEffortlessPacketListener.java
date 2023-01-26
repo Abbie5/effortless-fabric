@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.network.protocol.player;
 
-import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.game.ServerPacketListener;
 
 public interface ServerEffortlessPacketListener extends ServerPacketListener {
 

@@ -14,6 +14,55 @@ import java.util.*;
 
 public class RadialMirror implements Modifier {
 
+    private static BlockState rotateOriginalBlockState(Player player, BlockPos startPos, double startAngleToCenter, BlockState blockState) {
+        BlockState newBlockState = blockState;
+
+        if (startAngleToCenter < -0.751 * Math.PI || startAngleToCenter > 0.749 * Math.PI) {
+            newBlockState = blockState.rotate(Rotation.CLOCKWISE_180);
+        } else if (startAngleToCenter < -0.251 * Math.PI) {
+            newBlockState = blockState.rotate(Rotation.COUNTERCLOCKWISE_90);
+        } else if (startAngleToCenter > 0.249 * Math.PI) {
+            newBlockState = blockState.rotate(Rotation.CLOCKWISE_90);
+        }
+
+        return newBlockState;
+    }
+
+    private static BlockState rotateBlockState(Player player, BlockPos startPos, Vec3 relVec, BlockState blockState, boolean alternate) {
+        BlockState newBlockState;
+        double angleToCenter = Mth.atan2(relVec.x, relVec.z); //between -PI and PI
+
+        if (angleToCenter < -0.751 * Math.PI || angleToCenter > 0.749 * Math.PI) {
+            newBlockState = blockState.rotate(Rotation.CLOCKWISE_180);
+            if (alternate) {
+                newBlockState = newBlockState.mirror(Mirror.FRONT_BACK);
+            }
+        } else if (angleToCenter < -0.251 * Math.PI) {
+            newBlockState = blockState.rotate(Rotation.CLOCKWISE_90);
+            if (alternate) {
+                newBlockState = newBlockState.mirror(Mirror.LEFT_RIGHT);
+            }
+        } else if (angleToCenter > 0.249 * Math.PI) {
+            newBlockState = blockState.rotate(Rotation.COUNTERCLOCKWISE_90);
+            if (alternate) {
+                newBlockState = newBlockState.mirror(Mirror.LEFT_RIGHT);
+            }
+        } else {
+            newBlockState = blockState;
+            if (alternate) {
+                newBlockState = newBlockState.mirror(Mirror.FRONT_BACK);
+            }
+        }
+
+        return newBlockState;
+    }
+
+    public static boolean isEnabled(RadialMirrorSettings radialMirrorSettings, BlockPos startPos) {
+        if (radialMirrorSettings == null || !radialMirrorSettings.enabled()) return false;
+
+        return !(radialMirrorSettings.radius * radialMirrorSettings.radius < new Vec3(startPos.getX() + 0.5, startPos.getY() + 0.5, startPos.getZ() + 0.5).subtract(radialMirrorSettings.position).lengthSqr());
+    }
+
     @Override
     public Set<BlockPos> findCoordinates(Player player, BlockPos startPos) {
         var coordinates = new LinkedHashSet<BlockPos>();
@@ -105,55 +154,6 @@ public class RadialMirror implements Modifier {
         }
 
         return blockStates;
-    }
-
-    private static BlockState rotateOriginalBlockState(Player player, BlockPos startPos, double startAngleToCenter, BlockState blockState) {
-        BlockState newBlockState = blockState;
-
-        if (startAngleToCenter < -0.751 * Math.PI || startAngleToCenter > 0.749 * Math.PI) {
-            newBlockState = blockState.rotate(Rotation.CLOCKWISE_180);
-        } else if (startAngleToCenter < -0.251 * Math.PI) {
-            newBlockState = blockState.rotate(Rotation.COUNTERCLOCKWISE_90);
-        } else if (startAngleToCenter > 0.249 * Math.PI) {
-            newBlockState = blockState.rotate(Rotation.CLOCKWISE_90);
-        }
-
-        return newBlockState;
-    }
-
-    private static BlockState rotateBlockState(Player player, BlockPos startPos, Vec3 relVec, BlockState blockState, boolean alternate) {
-        BlockState newBlockState;
-        double angleToCenter = Mth.atan2(relVec.x, relVec.z); //between -PI and PI
-
-        if (angleToCenter < -0.751 * Math.PI || angleToCenter > 0.749 * Math.PI) {
-            newBlockState = blockState.rotate(Rotation.CLOCKWISE_180);
-            if (alternate) {
-                newBlockState = newBlockState.mirror(Mirror.FRONT_BACK);
-            }
-        } else if (angleToCenter < -0.251 * Math.PI) {
-            newBlockState = blockState.rotate(Rotation.CLOCKWISE_90);
-            if (alternate) {
-                newBlockState = newBlockState.mirror(Mirror.LEFT_RIGHT);
-            }
-        } else if (angleToCenter > 0.249 * Math.PI) {
-            newBlockState = blockState.rotate(Rotation.COUNTERCLOCKWISE_90);
-            if (alternate) {
-                newBlockState = newBlockState.mirror(Mirror.LEFT_RIGHT);
-            }
-        } else {
-            newBlockState = blockState;
-            if (alternate) {
-                newBlockState = newBlockState.mirror(Mirror.FRONT_BACK);
-            }
-        }
-
-        return newBlockState;
-    }
-
-    public static boolean isEnabled(RadialMirrorSettings radialMirrorSettings, BlockPos startPos) {
-        if (radialMirrorSettings == null || !radialMirrorSettings.enabled()) return false;
-
-        return !(radialMirrorSettings.radius * radialMirrorSettings.radius < new Vec3(startPos.getX() + 0.5, startPos.getY() + 0.5, startPos.getZ() + 0.5).subtract(radialMirrorSettings.position).lengthSqr());
     }
 
     public record RadialMirrorSettings(

@@ -89,7 +89,8 @@ public class BuildRenderType extends RenderType {
         var texture = new TexturingStateShard(stateName, () -> {
             setShaderParameters(getDissolveShaderInstance(), dissolve, Vec3.atLowerCornerOf(blockPos), Vec3.atLowerCornerOf(firstPos), Vec3.atLowerCornerOf(secondPos), blockPos == secondPos, red);
             RenderSystem.setShaderColor(1f, 1f, 1f, 0.8f);
-        }, () -> { });
+        }, () -> {
+        });
         var renderState = RenderType.CompositeState.builder()
                 .setShaderState(RENDER_TYPE_DISSOLVE_SHADER)
                 .setTexturingState(texture)

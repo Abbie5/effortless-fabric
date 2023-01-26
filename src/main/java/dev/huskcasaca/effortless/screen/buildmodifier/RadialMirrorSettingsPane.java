@@ -2,9 +2,9 @@ package dev.huskcasaca.effortless.screen.buildmodifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.Effortless;
+import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.buildmodifier.mirror.RadialMirror;
-import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.screen.widget.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -74,12 +74,12 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
         radialMirrorNumberFieldList.add(textRadialMirrorPosZ);
 
         y = top + 47;
-        textRadialMirrorSlices = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y + Dimen.BUTTON_VERTICAL_OFFSET * 1, 80, 18);
+        textRadialMirrorSlices = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y + Dimen.BUTTON_VERTICAL_OFFSET, 80, 18);
         textRadialMirrorSlices.setNumber(4);
         textRadialMirrorSlices.setTooltip(Arrays.asList(Component.literal("The number of repeating slices."), Component.literal("Minimally 2.").withStyle(ChatFormatting.GRAY)));
         radialMirrorNumberFieldList.add(textRadialMirrorSlices);
 
-        textRadialMirrorRadius = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y + Dimen.BUTTON_VERTICAL_OFFSET * 0, 80, 18);
+        textRadialMirrorRadius = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y, 80, 18);
         textRadialMirrorRadius.setNumber(50);
         //TODO change to diameter (remove /2)
         textRadialMirrorRadius.setTooltip(Arrays.asList(Component.literal("How far the radial mirror reaches from its center position."),

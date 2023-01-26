@@ -27,8 +27,11 @@ import java.util.function.Function;
 public class EffortlessConfigScreen {
 
     private static final Function<Boolean, Component> yesNoTextSupplier = bool -> {
-        if (bool) return Component.translatable(Effortless.MOD_ID + ".settings.toggle.on").withStyle(ChatFormatting.GREEN);
-        else return Component.translatable(Effortless.MOD_ID + ".settings.toggle.off").withStyle(ChatFormatting.RED);
+        if (bool) {
+            return Component.translatable(Effortless.MOD_ID + ".settings.toggle.on").withStyle(ChatFormatting.GREEN);
+        } else {
+            return Component.translatable(Effortless.MOD_ID + ".settings.toggle.off").withStyle(ChatFormatting.RED);
+        }
     };
 
     static String getSettingsNamespace() {

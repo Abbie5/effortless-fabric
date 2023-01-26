@@ -3,9 +3,9 @@ package dev.huskcasaca.effortless.mixin;
 import dev.huskcasaca.effortless.buildmode.BuildMode;
 import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
 import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
+import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.ServerboundPlayerBreakBlockPacket;
 import dev.huskcasaca.effortless.network.protocol.player.ServerboundPlayerPlaceBlockPacket;
-import dev.huskcasaca.effortless.network.Packets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -33,24 +33,20 @@ public abstract class PlayerActionMixin {
     @Shadow
     @Nullable
     public HitResult hitResult;
-
-    @Shadow
-    protected int missTime;
     @Shadow
     @Nullable
     public MultiPlayerGameMode gameMode;
-
     @Shadow
     @Nullable
     public LocalPlayer player;
     @Shadow
     @Final
     public GameRenderer gameRenderer;
-
     @Shadow
     @Nullable
     public ClientLevel level;
-
+    @Shadow
+    protected int missTime;
     @Shadow
     private int rightClickDelay;
 

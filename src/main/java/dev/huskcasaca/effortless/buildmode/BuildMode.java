@@ -3,10 +3,13 @@ package dev.huskcasaca.effortless.buildmode;
 import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.building.BuildAction;
 import dev.huskcasaca.effortless.building.BuildActionHandler;
-import dev.huskcasaca.effortless.buildmode.oneclick.Single;
 import dev.huskcasaca.effortless.buildmode.oneclick.Disable;
+import dev.huskcasaca.effortless.buildmode.oneclick.Single;
 import dev.huskcasaca.effortless.buildmode.threeclick.*;
-import dev.huskcasaca.effortless.buildmode.twoclick.*;
+import dev.huskcasaca.effortless.buildmode.twoclick.Circle;
+import dev.huskcasaca.effortless.buildmode.twoclick.Floor;
+import dev.huskcasaca.effortless.buildmode.twoclick.Line;
+import dev.huskcasaca.effortless.buildmode.twoclick.Wall;
 import org.joml.Vector4f;
 
 public enum BuildMode {

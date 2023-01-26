@@ -2,9 +2,9 @@ package dev.huskcasaca.effortless.screen.buildmodifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.Effortless;
+import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.control.Keys;
 import dev.huskcasaca.effortless.entity.player.ModifierSettings;
-import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.ServerboundPlayerSetBuildModifierPacket;
 import dev.huskcasaca.effortless.screen.widget.ScrollPane;

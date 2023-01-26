@@ -1,15 +1,16 @@
 package dev.huskcasaca.effortless.mixin;
 
 import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.building.BuildActionHandler;
+import dev.huskcasaca.effortless.building.ReachHelper;
 import dev.huskcasaca.effortless.buildmode.BuildModeHandler;
 import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.*;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.*;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.PacketUtils;
 import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
@@ -33,13 +34,12 @@ public abstract class ServerPacketListenerMixin implements ServerEffortlessPacke
 
     @Shadow
     public ServerPlayer player;
-
-    @Shadow
-    public abstract void send(Packet<?> packet, @Nullable PacketSendListener packetSendListener);
-
     @Shadow
     @Final
     private MinecraftServer server;
+
+    @Shadow
+    public abstract void send(Packet<?> packet, @Nullable PacketSendListener packetSendListener);
 
     @Inject(method = "send(Lnet/minecraft/network/protocol/Packet;Lnet/minecraft/network/PacketSendListener;)V", at = @At("HEAD"), cancellable = true)
     private void send(Packet<?> packet, @Nullable PacketSendListener packetSendListener, CallbackInfo ci) {

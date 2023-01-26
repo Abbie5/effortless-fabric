@@ -61,7 +61,7 @@ public class BuildActionHandler {
     }
 
     public static BuildAction[] getOptions() {
-        return new BuildAction[] {
+        return new BuildAction[]{
                 getBuildSpeed(),
                 getLineThickness(),
                 getPlaneFilling(),
