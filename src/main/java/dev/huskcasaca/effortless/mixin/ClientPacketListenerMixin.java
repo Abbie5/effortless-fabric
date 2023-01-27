@@ -43,9 +43,9 @@ public abstract class ClientPacketListenerMixin implements ClientEffortlessPacke
     private void send(Packet<?> packet, CallbackInfo ci) {
         var resourceLocation = Packets.getKey(packet);
         if (resourceLocation == null) return;
-        var buf = new FriendlyByteBuf(Unpooled.buffer());
-        packet.write(buf);
-        send(new ServerboundCustomPayloadPacket(resourceLocation, buf));
+        var friendlyByteBuf = new FriendlyByteBuf(Unpooled.buffer());
+        packet.write(friendlyByteBuf);
+        send(new ServerboundCustomPayloadPacket(resourceLocation, friendlyByteBuf));
         ci.cancel();
     }
 

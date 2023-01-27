@@ -10,7 +10,6 @@ import net.minecraft.network.protocol.game.ServerPacketListener;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -28,35 +27,29 @@ public class Packets {
     public static final ResourceLocation C2S_PLAYER_SET_BUILD_MODIFIER_PACKET = new ResourceLocation(Effortless.MOD_ID, "player_set_build_modifier");
     public static final ResourceLocation C2S_PLAYER_SET_BUILD_REACH_PACKET = new ResourceLocation(Effortless.MOD_ID, "player_set_build_reach");
 
-    private static final Map<ResourceLocation, Function<FriendlyByteBuf, ? extends Packet<? extends PacketListener>>> idToDeserializer = new HashMap<>() {{
-        put(S2C_PLAYER_BUILD_MODE_PACKET, ClientboundPlayerBuildModePacket::new);
-        put(S2C_PLAYER_BUILD_MODIFIER_PACKET, ClientboundPlayerBuildModifierPacket::new);
-        put(S2C_PLAYER_REACH_PACKET, ClientboundPlayerReachPacket::new);
-        put(S2C_PLAYER_REQUEST_LOOK_AT_PACKET, ClientboundPlayerRequestLookAtPacket::new);
+    private static final Map<ResourceLocation, Function<FriendlyByteBuf, ? extends Packet<? extends PacketListener>>> idToDeserializer = Map.of(
+            S2C_PLAYER_BUILD_MODE_PACKET, ClientboundPlayerBuildModePacket::new,
+            S2C_PLAYER_BUILD_MODIFIER_PACKET, ClientboundPlayerBuildModifierPacket::new,
+            S2C_PLAYER_REACH_PACKET, ClientboundPlayerReachPacket::new,
+            S2C_PLAYER_REQUEST_LOOK_AT_PACKET, ClientboundPlayerRequestLookAtPacket::new,
+            C2S_PLAYER_BREAK_BLOCK_PACKET, ServerboundPlayerBreakBlockPacket::new,
+            C2S_PLAYER_BUILD_ACTION_PACKET, ServerboundPlayerBuildActionPacket::new,
+            C2S_PLAYER_PLACE_BLOCK_PACKET, ServerboundPlayerPlaceBlockPacket::new,
+            C2S_PLAYER_SET_BUILD_MODE_PACKET, ServerboundPlayerSetBuildModePacket::new,
+            C2S_PLAYER_SET_BUILD_MODIFIER_PACKET, ServerboundPlayerSetBuildModifierPacket::new,
+            C2S_PLAYER_SET_BUILD_REACH_PACKET, ServerboundPlayerSetBuildReachPacket::new);
 
-        put(Packets.C2S_PLAYER_BREAK_BLOCK_PACKET, ServerboundPlayerBreakBlockPacket::new);
-        put(Packets.C2S_PLAYER_BUILD_ACTION_PACKET, ServerboundPlayerBuildActionPacket::new);
-        put(Packets.C2S_PLAYER_PLACE_BLOCK_PACKET, ServerboundPlayerPlaceBlockPacket::new);
-
-        put(Packets.C2S_PLAYER_SET_BUILD_MODE_PACKET, ServerboundPlayerSetBuildModePacket::new);
-        put(Packets.C2S_PLAYER_SET_BUILD_MODIFIER_PACKET, ServerboundPlayerSetBuildModifierPacket::new);
-        put(Packets.C2S_PLAYER_SET_BUILD_REACH_PACKET, ServerboundPlayerSetBuildReachPacket::new);
-    }};
-
-    private static final Map<Class<?>, ResourceLocation> classToId = new HashMap<>() {{
-        put(ClientboundPlayerBuildModePacket.class, S2C_PLAYER_BUILD_MODE_PACKET);
-        put(ClientboundPlayerBuildModifierPacket.class, S2C_PLAYER_BUILD_MODIFIER_PACKET);
-        put(ClientboundPlayerReachPacket.class, S2C_PLAYER_REACH_PACKET);
-        put(ClientboundPlayerRequestLookAtPacket.class, S2C_PLAYER_REQUEST_LOOK_AT_PACKET);
-
-        put(ServerboundPlayerBreakBlockPacket.class, Packets.C2S_PLAYER_BREAK_BLOCK_PACKET);
-        put(ServerboundPlayerBuildActionPacket.class, Packets.C2S_PLAYER_BUILD_ACTION_PACKET);
-        put(ServerboundPlayerPlaceBlockPacket.class, Packets.C2S_PLAYER_PLACE_BLOCK_PACKET);
-
-        put(ServerboundPlayerSetBuildModePacket.class, Packets.C2S_PLAYER_SET_BUILD_MODE_PACKET);
-        put(ServerboundPlayerSetBuildModifierPacket.class, Packets.C2S_PLAYER_SET_BUILD_MODIFIER_PACKET);
-        put(ServerboundPlayerSetBuildReachPacket.class, Packets.C2S_PLAYER_SET_BUILD_REACH_PACKET);
-    }};
+    private static final Map<Class<?>, ResourceLocation> classToId = Map.of(
+            ClientboundPlayerBuildModePacket.class, S2C_PLAYER_BUILD_MODE_PACKET,
+            ClientboundPlayerBuildModifierPacket.class, S2C_PLAYER_BUILD_MODIFIER_PACKET,
+            ClientboundPlayerReachPacket.class, S2C_PLAYER_REACH_PACKET,
+            ClientboundPlayerRequestLookAtPacket.class, S2C_PLAYER_REQUEST_LOOK_AT_PACKET,
+            ServerboundPlayerBreakBlockPacket.class, C2S_PLAYER_BREAK_BLOCK_PACKET,
+            ServerboundPlayerBuildActionPacket.class, C2S_PLAYER_BUILD_ACTION_PACKET,
+            ServerboundPlayerPlaceBlockPacket.class, C2S_PLAYER_PLACE_BLOCK_PACKET,
+            ServerboundPlayerSetBuildModePacket.class, C2S_PLAYER_SET_BUILD_MODE_PACKET,
+            ServerboundPlayerSetBuildModifierPacket.class, C2S_PLAYER_SET_BUILD_MODIFIER_PACKET,
+            ServerboundPlayerSetBuildReachPacket.class, C2S_PLAYER_SET_BUILD_REACH_PACKET);
 
     public static ResourceLocation getKey(Packet<?> packet) {
         return classToId.get(packet.getClass());

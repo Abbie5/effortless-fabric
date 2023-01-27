@@ -78,7 +78,7 @@ public class EffortlessClient implements ClientModInitializer {
     }
 
     public static void onEndClientTick(Minecraft client) {
-        Screen gui = Minecraft.getInstance().screen;
+        Screen gui = client.screen;
         if (gui == null || !gui.isPauseScreen()) {
             ticksInGame++;
         }
@@ -89,9 +89,7 @@ public class EffortlessClient implements ClientModInitializer {
         if (player == null)
             return;
         if (Keys.RADIAL_MENU.isDown()) {
-            if (!RadialMenuScreen.getInstance().isVisible()) {
-                Minecraft.getInstance().setScreen(RadialMenuScreen.getInstance());
-            }
+            showRadialMenu();
         }
 //        // remember to send packet to server if necessary
         if (Keys.MODIFIER_MENU.getKeyMapping().consumeClick()) {
@@ -115,6 +113,12 @@ public class EffortlessClient implements ClientModInitializer {
 //        if (Keys.TOGGLE_QUICK_REPLACE.getKeyMapping().consumeClick()) {
 //            BuildModifierHelper.toggleQuickReplaceMode(player);
 //        }
+    }
+
+    public static void showRadialMenu() {
+        if (!RadialMenuScreen.getInstance().isVisible()) {
+            Minecraft.getInstance().setScreen(RadialMenuScreen.getInstance());
+        }
     }
 
     public static void openModifierSettings() {

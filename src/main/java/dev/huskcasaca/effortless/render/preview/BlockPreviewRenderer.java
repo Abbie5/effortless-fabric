@@ -129,7 +129,7 @@ public class BlockPreviewRenderer {
 
         var hitResult = EffortlessClient.getLookingAt(player);
         if (BuildModeHelper.getBuildMode(player) == BuildMode.DISABLE) {
-            hitResult = Minecraft.getInstance().hitResult;
+            hitResult = minecraft.hitResult;
         }
 
         var breaking = BuildModeHandler.isCurrentlyBreaking(player);
