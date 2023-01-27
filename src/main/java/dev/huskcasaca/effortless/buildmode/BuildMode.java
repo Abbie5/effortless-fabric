@@ -79,6 +79,7 @@ public enum BuildMode {
         };
     }
 
+    @Deprecated
     public String getDescriptionKey() {
         return Effortless.MOD_ID + ".description." + getName();
     }

@@ -54,16 +54,14 @@ public class RadialMenuScreen extends Screen {
     private static final Color HIGHLIGHT_COLOR = new Color(0.42f, 0.42f, 0.42f,  0.5f);
     private static final Color HIGHLIGHT_SELECTED_COLOR = new Color(0.60f, 0.60f, 0.60f, .78f);
     private static final int WHITE_TEXT_COLOR = 0xffffffff;
-    private static final int WATERMARK_TEXT_COLOR = 0x88888888;
-    private static final int DESCRIPTION_TEXT_COLOR = 0xdd888888;
+    private static final int WATERMARK_TEXT_COLOR = 0x8d7f7f7f;
     private static final int OPTION_TEXT_COLOR = 0xeeeeeeff;
     private static final double RING_INNER_EDGE = 36;
-    private static final double RING_OUTER_EDGE = 76;
+    private static final double RING_OUTER_EDGE = 74;
     private static final double CATEGORY_LINE_OUTER_EDGE = 40;
-    private static final double TEXT_DISTANCE = 90;
+    private static final double TEXT_DISTANCE = 84;
     private static final double BUTTON_DISTANCE = 120;
     private static final float FADE_SPEED = 0.5f;
-    private static final int DESCRIPTION_HEIGHT = 100;
     private static final int MODE_OPTION_ROW_HEIGHT = 39;
     private static final float MOUSE_SCROLL_THRESHOLD = 1;
 
@@ -374,10 +372,6 @@ public class RadialMenuScreen extends Screen {
                 }
 
                 font.drawShadow(poseStack, text, (int) middleX + fixed_x, (int) middleY + fixed_y, WHITE_TEXT_COLOR);
-
-                //Draw description
-                text = I18n.get(modeRegion.mode.getDescriptionKey());
-                font.drawShadow(poseStack, text, (int) middleX - font.width(text) / 2f, (int) middleY + DESCRIPTION_HEIGHT, DESCRIPTION_TEXT_COLOR);
             }
         }
 
@@ -488,12 +482,12 @@ public class RadialMenuScreen extends Screen {
         var player = Minecraft.getInstance().player;
         if (player != null) {
             if (lastAction == null) {
-                BuildMode mode = BuildModeHelper.getModeSettings(player).buildMode();
-                if (mode == BuildMode.DISABLE) {
-                    Effortless.log(player, BuildModeHelper.getTranslatedModeOptionName(player), true);
-                } else {
+//                BuildMode mode = BuildModeHelper.getModeSettings(player).buildMode();
+//                if (mode == BuildMode.DISABLE) {
+//                    Effortless.log(player, BuildModeHelper.getTranslatedModeOptionName(player), true);
+//                } else {
 //                    Effortless.log(player, ChatFormatting.GOLD + BuildModeHelper.getTranslatedModeOptionName(player) + ChatFormatting.RESET, true);
-                }
+//                }
             } else {
                 var modeSettings = BuildModeHelper.getModeSettings(player);
                 var modifierSettings = BuildModifierHelper.getModifierSettings(player);
