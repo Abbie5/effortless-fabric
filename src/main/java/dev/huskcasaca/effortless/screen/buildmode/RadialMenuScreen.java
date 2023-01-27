@@ -29,10 +29,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import org.apache.commons.lang3.text.WordUtils;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -48,11 +48,11 @@ import static dev.huskcasaca.effortless.building.BuildActionHandler.getOptions;
 public class RadialMenuScreen extends Screen {
 
     private static final RadialMenuScreen INSTANCE = new RadialMenuScreen();
-    private static final Vector4f RADIAL_BUTTON_COLOR = new Vector4f(0f, 0f, 0f, .5f);
-    private static final Vector4f SIDE_BUTTON_COLOR = new Vector4f(.5f, .5f, .5f, .5f);
-    private static final Vector4f HIGHLIGHT_COLOR = new Vector4f(.6f, .8f, 1f, .6f);
-    private static final Vector4f SELECTED_COLOR = new Vector4f(0f, .5f, 1f, .5f);
-    private static final Vector4f HIGHLIGHT_SELECTED_COLOR = new Vector4f(0.2f, .7f, 1f, .7f);
+    private static final Color SIDE_BUTTON_COLOR = new Color(.33f, .33f, .33f, .5f);
+    private static final Color RADIAL_BUTTON_COLOR = new Color(0f, 0f, 0f, .5f);
+    private static final Color SELECTED_COLOR = new Color(.5f, .5f, .5f, .78f);
+    private static final Color HIGHLIGHT_COLOR = new Color(0.42f, 0.42f, 0.42f,  0.5f);
+    private static final Color HIGHLIGHT_SELECTED_COLOR = new Color(0.60f, 0.60f, 0.60f, .78f);
     private static final int WHITE_TEXT_COLOR = 0xffffffff;
     private static final int WATERMARK_TEXT_COLOR = 0x88888888;
     private static final int DESCRIPTION_TEXT_COLOR = 0xdd888888;
@@ -260,7 +260,7 @@ public class RadialMenuScreen extends Screen {
             final boolean isMouseInQuad = inTriangle(x1m1, y1m1, x2m2, y2m2, x2m1, y2m1, mouseXCenter, mouseYCenter) || inTriangle(x1m1, y1m1, x1m2, y1m2, x2m2, y2m2, mouseXCenter, mouseYCenter);
             final boolean isHighlighted = ((beginRadians <= mouseRadians && mouseRadians <= endRadians) || (beginRadians <= (mouseRadians - 2 * Math.PI) && (mouseRadians - 2 * Math.PI) <= endRadians)) && isMouseInQuad;
 
-            Vector4f color = RADIAL_BUTTON_COLOR;
+            var color = RADIAL_BUTTON_COLOR;
             if (isSelected) color = SELECTED_COLOR;
             if (isHighlighted) color = HIGHLIGHT_COLOR;
             if (isSelected && isHighlighted) color = HIGHLIGHT_SELECTED_COLOR;
@@ -270,10 +270,10 @@ public class RadialMenuScreen extends Screen {
                 switchTo = modeRegion.mode;
             }
 
-            buffer.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + x2m2, middleY + y2m2, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + x1m2, middleY + y1m2, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
+            buffer.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + x2m2, middleY + y2m2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + x1m2, middleY + y1m2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
             //Category line
             color = modeRegion.mode.getCategory().getColor();
@@ -283,10 +283,10 @@ public class RadialMenuScreen extends Screen {
             final double y1m3 = Math.sin(beginRadians + fragment) * categoryOuterEdge;
             final double y2m3 = Math.sin(endRadians - fragment) * categoryOuterEdge;
 
-            buffer.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + x2m3, middleY + y2m3, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + x1m3, middleY + y1m3, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
+            buffer.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + x2m3, middleY + y2m3, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + x1m3, middleY + y1m3, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
         }
     }
 
@@ -297,7 +297,7 @@ public class RadialMenuScreen extends Screen {
 
             final boolean isHighlighted = btn.x1 <= mouseXCenter && btn.x2 >= mouseXCenter && btn.y1 <= mouseYCenter && btn.y2 >= mouseYCenter;
 
-            Vector4f color = SIDE_BUTTON_COLOR;
+            var color = SIDE_BUTTON_COLOR;
             if (isSelected) color = SELECTED_COLOR;
             if (isHighlighted) color = HIGHLIGHT_COLOR;
             if (isSelected && isHighlighted) color = HIGHLIGHT_SELECTED_COLOR;
@@ -307,10 +307,10 @@ public class RadialMenuScreen extends Screen {
                 doAction = btn.action;
             }
 
-            buffer.vertex(middleX + btn.x1, middleY + btn.y1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + btn.x1, middleY + btn.y2, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + btn.x2, middleY + btn.y2, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
-            buffer.vertex(middleX + btn.x2, middleY + btn.y1, getBlitOffset()).color(color.x(), color.y(), color.z(), color.w()).endVertex();
+            buffer.vertex(middleX + btn.x1, middleY + btn.y1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + btn.x1, middleY + btn.y2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + btn.x2, middleY + btn.y2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            buffer.vertex(middleX + btn.x2, middleY + btn.y1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
         }
     }
 
@@ -492,7 +492,7 @@ public class RadialMenuScreen extends Screen {
                 if (mode == BuildMode.DISABLE) {
                     Effortless.log(player, BuildModeHelper.getTranslatedModeOptionName(player), true);
                 } else {
-                    Effortless.log(player, ChatFormatting.GOLD + BuildModeHelper.getTranslatedModeOptionName(player) + ChatFormatting.RESET, true);
+//                    Effortless.log(player, ChatFormatting.GOLD + BuildModeHelper.getTranslatedModeOptionName(player) + ChatFormatting.RESET, true);
                 }
             } else {
                 var modeSettings = BuildModeHelper.getModeSettings(player);

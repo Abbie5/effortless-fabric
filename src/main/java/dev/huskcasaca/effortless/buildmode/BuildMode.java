@@ -10,7 +10,8 @@ import dev.huskcasaca.effortless.buildmode.twoclick.Circle;
 import dev.huskcasaca.effortless.buildmode.twoclick.Floor;
 import dev.huskcasaca.effortless.buildmode.twoclick.Line;
 import dev.huskcasaca.effortless.buildmode.twoclick.Wall;
-import org.joml.Vector4f;
+
+import java.awt.*;
 
 public enum BuildMode {
     DISABLE("disable", new Disable(), Category.BASIC),
@@ -29,9 +30,9 @@ public enum BuildMode {
     CYLINDER("cylinder", new Cylinder(), Category.CIRCULAR, Option.CIRCLE_START, Option.PLANE_FILLING, Option.ORIENTATION),
     SPHERE("sphere", new Sphere(), Category.CIRCULAR, Option.CIRCLE_START, Option.PLANE_FILLING, Option.ORIENTATION);
 
-//    PYRAMID("pyramid", new Pyramid(), Category.ROOF);
-//    CONE("cone", new Cone(), BuildCategory.ROOF);
-//    DOME("dome", new Dome(), BuildCategory.ROOF);
+//    PYRAMID("pyramid", new Pyramid(), Category.ROOF),
+//    CONE("cone", new Cone(), Category.ROOF),
+//    DOME("dome", new Dome(), Category.ROOF);
 
     private final BuildableProvider provider;
     private final Category category;
@@ -141,20 +142,19 @@ public enum BuildMode {
     }
 
     public enum Category {
-        BASIC(new Vector4f(0f, .5f, 1f, .5f)),
-        SQUARE(new Vector4f(1f, .54f, .24f, .5f)),
-        DIAGONAL(new Vector4f(0.56f, 0.28f, 0.87f, .5f)),
-        CIRCULAR(new Vector4f(0.29f, 0.76f, 0.3f, .5f)),
-        ROOF(new Vector4f(0.83f, 0.87f, 0.23f, .5f));
+        BASIC(new Color(0f, .5f, 1f, .5f)),
+        SQUARE(new Color(1f, .54f, .24f, .5f)),
+        DIAGONAL(new Color(0.56f, 0.28f, 0.87f, .5f)),
+        CIRCULAR(new Color(0.29f, 0.76f, 0.3f, .5f)),
+        ROOF(new Color(0.83f, 0.87f, 0.23f, .5f));
 
-        // TODO: 21/12/22 use Color
-        private final Vector4f color;
+        private final Color color;
 
-        Category(Vector4f color) {
+        Category(Color color) {
             this.color = color;
         }
 
-        public Vector4f getColor() {
+        public Color getColor() {
             return color;
         }
     }
