@@ -1,4 +1,4 @@
-package dev.huskcasaca.effortless.render.modifier;
+package dev.huskcasaca.effortless.render;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.OptionalDouble;
 
 @Environment(EnvType.CLIENT)
-public class BuildRenderType extends RenderType {
+public class BuildRenderTypes extends RenderType {
     private static final RenderType EF_LINES;
     private static final RenderType EF_PLANES;
     //Between 0 and 7, but dont override vanilla textures
@@ -71,7 +71,7 @@ public class BuildRenderType extends RenderType {
 
 
     // Dummy constructor needed to make java happy
-    public BuildRenderType(String p_173178_, VertexFormat p_173179_, VertexFormat.Mode p_173180_, int p_173181_, boolean p_173182_, boolean p_173183_, Runnable p_173184_, Runnable p_173185_) {
+    public BuildRenderTypes(String p_173178_, VertexFormat p_173179_, VertexFormat.Mode p_173180_, int p_173181_, boolean p_173182_, boolean p_173183_, Runnable p_173184_, Runnable p_173185_) {
         super(p_173178_, p_173179_, p_173180_, p_173181_, p_173182_, p_173183_, p_173184_, p_173185_);
     }
 
@@ -95,10 +95,8 @@ public class BuildRenderType extends RenderType {
                 .setShaderState(RENDER_TYPE_DISSOLVE_SHADER)
                 .setTexturingState(texture)
                 .setTextureState(RenderStateShard.BLOCK_SHEET_MIPPED)
-                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                 .setLightmapState(RenderStateShard.NO_LIGHTMAP)
-                .setCullState(RenderStateShard.CULL)
-                .setOutputState(RenderStateShard.TRANSLUCENT_TARGET)
+                .setCullState(RenderStateShard.NO_CULL)
                 .createCompositeState(true);
         //Unique name for every combination, otherwise it will reuse the previous one
         var name = "ef_block_previews_" + dissolve + "_" + blockPos + "_" + firstPos + "_" + secondPos + "_" + red;
@@ -155,7 +153,7 @@ public class BuildRenderType extends RenderType {
     }
 
     public static void setDissolveShaderInstance(ShaderInstance dissolveShaderInstance) {
-        BuildRenderType.dissolveShaderInstance = dissolveShaderInstance;
+        BuildRenderTypes.dissolveShaderInstance = dissolveShaderInstance;
     }
 
     private record ShaderInfo(

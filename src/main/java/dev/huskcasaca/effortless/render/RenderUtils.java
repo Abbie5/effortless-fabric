@@ -3,7 +3,6 @@ package dev.huskcasaca.effortless.render;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.huskcasaca.effortless.render.modifier.BuildRenderType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -31,7 +30,7 @@ public class RenderUtils {
     private static final Vec3 DEFAULT_OUTLINE_COLOR = new Vec3(1, 1, 1);
 
     public static VertexConsumer beginLines(MultiBufferSource.BufferSource renderTypeBuffer) {
-        return renderTypeBuffer.getBuffer(BuildRenderType.lines());
+        return renderTypeBuffer.getBuffer(BuildRenderTypes.lines());
     }
 
     public static void endLines(MultiBufferSource.BufferSource renderTypeBuffer) {
@@ -39,7 +38,7 @@ public class RenderUtils {
     }
 
     public static VertexConsumer beginPlanes(MultiBufferSource multiBufferSource) {
-        return multiBufferSource.getBuffer(BuildRenderType.planes());
+        return multiBufferSource.getBuffer(BuildRenderTypes.planes());
     }
 
     public static void endPlanes(MultiBufferSource.BufferSource renderTypeBuffer) {
@@ -52,12 +51,12 @@ public class RenderUtils {
         poseStack.pushPose();
         var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
         poseStack.translate(blockPos.getX() - camera.x, blockPos.getY() - camera.y, blockPos.getZ() - camera.z);
-//        poseStack.rotate(Vector3f.YP.rotationDegrees(-90f));
         poseStack.translate(-1 / 256f, -1 / 256f, -1 / 256f);
         poseStack.scale(129 / 128f, 129 / 128f, 129 / 128f);
 
         //Begin block preview rendering
-        var blockPreviewRenderType = BuildRenderType.getBlockPreviewRenderType(dissolve, blockPos, firstPos, secondPos, red);
+        var blockPreviewRenderType = BuildRenderTypes.getBlockPreviewRenderType(dissolve, blockPos, firstPos, secondPos, red);
+
         var buffer = renderTypeBuffer.getBuffer(blockPreviewRenderType);
 
         var level = Minecraft.getInstance().level;

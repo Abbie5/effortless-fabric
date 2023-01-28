@@ -60,23 +60,31 @@ void main() {
     color.rgb *= vertexColor.rgb;
 
     //desaturate
-    color.rgb *= vec3(0.8);
+    color.rgb *= vec3(0.9);
+
+//    vec3 normalColor = vec3(-0.1, 0.0, 0.2);
+//    vec3 pulseColor = vec3(-0.5, 0.2, 0.6);
+
+    vec3 normalColor = vec3(0.15);
+    vec3 pulseColor = vec3(0.10);
+    vec3 diagonalColor1 = vec3(0.12);
+    vec3 diagonalColor2 = vec3(0.24);
 
     //add blueish hue
-    color.rgb += vec3(-0.1, 0.0, 0.2);
+    color.rgb += normalColor;
 
     //add pulsing blue
     float pulse = (sin(time * 4.0) + 1.0) / 2.0;
-    color.rgb += 0.4 * vec3(-0.5, 0.2, 0.6) * pulse;
+    color.rgb += 0.4 * pulseColor * pulse;
 
     //add diagonal highlights
     float diagTime = mod(time / 2.0, 1.4) - 0.2;
     float diag = smoothstep(diagTime - 0.2, diagTime, place) - smoothstep(diagTime, diagTime + 0.2, place);
-    color.rgb += 0.2 * diag * vec3(0.0, 0.2, 0.4);
+    color.rgb += 0.2 * diag * diagonalColor1;
 
     float diagTime2 = mod(time / 3.5, 1.4) - 0.2;
     float diag2 = smoothstep(diagTime2 - 0.2, diagTime2, place) - smoothstep(diagTime2, diagTime2 + 0.2, place);
-    color.rgb += 0.2 * diag2 * vec3(0.0, 0.4, 0.8);
+    color.rgb += 0.2 * diag2 * diagonalColor2;
 
     //add flat shading
 //    if (abs(normal.x) > 0.5)
@@ -87,12 +95,12 @@ void main() {
         color.rgb -= 0.05;
 
 
-    if (highlight == 1 && dissolve == 0.0) {
-        color.rgb += vec3(0.0, 0.1, -0.2);
-    }
+//    if (highlight == 1 && dissolve == 0.0) {
+//        color.rgb += vec3(0.0, 0.1, -0.2);
+//    }
 
     if (red == 1) {
-        color.rgb += vec3(0.4, -0.3, -0.5);
+        color.rgb += vec3(0.1, -0.16, -0.20);
     }
 
     color.r = max(0, min(1, color.r));

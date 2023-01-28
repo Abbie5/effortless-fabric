@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.render.preview;
 
-import dev.huskcasaca.effortless.EffortlessClient;
 import dev.huskcasaca.effortless.buildmodifier.BlockPosState;
+import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
@@ -33,7 +33,7 @@ public record BlocksPreview(
         return new BlocksPreview(
                 blockPosStates,
                 breaking ? Collections.emptyList() : player.getInventory().items.stream().map(ItemStack::copy).toList(),
-                EffortlessClient.getTicksInGame(),
+                AnimationTicker.getTicks(),
                 breaking,
                 player.isCreative()
         );
@@ -129,6 +129,10 @@ public record BlocksPreview(
             if (blockPos.getZ() > maxZ) maxZ = blockPos.getZ();
         }
         return new Vec3i(maxX - minX + 1, maxY - minY + 1, maxZ - minZ + 1);
+    }
+
+    public Iterable<BlockPos> blockPoses() {
+        return blockPosStates().stream().map(BlockPosState::blockPos).toList();
     }
 
     public record ItemUsage(

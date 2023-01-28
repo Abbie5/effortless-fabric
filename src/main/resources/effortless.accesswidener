@@ -27,3 +27,5 @@ transitive-accessible method net/minecraft/world/item/BlockItem placeBlock (Lnet
 transitive-accessible method net/minecraft/world/item/BlockItem updateBlockStateFromTag (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/world/level/block/state/BlockState;
 transitive-accessible method net/minecraft/world/item/BlockItem updateCustomBlockEntityTag (Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/block/state/BlockState;)Z
 transitive-accessible method net/minecraft/world/item/BlockItem getPlaceSound (Lnet/minecraft/world/level/block/state/BlockState;)Lnet/minecraft/sounds/SoundEvent;
+
+transitive-accessible field  net/minecraft/client/Minecraft pausePartialTick F

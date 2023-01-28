@@ -14,20 +14,22 @@ import dev.huskcasaca.effortless.event.ClientScreenEvent;
 import dev.huskcasaca.effortless.event.ClientScreenInputEvent;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.ServerboundPlayerSetBuildModePacket;
-import dev.huskcasaca.effortless.render.modifier.BuildRenderType;
+import dev.huskcasaca.effortless.render.BuildRenderTypes;
+import dev.huskcasaca.effortless.render.SuperRenderTypeBuffer;
 import dev.huskcasaca.effortless.render.modifier.ModifierRenderer;
+import dev.huskcasaca.effortless.render.outliner.OutlineRenderer;
 import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
 import dev.huskcasaca.effortless.screen.buildmode.PlayerSettingsScreen;
 import dev.huskcasaca.effortless.screen.buildmode.RadialMenuScreen;
 import dev.huskcasaca.effortless.screen.buildmodifier.ModifierSettingsScreen;
 import dev.huskcasaca.effortless.screen.config.EffortlessConfigScreen;
+import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Camera;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -46,7 +48,7 @@ import java.io.IOException;
 @Environment(EnvType.CLIENT)
 public class EffortlessClient implements ClientModInitializer {
 
-    public static KeyMapping[] keyBindings;
+    // TODO: 28/1/23 move
     public static HitResult previousLookAt;
     public static HitResult currentLookAt;
     private static int ticksInGame = 0;
@@ -74,6 +76,9 @@ public class EffortlessClient implements ClientModInitializer {
                 }
             }
         }
+
+        OutlineRenderer.getInstance().tick();
+        AnimationTicker.tick();
 
     }
 
@@ -192,7 +197,7 @@ public class EffortlessClient implements ClientModInitializer {
         sink.registerShader(
                 // TODO: 10/9/22 use custom namespace
                 new ShaderInstance(resourceProvider, "dissolve", DefaultVertexFormat.BLOCK),
-                (shaderInstance) -> BuildRenderType.setDissolveShaderInstance(shaderInstance)
+                (shaderInstance) -> BuildRenderTypes.setDissolveShaderInstance(shaderInstance)
         );
     }
 
@@ -214,6 +219,17 @@ public class EffortlessClient implements ClientModInitializer {
         ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
     }
 
+    public static void renderBlockOutlines(PoseStack poseStack, Camera camera) {
+        var cameraPos = camera.getPosition();
+        var partialTicks = AnimationTicker.getPartialTicks();
+        poseStack.pushPose();
+//        poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
+        var buffer = SuperRenderTypeBuffer.getInstance();
+        OutlineRenderer.getInstance().renderOutlines(poseStack, buffer, partialTicks);
+        buffer.draw();
+        poseStack.popPose();
+    }
+
     @Override
     public void onInitializeClient() {
         // register key bindings
@@ -228,10 +244,17 @@ public class EffortlessClient implements ClientModInitializer {
 
         ClientReloadShadersEvent.REGISTER_SHADER.register(EffortlessClient::registerShaders);
 
-        WorldRenderEvents.AFTER_ENTITIES.register((context) -> renderBlockPreview(context.matrixStack(), context.camera()));
-        WorldRenderEvents.LAST.register((context) -> renderModifierSettings(context.matrixStack(), context.camera()));
+        WorldRenderEvents.AFTER_ENTITIES.register((context) -> {
+            renderBlockPreview(context.matrixStack(), context.camera());
+        });
+        WorldRenderEvents.END.register((context) -> {
+            renderModifierSettings(context.matrixStack(), context.camera());
+            renderBlockOutlines(context.matrixStack(), context.camera());
+        });
+
 
     }
+
 
 
 }

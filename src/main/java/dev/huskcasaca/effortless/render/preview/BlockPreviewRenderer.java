@@ -10,7 +10,10 @@ import dev.huskcasaca.effortless.buildmodifier.BlockPosState;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHandler;
 import dev.huskcasaca.effortless.config.ConfigManager;
 import dev.huskcasaca.effortless.config.PreviewConfig;
+import dev.huskcasaca.effortless.render.RenderTypes;
 import dev.huskcasaca.effortless.render.RenderUtils;
+import dev.huskcasaca.effortless.render.outliner.OutlineRenderer;
+import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -23,6 +26,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,9 @@ public class BlockPreviewRenderer {
     private BlocksPreview currentPreview = BlocksPreview.EMPTY;
     private int soundTime = 0;
     private boolean hasLastMessage = false;
+
+    private static final Color PLACING_COLOR = new Color(0.92f, 0.92f, 0.92f, 1f);
+    private static final Color BREAKING_COLOR = new Color(0.95f, 0f, 0f, 1f);
 
     public BlockPreviewRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -64,7 +71,7 @@ public class BlockPreviewRenderer {
 
     public void saveCurrentPreview(BlocksPreview preview) {
         if (doRenderBlockPreviews(minecraft.player) && !preview.isEmpty()) {
-            history.add(preview);
+//            history.add(preview);
         }
     }
 
@@ -74,7 +81,7 @@ public class BlockPreviewRenderer {
 
     public void saveCurrentBreakPreview(BlocksPreview preview) {
         if (doRenderBlockPreviews(minecraft.player) && !preview.isEmpty()) {
-            history.add(preview);
+//            history.add(preview);
         }
     }
 
@@ -111,13 +118,13 @@ public class BlockPreviewRenderer {
                     continue;
                 }
                 double totalTime = preview.dissolveSize() * PreviewConfig.shaderDissolveTimeMultiplier();
-                float dissolve = (EffortlessClient.getTicksInGame() - preview.time()) / (float) totalTime;
+                float dissolve = (getGameTime() - preview.time()) / (float) totalTime;
 
                 renderBlockDissolveShader(poseStack, multiBufferSource, preview, dissolve);
             }
         }
         //Expire
-        history.removeIf(preview -> preview.time() + preview.dissolveSize() * PreviewConfig.shaderDissolveTimeMultiplier() < EffortlessClient.getTicksInGame());
+        history.removeIf(preview -> preview.time() + preview.dissolveSize() * PreviewConfig.shaderDissolveTimeMultiplier() < getGameTime());
     }
 
     private void renderBlockPreview(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Player player) {
@@ -143,18 +150,27 @@ public class BlockPreviewRenderer {
                 var blockPosStates = breaking ? BuildModifierHandler.getBlockPosStateForBreaking(player, hitResults) : BuildModifierHandler.getBlockPosStateForPlacing(player, hitResults);
                 var preview = BlocksPreview.snapshot(player, blockPosStates, breaking);
 
-                if (!preview.isEmpty() && soundTime < EffortlessClient.getTicksInGame() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {
-                    soundTime = EffortlessClient.getTicksInGame();
+                if (!preview.isEmpty() && soundTime < getGameTime() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {
+                    soundTime = getGameTime();
                     var soundType = preview.blockPosStates().get(0).blockState().getSoundType();
                     player.getLevel().playSound(player, player.blockPosition(), breaking ? soundType.getBreakSound() : soundType.getPlaceSound(), SoundSource.BLOCKS, 0.3f, 0.8f);
                 }
 
                 currentPreview = preview;
 
-                switch (ConfigManager.getGlobalPreviewConfig().getBlockPreviewMode()) {
-                    case OUTLINES -> renderBlockOutlines(poseStack, multiBufferSource, preview, 0);
-                    case DISSOLVE_SHADER -> renderBlockDissolveShader(poseStack, multiBufferSource, preview, 0);
-                }
+//                switch (ConfigManager.getGlobalPreviewConfig().getBlockPreviewMode()) {
+//                    case OUTLINES -> renderBlockOutlines(poseStack, multiBufferSource, preview, 0);
+//                    case DISSOLVE_SHADER -> renderBlockDissolveShader(poseStack, multiBufferSource, preview, 0);
+//                }
+                renderBlockDissolveShader(poseStack, multiBufferSource, preview, 0);
+
+                var inProgress = BuildModeHandler.isCurrentlyPlacing(player) || BuildModeHandler.isCurrentlyBreaking(player);
+                OutlineRenderer.getInstance().showCluster(inProgress ? preview.firstPos() : null, preview.blockPoses())
+                        .texture(RenderTypes.CHECKERED_THIN_TEXTURE_LOCATION)
+                        .stroke(1 / 64f)
+                        .colored(breaking ? BREAKING_COLOR : PLACING_COLOR)
+                        .disableNormals();
+
                 if (BuildModeHandler.isActive(player)) {
                     displayBlockPlaceMessage(player, preview, breaking);
                 } else {
@@ -280,6 +296,10 @@ public class BlockPreviewRenderer {
 
     private void clearPreviewHistory() {
         history.clear();
+    }
+
+    private int getGameTime() {
+        return AnimationTicker.getTicks();
     }
 
 }
