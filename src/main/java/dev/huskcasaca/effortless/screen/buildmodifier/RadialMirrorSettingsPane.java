@@ -57,29 +57,29 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
         renderables.add(buttonRadialMirrorEnabled);
 
         y = top + 18;
-        textRadialMirrorPosX = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X0, y, 90, 18);
+        textRadialMirrorPosX = new NumberField(left + Dimen.BUTTON_OFFSET_X0, y, 90, 18);
         textRadialMirrorPosX.setNumber(0);
         textRadialMirrorPosX.setTooltip(
                 Arrays.asList(Component.literal("The position of the radial mirror."), Component.literal("For odd numbered builds add 0.5.").withStyle(ChatFormatting.GRAY)));
         radialMirrorNumberFieldList.add(textRadialMirrorPosX);
 
-        textRadialMirrorPosY = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET, 90, 18);
+        textRadialMirrorPosY = new NumberField(left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET, 90, 18);
         textRadialMirrorPosY.setNumber(64);
         textRadialMirrorPosY.setTooltip(Arrays.asList(Component.literal("The position of the radial mirror."), Component.literal("For odd numbered builds add 0.5.").withStyle(ChatFormatting.GRAY)));
         radialMirrorNumberFieldList.add(textRadialMirrorPosY);
 
-        textRadialMirrorPosZ = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET * 2, 90, 18);
+        textRadialMirrorPosZ = new NumberField(left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET * 2, 90, 18);
         textRadialMirrorPosZ.setNumber(0);
         textRadialMirrorPosZ.setTooltip(Arrays.asList(Component.literal("The position of the radial mirror."), Component.literal("For odd numbered builds add 0.5.").withStyle(ChatFormatting.GRAY)));
         radialMirrorNumberFieldList.add(textRadialMirrorPosZ);
 
         y = top + 47;
-        textRadialMirrorSlices = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y + Dimen.BUTTON_VERTICAL_OFFSET, 80, 18);
+        textRadialMirrorSlices = new NumberField(left + Dimen.BUTTON_OFFSET_X1, y + Dimen.BUTTON_VERTICAL_OFFSET, 80, 18);
         textRadialMirrorSlices.setNumber(4);
         textRadialMirrorSlices.setTooltip(Arrays.asList(Component.literal("The number of repeating slices."), Component.literal("Minimally 2.").withStyle(ChatFormatting.GRAY)));
         radialMirrorNumberFieldList.add(textRadialMirrorSlices);
 
-        textRadialMirrorRadius = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y, 80, 18);
+        textRadialMirrorRadius = new NumberField(left + Dimen.BUTTON_OFFSET_X1, y, 80, 18);
         textRadialMirrorRadius.setNumber(50);
         //TODO change to diameter (remove /2)
         textRadialMirrorRadius.setTooltip(Arrays.asList(Component.literal("How far the radial mirror reaches from its center position."),
@@ -168,7 +168,7 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
     }
 
     public void updateScreen() {
-        radialMirrorNumberFieldList.forEach(NumberField::update);
+        radialMirrorNumberFieldList.forEach(NumberField::tick);
     }
 
 
@@ -197,15 +197,15 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
             font.draw(poseStack, "X", positionOffsetX0 + textOffsetX, positionOffsetY0, 0xFFFFFF);
             font.draw(poseStack, "Y", positionOffsetX0 + textOffsetX, positionOffsetY1, 0xFFFFFF);
             font.draw(poseStack, "Z", positionOffsetX0 + textOffsetX, positionOffsetY2, 0xFFFFFF);
-            textRadialMirrorPosX.y = positionOffsetY0 + componentOffsetY;
-            textRadialMirrorPosY.y = positionOffsetY1 + componentOffsetY;
-            textRadialMirrorPosZ.y = positionOffsetY2 + componentOffsetY;
+            textRadialMirrorPosX.setY(positionOffsetY0 + componentOffsetY);
+            textRadialMirrorPosY.setY(positionOffsetY1 + componentOffsetY);
+            textRadialMirrorPosZ.setY(positionOffsetY2 + componentOffsetY);
 
             font.draw(poseStack, "Radius", positionOffsetX1, positionOffsetY0, 0xFFFFFF);
-            textRadialMirrorRadius.y = positionOffsetY0 + componentOffsetY;
+            textRadialMirrorRadius.setY(positionOffsetY0 + componentOffsetY);
 
             font.draw(poseStack, "Slices", positionOffsetX1, positionOffsetY1, 0xFFFFFF);
-            textRadialMirrorSlices.y = positionOffsetY1 + componentOffsetY;
+            textRadialMirrorSlices.setY(positionOffsetY1 + componentOffsetY);
 
             buttonCurrentPosition.setY(positionOffsetY2 - 6);
             buttonToggleOdd.setY(positionOffsetY2 - 6);
@@ -217,7 +217,7 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
             radialMirrorButtonList.forEach(button -> button.render(poseStack, mouseX, mouseY, partialTicks));
             radialMirrorIconButtonList.forEach(button -> button.render(poseStack, mouseX, mouseY, partialTicks));
             radialMirrorNumberFieldList
-                    .forEach(numberField -> numberField.drawNumberField(poseStack, mouseX, mouseY, partialTicks));
+                    .forEach(numberField -> numberField.render(poseStack, mouseX, mouseY, partialTicks));
         } else {
             buttonRadialMirrorEnabled.setY(y);
             font.draw(poseStack, "Radial mirror disabled", left + offset, y + 2, 0x999999);

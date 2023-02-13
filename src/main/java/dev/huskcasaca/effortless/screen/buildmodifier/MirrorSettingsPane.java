@@ -57,18 +57,18 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
         renderables.add(buttonMirrorEnabled);
 
         y = top + 20;
-        textMirrorPosX = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X0, y, 90, 18);
+        textMirrorPosX = new NumberField(left + Dimen.BUTTON_OFFSET_X0, y, 90, 18);
         textMirrorPosX.setNumber(0);
         textMirrorPosX.setTooltip(
                 Arrays.asList(Component.literal("The position of the mirror."), Component.literal("For odd numbered builds add 0.5.").withStyle(ChatFormatting.GRAY)));
         mirrorNumberFieldList.add(textMirrorPosX);
 
-        textMirrorPosY = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET, 90, 18);
+        textMirrorPosY = new NumberField(left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET, 90, 18);
         textMirrorPosY.setNumber(64);
         textMirrorPosY.setTooltip(Arrays.asList(Component.literal("The position of the mirror."), Component.literal("For odd numbered builds add 0.5.").withStyle(ChatFormatting.GRAY)));
         mirrorNumberFieldList.add(textMirrorPosY);
 
-        textMirrorPosZ = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET * 2, 90, 18);
+        textMirrorPosZ = new NumberField(left + Dimen.BUTTON_OFFSET_X0, y + Dimen.BUTTON_VERTICAL_OFFSET * 2, 90, 18);
         textMirrorPosZ.setNumber(0);
         textMirrorPosZ.setTooltip(Arrays.asList(Component.literal("The position of the mirror."), Component.literal("For odd numbered builds add 0.5.").withStyle(ChatFormatting.GRAY)));
         mirrorNumberFieldList.add(textMirrorPosZ);
@@ -84,7 +84,7 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
         mirrorButtonList.add(buttonMirrorZ);
 
         y = top + 47;
-        textMirrorRadius = new NumberField(font, renderables, left + Dimen.BUTTON_OFFSET_X1, y, 80, 18);
+        textMirrorRadius = new NumberField(left + Dimen.BUTTON_OFFSET_X1, y, 80, 18);
         textMirrorRadius.setNumber(50);
         //TODO change to diameter (remove /2)
         textMirrorRadius.setTooltip(Arrays.asList(Component.literal("How far the mirror reaches in any direction."),
@@ -172,7 +172,7 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
     @Override
     public void updateScreen() {
         super.updateScreen();
-        mirrorNumberFieldList.forEach(NumberField::update);
+        mirrorNumberFieldList.forEach(NumberField::tick);
     }
 
     @Override
@@ -199,13 +199,13 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
             font.draw(poseStack, "X", positionOffsetX0 + textOffsetX, positionOffsetY0, 0xFFFFFF);
             font.draw(poseStack, "Y", positionOffsetX0 + textOffsetX, positionOffsetY1, 0xFFFFFF);
             font.draw(poseStack, "Z", positionOffsetX0 + textOffsetX, positionOffsetY2, 0xFFFFFF);
-            textMirrorPosX.y = positionOffsetY0 + componentOffsetY;
-            textMirrorPosY.y = positionOffsetY1 + componentOffsetY;
-            textMirrorPosZ.y = positionOffsetY2 + componentOffsetY;
+            textMirrorPosX.setY(positionOffsetY0 + componentOffsetY);
+            textMirrorPosY.setY(positionOffsetY1 + componentOffsetY);
+            textMirrorPosZ.setY(positionOffsetY2 + componentOffsetY);
 
 
             font.draw(poseStack, "Radius", positionOffsetX1, positionOffsetY0, 0xFFFFFF);
-            textMirrorRadius.y = positionOffsetY0 + componentOffsetY;
+            textMirrorRadius.setY(positionOffsetY0 + componentOffsetY);
 
 
             font.draw(poseStack, "Axis", positionOffsetX1, positionOffsetY1, 0xFFFFFF);
@@ -220,7 +220,7 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
 
             mirrorButtonList.forEach(button -> button.render(poseStack, mouseX, mouseY, partialTicks));
             mirrorIconButtonList.forEach(button -> button.render(poseStack, mouseX, mouseY, partialTicks));
-            mirrorNumberFieldList.forEach(numberField -> numberField.drawNumberField(poseStack, mouseX, mouseY, partialTicks));
+            mirrorNumberFieldList.forEach(numberField -> numberField.render(poseStack, mouseX, mouseY, partialTicks));
         } else {
             buttonMirrorEnabled.setY(y);
             font.draw(poseStack, "Mirror disabled", left + offset, y + 2, 0x999999);

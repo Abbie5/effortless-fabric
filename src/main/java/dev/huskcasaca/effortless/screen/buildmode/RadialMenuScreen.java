@@ -60,7 +60,7 @@ public class RadialMenuScreen extends Screen {
     private static final double RING_OUTER_EDGE = 74;
     private static final double CATEGORY_LINE_OUTER_EDGE = 40;
     private static final double TEXT_DISTANCE = 84;
-    private static final double BUTTON_DISTANCE = 120;
+    private static final double BUTTON_DISTANCE = 112;
     private static final float FADE_SPEED = 0.5f;
     private static final int MODE_OPTION_ROW_HEIGHT = 39;
     private static final float MOUSE_SCROLL_THRESHOLD = 1;

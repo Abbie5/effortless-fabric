@@ -51,22 +51,22 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
         renderables.add(buttonArrayEnabled);
 
         y = top + 20;
-        textArrayOffsetX = new NumberField(font, renderables, left + 60, y, 90, 18);
+        textArrayOffsetX = new NumberField(left + 60, y, 90, 18);
         textArrayOffsetX.setNumber(0);
         textArrayOffsetX.setTooltip(Component.literal("How much each copy is shifted."));
         arrayNumberFieldList.add(textArrayOffsetX);
 
-        textArrayOffsetY = new NumberField(font, renderables, left + 60, y + 24, 90, 18);
+        textArrayOffsetY = new NumberField(left + 60, y + 24, 90, 18);
         textArrayOffsetY.setNumber(0);
         textArrayOffsetY.setTooltip(Component.literal("How much each copy is shifted."));
         arrayNumberFieldList.add(textArrayOffsetY);
 
-        textArrayOffsetZ = new NumberField(font, renderables, left + 60, y + 24 * 2, 90, 18);
+        textArrayOffsetZ = new NumberField(left + 60, y + 24 * 2, 90, 18);
         textArrayOffsetZ.setNumber(0);
         textArrayOffsetZ.setTooltip(Component.literal("How much each copy is shifted."));
         arrayNumberFieldList.add(textArrayOffsetZ);
 
-        textArrayCount = new NumberField(font, renderables, left + 200, y, 80, 18);
+        textArrayCount = new NumberField(left + 200, y, 80, 18);
         textArrayCount.setNumber(5);
         textArrayCount.setTooltip(Component.literal("How many copies should be made."));
         arrayNumberFieldList.add(textArrayCount);
@@ -85,7 +85,7 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
     }
 
     public void updateScreen() {
-        arrayNumberFieldList.forEach(NumberField::update);
+        arrayNumberFieldList.forEach(NumberField::tick);
     }
 
     @Override
@@ -112,12 +112,12 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
             font.draw(poseStack, "X", positionOffsetX0 + textOffsetX, positionOffsetY0, 0xFFFFFF);
             font.draw(poseStack, "Y", positionOffsetX0 + textOffsetX, positionOffsetY0 + 24, 0xFFFFFF);
             font.draw(poseStack, "Z", positionOffsetX0 + textOffsetX, positionOffsetY0 + 24 * 2, 0xFFFFFF);
-            textArrayOffsetX.y = positionOffsetY0 + componentOffsetY;
-            textArrayOffsetY.y = positionOffsetY0 + componentOffsetY + 24;
-            textArrayOffsetZ.y = positionOffsetY0 + componentOffsetY + 24 * 2;
+            textArrayOffsetX.setY(positionOffsetY0 + componentOffsetY);
+            textArrayOffsetY.setY(positionOffsetY0 + componentOffsetY + 24);
+            textArrayOffsetZ.setY(positionOffsetY0 + componentOffsetY + 24 * 2);
 
             font.draw(poseStack, "Count", positionOffsetX1, positionOffsetY0, 0xFFFFFF);
-            textArrayCount.y = positionOffsetY0 + componentOffsetY;
+            textArrayCount.setY(positionOffsetY0 + componentOffsetY);
 
             int currentReach = Math.max(-1, getArrayReach());
             int maxReach = ReachHelper.getMaxReachDistance(mc.player);
@@ -126,7 +126,7 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
 
             font.draw(poseStack, reachText, positionOffsetX1, positionOffsetY1, 0xFFFFFF);
 
-            arrayNumberFieldList.forEach(numberField -> numberField.drawNumberField(poseStack, mouseX, mouseY, partialTicks));
+            arrayNumberFieldList.forEach(numberField -> numberField.render(poseStack, mouseX, mouseY, partialTicks));
         } else {
             buttonArrayEnabled.setY(yy);
             font.draw(poseStack, "Array disabled", left + offset, yy + 2, 0x999999);
