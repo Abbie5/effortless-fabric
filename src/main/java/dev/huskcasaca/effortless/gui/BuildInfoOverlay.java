@@ -7,7 +7,7 @@ import dev.huskcasaca.effortless.buildmode.BuildModeHelper;
 import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.config.ConfigManager;
 import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
-import dev.huskcasaca.effortless.screen.buildmode.RadialMenuScreen;
+import dev.huskcasaca.effortless.screen.buildmode.BuildModeMenuScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -46,7 +46,7 @@ public class BuildInfoOverlay extends GuiComponent {
         if (textSide == Direction.AxisDirection.POSITIVE && (minecraft.options.showAutosaveIndicator().get() && (minecraft.gui.autosaveIndicatorValue > 0.0F || minecraft.gui.lastAutosaveIndicatorValue > 0.0F)) && Mth.floor(255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), minecraft.gui.lastAutosaveIndicatorValue, minecraft.gui.autosaveIndicatorValue), 0.0F, 1.0F)) > 8) {
             return;
         }
-        if (RadialMenuScreen.getInstance().isVisible()) {
+        if (BuildModeMenuScreen.getInstance().isVisible()) {
             return;
         }
         var player = minecraft.player;
@@ -111,7 +111,7 @@ public class BuildInfoOverlay extends GuiComponent {
         if (itemSide == null) {
             return;
         }
-        if (RadialMenuScreen.getInstance().isVisible()) {
+        if (BuildModeMenuScreen.getInstance().isVisible()) {
             return;
         }
         var player = minecraft.player;

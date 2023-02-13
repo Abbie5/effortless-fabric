@@ -93,7 +93,7 @@ public class ModifierSettingsScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int p_96553_, int p_96554_) {
-        if (keyCode == Keys.MODIFIER_MENU.getKeyMapping().key.getValue()) {
+        if (keyCode == Keys.BUILD_MODIFIER_SETTINGS.getKeyMapping().key.getValue()) {
             return true;
         }
         return super.keyPressed(keyCode, p_96553_, p_96554_);

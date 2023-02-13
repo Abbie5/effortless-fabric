@@ -10,13 +10,19 @@ import org.lwjgl.glfw.GLFW;
 
 public enum Keys {
 
-    SETTINGS_MENU("settings_menu", InputConstants.UNKNOWN.getValue()),
-    MODIFIER_MENU("modifier_menu", InputConstants.UNKNOWN.getValue()),
-    RADIAL_MENU("radial_menu", InputConstants.KEY_LALT),
+    SETTINGS("settings", InputConstants.UNKNOWN.getValue()),
+    BUILD_MODE_SETTINGS("build_mode_settings", InputConstants.UNKNOWN.getValue()),
+    BUILD_MODIFIER_SETTINGS("build_modifier_settings", InputConstants.UNKNOWN.getValue()),
+    ITEM_RANDOMIZER_SETTINGS("item_randomizer_settings", InputConstants.UNKNOWN.getValue()),
+
+    BUILD_MODE_MENU("build_mode_menu", InputConstants.KEY_LALT),
+    BUILD_MODIFIER_MENU("build_modifier_menu", InputConstants.KEY_LWIN),
+    ITEM_RANDOMIZER_MENU("item_randomizer_menu", InputConstants.KEY_RALT),
     UNDO("undo", InputConstants.KEY_LBRACKET),
     REDO("redo", InputConstants.KEY_RBRACKET),
     //    CYCLE_REPLACE_MODE("cycle_replace", InputConstants.UNKNOWN.getValue()),
     TOGGLE_REPLACE("toggle_replace", InputConstants.UNKNOWN.getValue()),
+
 //    TOGGLE_QUICK_REPLACE("toggle_quick_replace", InputConstants.UNKNOWN.getValue()),
 //	TOGGLE_ALT_PLACE("toggle_alt_place", InputConstants.UNKNOWN.getValue()),
     ;

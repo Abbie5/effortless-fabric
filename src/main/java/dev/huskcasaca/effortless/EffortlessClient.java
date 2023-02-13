@@ -14,15 +14,17 @@ import dev.huskcasaca.effortless.event.ClientScreenEvent;
 import dev.huskcasaca.effortless.event.ClientScreenInputEvent;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.player.ServerboundPlayerSetBuildModePacket;
+import dev.huskcasaca.effortless.randomizer.RandomizerSettings;
 import dev.huskcasaca.effortless.render.BuildRenderTypes;
 import dev.huskcasaca.effortless.render.SuperRenderTypeBuffer;
 import dev.huskcasaca.effortless.render.modifier.ModifierRenderer;
 import dev.huskcasaca.effortless.render.outliner.OutlineRenderer;
 import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
+import dev.huskcasaca.effortless.screen.buildmode.BuildModeMenuScreen;
 import dev.huskcasaca.effortless.screen.buildmode.PlayerSettingsScreen;
-import dev.huskcasaca.effortless.screen.buildmode.RadialMenuScreen;
 import dev.huskcasaca.effortless.screen.buildmodifier.ModifierSettingsScreen;
 import dev.huskcasaca.effortless.screen.config.EffortlessConfigScreen;
+import dev.huskcasaca.effortless.screen.randomizer.RandomizerConfigScreen;
 import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -93,12 +95,22 @@ public class EffortlessClient implements ClientModInitializer {
         var player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        if (Keys.RADIAL_MENU.isDown()) {
-            showRadialMenu();
+        if (Keys.BUILD_MODE_MENU.isDown()) {
+            showBuildModelMenu();
+        }
+        if (Keys.BUILD_MODIFIER_MENU.isDown()) {
+        }
+        if (Keys.ITEM_RANDOMIZER_MENU.isDown()) {
         }
 //        // remember to send packet to server if necessary
-        if (Keys.MODIFIER_MENU.getKeyMapping().consumeClick()) {
-            openModifierSettings();
+        if (Keys.BUILD_MODE_SETTINGS.getKeyMapping().consumeClick()) {
+//            openModeSettings();
+        }
+        if (Keys.BUILD_MODIFIER_SETTINGS.getKeyMapping().consumeClick()) {
+            openBuildModifierSettings();
+        }
+        if (Keys.ITEM_RANDOMIZER_SETTINGS.getKeyMapping().consumeClick()) {
+            openItemRandomizerSettings();
         }
         if (Keys.UNDO.getKeyMapping().consumeClick()) {
             UndoRedo.undo(player);
@@ -106,7 +118,7 @@ public class EffortlessClient implements ClientModInitializer {
         if (Keys.REDO.getKeyMapping().consumeClick()) {
             UndoRedo.undo(player);
         }
-        if (Keys.SETTINGS_MENU.getKeyMapping().consumeClick()) {
+        if (Keys.SETTINGS.getKeyMapping().consumeClick()) {
             openSettings();
         }
 //        if (Keys.CYCLE_REPLACE_MODE.getKeyMapping().consumeClick()) {
@@ -120,13 +132,13 @@ public class EffortlessClient implements ClientModInitializer {
 //        }
     }
 
-    public static void showRadialMenu() {
-        if (!RadialMenuScreen.getInstance().isVisible()) {
-            Minecraft.getInstance().setScreen(RadialMenuScreen.getInstance());
+    public static void showBuildModelMenu() {
+        if (!BuildModeMenuScreen.getInstance().isVisible()) {
+            Minecraft.getInstance().setScreen(BuildModeMenuScreen.getInstance());
         }
     }
 
-    public static void openModifierSettings() {
+    public static void openBuildModifierSettings() {
         var mc = Minecraft.getInstance();
         var player = mc.player;
         if (player == null) return;
@@ -135,10 +147,17 @@ public class EffortlessClient implements ClientModInitializer {
         if (ReachHelper.getMaxReachDistance(player) == 0) {
             Effortless.log(player, "Build modifiers are disabled until your reach has increased. Increase your reach with craftable reach upgrades.");
         } else {
-
             mc.setScreen(null);
             mc.setScreen(new ModifierSettingsScreen());
         }
+    }
+
+    public static void openItemRandomizerSettings() {
+        Minecraft.getInstance().setScreen(new RandomizerConfigScreen(
+                Minecraft.getInstance().screen,
+                (settings) -> {},
+                RandomizerSettings.getSamples()
+        ));
     }
 
     public static void openPlayerSettings() {

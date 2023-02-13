@@ -94,7 +94,7 @@ public class BuildActionHandler {
                 break;
             case MODIFIER:
                 if (player.level.isClientSide)
-                    EffortlessClient.openModifierSettings();
+                    EffortlessClient.openBuildModifierSettings();
                 break;
             case OPEN_PLAYER_SETTINGS:
                 if (player.level.isClientSide)

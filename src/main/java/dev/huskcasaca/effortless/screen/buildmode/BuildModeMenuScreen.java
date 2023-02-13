@@ -45,9 +45,9 @@ import static dev.huskcasaca.effortless.building.BuildActionHandler.getOptions;
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class RadialMenuScreen extends Screen {
+public class BuildModeMenuScreen extends Screen {
 
-    private static final RadialMenuScreen INSTANCE = new RadialMenuScreen();
+    private static final BuildModeMenuScreen INSTANCE = new BuildModeMenuScreen();
     private static final Color SIDE_BUTTON_COLOR = new Color(.33f, .33f, .33f, .5f);
     private static final Color RADIAL_BUTTON_COLOR = new Color(0f, 0f, 0f, .5f);
     private static final Color SELECTED_COLOR = new Color(.5f, .5f, .5f, .78f);
@@ -72,11 +72,11 @@ public class RadialMenuScreen extends Screen {
     public boolean performedActionUsingMouse;
     private float lastScrollOffset = 0;
 
-    public RadialMenuScreen() {
+    public BuildModeMenuScreen() {
         super(Component.translatable(String.join(".", Effortless.MOD_ID, "screen", "radial_menu")));
     }
 
-    public static RadialMenuScreen getInstance() {
+    public static BuildModeMenuScreen getInstance() {
         return INSTANCE;
     }
 
@@ -87,7 +87,7 @@ public class RadialMenuScreen extends Screen {
     }
 
     public boolean isVisible() {
-        return Minecraft.getInstance().screen instanceof RadialMenuScreen;
+        return Minecraft.getInstance().screen instanceof BuildModeMenuScreen;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class RadialMenuScreen extends Screen {
     public void tick() {
         super.tick();
 
-        if (!Keys.RADIAL_MENU.isKeyDown()) {
+        if (!Keys.BUILD_MODE_MENU.isKeyDown()) {
             onClose();
         }
     }
@@ -411,8 +411,8 @@ public class RadialMenuScreen extends Screen {
         Keys keybindingIndex = null;
 
         switch (button.action) {
-            case SETTINGS -> keybindingIndex = Keys.SETTINGS_MENU;
-            case MODIFIER -> keybindingIndex = Keys.MODIFIER_MENU;
+            case SETTINGS -> keybindingIndex = Keys.SETTINGS;
+            case MODIFIER -> keybindingIndex = Keys.BUILD_MODIFIER_SETTINGS;
             case UNDO -> keybindingIndex = Keys.UNDO;
             case REDO -> keybindingIndex = Keys.REDO;
             case REPLACE -> keybindingIndex = Keys.TOGGLE_REPLACE;
