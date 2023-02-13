@@ -107,7 +107,7 @@ public class BuildRenderTypes extends RenderType {
                                             final Vec3 firstPos, final Vec3 secondPos,
                                             final boolean highlight, final boolean red) {
         var percentileUniform = shader.getUniform("dissolve");
-        var highlightUniform = shader.getUniform("highlight");
+//        var highlightUniform = shader.getUniform("highlight");
         var redUniform = shader.getUniform("red");
         var blockPosUniform = shader.getUniform("blockpos");
         var firstPosUniform = shader.getUniform("firstpos");
@@ -120,11 +120,11 @@ public class BuildRenderTypes extends RenderType {
         } else {
             Effortless.log("percentile uniform is null");
         }
-        if (highlightUniform != null) {
-            highlightUniform.set(highlight ? 1 : 0);
-        } else {
-            Effortless.log("highlight uniform is null");
-        }
+//        if (highlightUniform != null) {
+//            highlightUniform.set(highlight ? 1 : 0);
+//        } else {
+//            Effortless.log("highlight uniform is null");
+//        }
         if (redUniform != null) {
             redUniform.set(red ? 1 : 0);
         } else {
