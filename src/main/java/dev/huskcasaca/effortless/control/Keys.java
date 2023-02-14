@@ -15,9 +15,9 @@ public enum Keys {
     BUILD_MODIFIER_SETTINGS("build_modifier_settings", InputConstants.UNKNOWN.getValue()),
     ITEM_RANDOMIZER_SETTINGS("item_randomizer_settings", InputConstants.UNKNOWN.getValue()),
 
-    BUILD_MODE_MENU("build_mode_menu", InputConstants.KEY_LALT),
-    BUILD_MODIFIER_MENU("build_modifier_menu", InputConstants.KEY_LWIN),
-    ITEM_RANDOMIZER_MENU("item_randomizer_menu", InputConstants.KEY_RALT),
+    BUILD_MODE_RADIAL("build_mode_radial", InputConstants.KEY_LALT),
+    BUILD_MODIFIER_RADIAL("build_modifier_radial", InputConstants.KEY_LWIN),
+    ITEM_RANDOMIZER_RADIAL("item_randomizer_radial", InputConstants.KEY_RALT),
     UNDO("undo", InputConstants.KEY_LBRACKET),
     REDO("redo", InputConstants.KEY_RBRACKET),
     //    CYCLE_REPLACE_MODE("cycle_replace", InputConstants.UNKNOWN.getValue()),

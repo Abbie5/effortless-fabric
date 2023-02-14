@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
-public class RandomizerEditScreen extends Screen {
+public class EffortlessRandomizerEditScreen extends Screen {
 
 	private static final int MAX_RANDOMIZER_SIZE = Inventory.INVENTORY_SIZE;
 	private static final int MAX_RANDOMIZER_NAME_LENGTH = 255;
@@ -48,7 +48,7 @@ public class RandomizerEditScreen extends Screen {
 	private EditBox nameEditBox;
 	private DetailsList entries;
 
-	public RandomizerEditScreen(Screen screen, Consumer<Randomizer> consumer, Randomizer randomizer) {
+	public EffortlessRandomizerEditScreen(Screen screen, Consumer<Randomizer> consumer, Randomizer randomizer) {
 		super(Component.translatable("randomizer.edit.title"));
 		this.parent = screen;
 		this.applySettings = consumer;
@@ -90,7 +90,7 @@ public class RandomizerEditScreen extends Screen {
 			updateButtonValidity();
 		}).bounds(width / 2 - 154, height - 52, 150, 20).build());
 		this.addButton = addRenderableWidget(Button.builder(Component.translatable("Add New Item"), (button) -> {
-			minecraft.setScreen(new ItemPickerScreen(this,
+			minecraft.setScreen(new EffortlessItemPickerScreen(this,
 					(itemStack) -> {
 						entries.add(new Randomizer.Holder(itemStack.getItem(), 1));
 						updateSettings();
@@ -140,11 +140,11 @@ public class RandomizerEditScreen extends Screen {
 
 		public DetailsList() {
 			super(
-					RandomizerEditScreen.this.minecraft,
-					RandomizerEditScreen.this.width,
-					RandomizerEditScreen.this.height,
+					EffortlessRandomizerEditScreen.this.minecraft,
+					EffortlessRandomizerEditScreen.this.width,
+					EffortlessRandomizerEditScreen.this.height,
 					50,
-					RandomizerEditScreen.this.height - 60,
+					EffortlessRandomizerEditScreen.this.height - 60,
 					24
 			);
 		}
@@ -162,7 +162,7 @@ public class RandomizerEditScreen extends Screen {
 
 		@Override
 		protected boolean isFocused() {
-			return RandomizerEditScreen.this.getFocused() == this;
+			return EffortlessRandomizerEditScreen.this.getFocused() == this;
 		}
 
 		@Override
@@ -203,7 +203,7 @@ public class RandomizerEditScreen extends Screen {
 
 		public int add(Randomizer.Holder holder) {
 			var index = getSelected() == null ? children().size() : (children().indexOf(getSelected()) + 1);
-			var entry = new RandomizerEditScreen.DetailsList.Entry(holder);
+			var entry = new EffortlessRandomizerEditScreen.DetailsList.Entry(holder);
 			children().add(index, entry);
 			setSelected(entry);
 			return index;
@@ -297,7 +297,7 @@ public class RandomizerEditScreen extends Screen {
 //					setTooltipForNextRenderPass(itemStack.getHoverName());
 //				}
 
-				if (RandomizerEditScreen.DetailsList.this.getSelected() != this) {
+				if (EffortlessRandomizerEditScreen.DetailsList.this.getSelected() != this) {
 					numberField.getTextField().setFocus(false);
 					numberField.setFocused(null);
 				}
@@ -320,7 +320,7 @@ public class RandomizerEditScreen extends Screen {
 					}
 				}
 				if (i == 0) {
-					RandomizerEditScreen.DetailsList.this.setSelected(this);
+					EffortlessRandomizerEditScreen.DetailsList.this.setSelected(this);
 					return true;
 				}
 				return r;

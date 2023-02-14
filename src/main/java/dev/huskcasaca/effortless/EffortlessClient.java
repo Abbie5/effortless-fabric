@@ -20,11 +20,11 @@ import dev.huskcasaca.effortless.render.SuperRenderTypeBuffer;
 import dev.huskcasaca.effortless.render.modifier.ModifierRenderer;
 import dev.huskcasaca.effortless.render.outliner.OutlineRenderer;
 import dev.huskcasaca.effortless.render.preview.BlockPreviewRenderer;
-import dev.huskcasaca.effortless.screen.buildmode.BuildModeMenuScreen;
+import dev.huskcasaca.effortless.screen.buildmode.EffortlessModeRadialScreen;
 import dev.huskcasaca.effortless.screen.buildmode.PlayerSettingsScreen;
-import dev.huskcasaca.effortless.screen.buildmodifier.ModifierSettingsScreen;
-import dev.huskcasaca.effortless.screen.config.EffortlessConfigScreen;
-import dev.huskcasaca.effortless.screen.randomizer.RandomizerConfigScreen;
+import dev.huskcasaca.effortless.screen.buildmodifier.EffortlessModifierSettingsScreen;
+import dev.huskcasaca.effortless.screen.config.EffortlessSettingsScreen;
+import dev.huskcasaca.effortless.screen.randomizer.EffortlessRandomizerSettingsScreen;
 import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -95,12 +95,12 @@ public class EffortlessClient implements ClientModInitializer {
         var player = Minecraft.getInstance().player;
         if (player == null)
             return;
-        if (Keys.BUILD_MODE_MENU.isDown()) {
+        if (Keys.BUILD_MODE_RADIAL.isDown()) {
             showBuildModelMenu();
         }
-        if (Keys.BUILD_MODIFIER_MENU.isDown()) {
+        if (Keys.BUILD_MODIFIER_RADIAL.isDown()) {
         }
-        if (Keys.ITEM_RANDOMIZER_MENU.isDown()) {
+        if (Keys.ITEM_RANDOMIZER_RADIAL.isDown()) {
         }
 //        // remember to send packet to server if necessary
         if (Keys.BUILD_MODE_SETTINGS.getKeyMapping().consumeClick()) {
@@ -133,8 +133,8 @@ public class EffortlessClient implements ClientModInitializer {
     }
 
     public static void showBuildModelMenu() {
-        if (!BuildModeMenuScreen.getInstance().isVisible()) {
-            Minecraft.getInstance().setScreen(BuildModeMenuScreen.getInstance());
+        if (!EffortlessModeRadialScreen.getInstance().isVisible()) {
+            Minecraft.getInstance().setScreen(EffortlessModeRadialScreen.getInstance());
         }
     }
 
@@ -148,12 +148,12 @@ public class EffortlessClient implements ClientModInitializer {
             Effortless.log(player, "Build modifiers are disabled until your reach has increased. Increase your reach with craftable reach upgrades.");
         } else {
             mc.setScreen(null);
-            mc.setScreen(new ModifierSettingsScreen());
+            mc.setScreen(new EffortlessModifierSettingsScreen());
         }
     }
 
     public static void openItemRandomizerSettings() {
-        Minecraft.getInstance().setScreen(new RandomizerConfigScreen(
+        Minecraft.getInstance().setScreen(new EffortlessRandomizerSettingsScreen(
                 Minecraft.getInstance().screen,
                 (settings) -> {},
                 RandomizerSettings.getSamples()
@@ -168,7 +168,7 @@ public class EffortlessClient implements ClientModInitializer {
 
     public static void openSettings() {
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(EffortlessConfigScreen.createConfigScreen(mc.screen));
+        mc.setScreen(EffortlessSettingsScreen.createConfigScreen(mc.screen));
 
     }
 

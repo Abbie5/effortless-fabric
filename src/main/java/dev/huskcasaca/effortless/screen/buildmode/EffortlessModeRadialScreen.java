@@ -45,9 +45,9 @@ import static dev.huskcasaca.effortless.building.BuildActionHandler.getOptions;
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class BuildModeMenuScreen extends Screen {
+public class EffortlessModeRadialScreen extends Screen {
 
-    private static final BuildModeMenuScreen INSTANCE = new BuildModeMenuScreen();
+    private static final EffortlessModeRadialScreen INSTANCE = new EffortlessModeRadialScreen();
     private static final Color SIDE_BUTTON_COLOR = new Color(.33f, .33f, .33f, .5f);
     private static final Color RADIAL_BUTTON_COLOR = new Color(0f, 0f, 0f, .5f);
     private static final Color SELECTED_COLOR = new Color(.5f, .5f, .5f, .78f);
@@ -72,11 +72,11 @@ public class BuildModeMenuScreen extends Screen {
     public boolean performedActionUsingMouse;
     private float lastScrollOffset = 0;
 
-    public BuildModeMenuScreen() {
+    public EffortlessModeRadialScreen() {
         super(Component.translatable(String.join(".", Effortless.MOD_ID, "screen", "radial_menu")));
     }
 
-    public static BuildModeMenuScreen getInstance() {
+    public static EffortlessModeRadialScreen getInstance() {
         return INSTANCE;
     }
 
@@ -87,7 +87,7 @@ public class BuildModeMenuScreen extends Screen {
     }
 
     public boolean isVisible() {
-        return Minecraft.getInstance().screen instanceof BuildModeMenuScreen;
+        return Minecraft.getInstance().screen instanceof EffortlessModeRadialScreen;
     }
 
     @Override
@@ -101,7 +101,7 @@ public class BuildModeMenuScreen extends Screen {
     public void tick() {
         super.tick();
 
-        if (!Keys.BUILD_MODE_MENU.isKeyDown()) {
+        if (!Keys.BUILD_MODE_RADIAL.isKeyDown()) {
             onClose();
         }
     }

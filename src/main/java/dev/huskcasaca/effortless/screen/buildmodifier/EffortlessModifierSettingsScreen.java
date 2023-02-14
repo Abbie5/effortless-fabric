@@ -21,7 +21,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class ModifierSettingsScreen extends Screen {
+public class EffortlessModifierSettingsScreen extends Screen {
 
     private ScrollPane scrollPane;
     private Button buttonDone;
@@ -30,7 +30,7 @@ public class ModifierSettingsScreen extends Screen {
     private ArraySettingsPane arraySettingsPane;
     private RadialMirrorSettingsPane radialMirrorSettingsPane;
 
-    public ModifierSettingsScreen() {
+    public EffortlessModifierSettingsScreen() {
         super(Component.translatable(Effortless.MOD_ID + ".screen.modifier_settings"));
     }
 

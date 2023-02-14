@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class RandomizerConfigScreen extends Screen {
+public class EffortlessRandomizerSettingsScreen extends Screen {
 	private static final int SLOT_TEX_SIZE = 128;
 	private static final int SLOT_BG_SIZE = 18;
 	private static final int SLOT_STAT_HEIGHT = 20;
@@ -66,7 +66,7 @@ public class RandomizerConfigScreen extends Screen {
 	private Button editRandomizerButton;
 	private Button deleteRandomizerButton;
 
-	public RandomizerConfigScreen(Screen screen, Consumer<RandomizerSettings> consumer, RandomizerSettings randomizerSettings) {
+	public EffortlessRandomizerSettingsScreen(Screen screen, Consumer<RandomizerSettings> consumer, RandomizerSettings randomizerSettings) {
 		super(Component.translatable("randomizer.config.title"));
 		this.parent = screen;
 		this.applySettings = consumer;
@@ -88,7 +88,7 @@ public class RandomizerConfigScreen extends Screen {
 
 		this.editRandomizerButton = addRenderableWidget(Button.builder(Component.translatable("Edit"), (button) -> {
 			if (hasValidSelection()) {
-				minecraft.setScreen(new RandomizerEditScreen(this,
+				minecraft.setScreen(new EffortlessRandomizerEditScreen(this,
 						(randomizer) -> {
 							entries.getSelected().setRandomizer(randomizer);
 							updateSettings();
@@ -107,7 +107,7 @@ public class RandomizerConfigScreen extends Screen {
 		}).bounds(width / 2 - 76, height - 52, 72, 20).build());
 
 		addRenderableWidget(Button.builder(Component.translatable("Create New Randomizer"), (button) -> {
-			minecraft.setScreen(new RandomizerEditScreen(this,
+			minecraft.setScreen(new EffortlessRandomizerEditScreen(this,
 					(randomizer) -> {
 						entries.add(randomizer);
 						updateSettings();
@@ -153,11 +153,11 @@ public class RandomizerConfigScreen extends Screen {
 	private class DetailsList extends ObjectSelectionList<DetailsList.Entry> {
 		public DetailsList() {
 			super(
-					RandomizerConfigScreen.this.minecraft,
-					RandomizerConfigScreen.this.width,
-					RandomizerConfigScreen.this.height,
+					EffortlessRandomizerSettingsScreen.this.minecraft,
+					EffortlessRandomizerSettingsScreen.this.width,
+					EffortlessRandomizerSettingsScreen.this.height,
 					32,
-					RandomizerConfigScreen.this.height - 60,
+					EffortlessRandomizerSettingsScreen.this.height - 60,
 					24 + 12
 			);
 		}
@@ -175,7 +175,7 @@ public class RandomizerConfigScreen extends Screen {
 
 		@Override
 		protected boolean isFocused() {
-			return RandomizerConfigScreen.this.getFocused() == this;
+			return EffortlessRandomizerSettingsScreen.this.getFocused() == this;
 		}
 
 		@Override
@@ -250,7 +250,7 @@ public class RandomizerConfigScreen extends Screen {
 
 		public int add(Randomizer randomizer) {
 			var index = getSelected() == null ? children().size() : (children().indexOf(getSelected()) + 1);
-			var entry = new RandomizerConfigScreen.DetailsList.Entry(randomizer);
+			var entry = new EffortlessRandomizerSettingsScreen.DetailsList.Entry(randomizer);
 			children().add(index, entry);
 			setSelected(entry);
 			return index;
@@ -280,7 +280,7 @@ public class RandomizerConfigScreen extends Screen {
 			clearEntries();
 
 			randomizers.forEach((randomizer) -> {
-				addEntry(new RandomizerConfigScreen.DetailsList.Entry(randomizer));
+				addEntry(new EffortlessRandomizerSettingsScreen.DetailsList.Entry(randomizer));
 			});
 
 			var list = children();
@@ -396,7 +396,7 @@ public class RandomizerConfigScreen extends Screen {
 						return true;
 					}
 				}
-				RandomizerConfigScreen.DetailsList.this.setSelected(this);
+				EffortlessRandomizerSettingsScreen.DetailsList.this.setSelected(this);
 				return false;
 			}
 

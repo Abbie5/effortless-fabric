@@ -24,7 +24,7 @@ import java.util.function.Function;
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class EffortlessConfigScreen {
+public class EffortlessSettingsScreen {
 
     private static final Function<Boolean, Component> yesNoTextSupplier = bool -> {
         if (bool) {

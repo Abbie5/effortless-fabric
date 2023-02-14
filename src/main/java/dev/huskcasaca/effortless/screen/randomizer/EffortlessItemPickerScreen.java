@@ -30,7 +30,7 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 @ParametersAreNonnullByDefault
-public class ItemPickerScreen extends Screen {
+public class EffortlessItemPickerScreen extends Screen {
 
 	private static final int MAX_SEARCH_NAME_LENGTH = 255;
 	private static final int ROW_WIDTH = 268;
@@ -41,7 +41,7 @@ public class ItemPickerScreen extends Screen {
 	private Button addButton;
 	private DetailsList entries;
 
-	public ItemPickerScreen(Screen screen, Consumer<ItemStack> consumer) {
+	public EffortlessItemPickerScreen(Screen screen, Consumer<ItemStack> consumer) {
 		super(Component.translatable("randomizer.search.title"));
 		this.parent = screen;
 		this.applySettings = consumer;
@@ -133,11 +133,11 @@ public class ItemPickerScreen extends Screen {
 
 		public DetailsList() {
 			super(
-					ItemPickerScreen.this.minecraft,
-					ItemPickerScreen.this.width,
-					ItemPickerScreen.this.height,
+					EffortlessItemPickerScreen.this.minecraft,
+					EffortlessItemPickerScreen.this.width,
+					EffortlessItemPickerScreen.this.height,
 					50,
-					ItemPickerScreen.this.height - 36,
+					EffortlessItemPickerScreen.this.height - 36,
 					24
 			);
 		}
@@ -155,7 +155,7 @@ public class ItemPickerScreen extends Screen {
 
 		@Override
 		protected boolean isFocused() {
-			return ItemPickerScreen.this.getFocused() == this;
+			return EffortlessItemPickerScreen.this.getFocused() == this;
 		}
 
 		@Override
@@ -196,7 +196,7 @@ public class ItemPickerScreen extends Screen {
 
 		public int add(ItemStack itemStack) {
 			var index = getSelected() == null ? children().size() : children().indexOf(getSelected());
-			var entry = new ItemPickerScreen.DetailsList.Entry(itemStack);
+			var entry = new EffortlessItemPickerScreen.DetailsList.Entry(itemStack);
 			children().add(index, entry);
 			setSelected(entry);
 			return index;
@@ -242,7 +242,7 @@ public class ItemPickerScreen extends Screen {
 			@Override
 			public boolean mouseClicked(double d, double e, int i) {
 				if (i == 0) {
-					ItemPickerScreen.DetailsList.this.setSelected(this);
+					EffortlessItemPickerScreen.DetailsList.this.setSelected(this);
 					return true;
 				}
 				return false;
