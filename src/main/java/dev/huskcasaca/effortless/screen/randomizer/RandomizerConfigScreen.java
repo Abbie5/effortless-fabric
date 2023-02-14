@@ -381,19 +381,18 @@ public class RandomizerConfigScreen extends Screen {
 			public boolean mouseClicked(double d, double e, int i) {
 				var f = d - getRowLeft();
 				var g = e - getRowTop(children().indexOf(this));
-				var height = itemHeight + 4;
 				if (f <= 32.0) {
 
 					int j = children().indexOf(this);
 					if (8 < f && f < 24 && g < 16 && j > 0) { // move down
 						swap(j, j - 1);
-						DetailsList.this.scrollAmount = getScrollAmount() - height;
+						DetailsList.this.scrollAmount = getScrollAmount() - itemHeight;
 						return true;
 					}
 
 					if (8 < f && f < 24 && g > 16 && j < children().size() - 1) { // move up
 						swap(j, j + 1);
-						DetailsList.this.scrollAmount = getScrollAmount() + height;
+						DetailsList.this.scrollAmount = getScrollAmount() + itemHeight;
 						return true;
 					}
 				}
