@@ -303,36 +303,34 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 			}
 
 			private static void drawRadialButtonBackgrounds(PoseStack poseStack, double middleX, double middleY, double ringInnerEdge, double ringOuterEdge, int selected) {
-				var buffer = Tesselator.getInstance().getBuilder();
-				buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-				final var quarterCircle = Math.PI / 2.0;
-				final int totalModes = Math.max(3, RADIAL_SIZE);
-				final double fragment = Math.PI * 0.04; //gap between buttons in radians at inner edge
-				final double fragment2 = fragment * ringInnerEdge / ringOuterEdge; //gap between buttons in radians at outer edge
-				final double radiansPerObject = 2.0 * Math.PI / totalModes;
+				var bufferBuilder = Tesselator.getInstance().getBuilder();
+				bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+				var totalModes = Math.max(3, RADIAL_SIZE);
+				var innerGap = Math.PI * 0.04; //gap between buttons in radians at inner edge
+				var outerGap = innerGap * ringInnerEdge / ringOuterEdge; //gap between buttons in radians at outer edge
+				var rad = 2.0 * Math.PI / totalModes;
 
 				for (int i = 0; i < RADIAL_SIZE; i++) {
-					final double beginRadians = (i - 0.5) * radiansPerObject - quarterCircle;
-					final double endRadians = (i + 0.5) * radiansPerObject - quarterCircle;
+					var begRad = (i - 0.5) * rad - Math.PI / 2.0;
+					var endRad = (i + 0.5) * rad - Math.PI / 2.0;
 
-					final double x1m1 = Math.cos(beginRadians + fragment) * ringInnerEdge;
-					final double x2m1 = Math.cos(endRadians - fragment) * ringInnerEdge;
-					final double y1m1 = Math.sin(beginRadians + fragment) * ringInnerEdge;
-					final double y2m1 = Math.sin(endRadians - fragment) * ringInnerEdge;
+					var x1m1 = Math.cos(begRad + innerGap) * ringInnerEdge;
+					var x2m1 = Math.cos(endRad - innerGap) * ringInnerEdge;
+					var y1m1 = Math.sin(begRad + innerGap) * ringInnerEdge;
+					var y2m1 = Math.sin(endRad - innerGap) * ringInnerEdge;
 
-					final double x1m2 = Math.cos(beginRadians + fragment2) * ringOuterEdge;
-					final double x2m2 = Math.cos(endRadians - fragment2) * ringOuterEdge;
-					final double y1m2 = Math.sin(beginRadians + fragment2) * ringOuterEdge;
-					final double y2m2 = Math.sin(endRadians - fragment2) * ringOuterEdge;
+					var x1m2 = Math.cos(begRad + outerGap) * ringOuterEdge;
+					var x2m2 = Math.cos(endRad - outerGap) * ringOuterEdge;
+					var y1m2 = Math.sin(begRad + outerGap) * ringOuterEdge;
+					var y2m2 = Math.sin(endRad - outerGap) * ringOuterEdge;
 
 					var color = RADIAL_COLOR;
 					if (selected == i) color = HIGHLIGHT_COLOR;
 
-
-					buffer.vertex(middleX + x1m1, middleY + y1m1, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-					buffer.vertex(middleX + x2m1, middleY + y2m1, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-					buffer.vertex(middleX + x2m2, middleY + y2m2, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-					buffer.vertex(middleX + x1m2, middleY + y1m2, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+					bufferBuilder.vertex(middleX + x1m1, middleY + y1m1, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+					bufferBuilder.vertex(middleX + x2m1, middleY + y2m1, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+					bufferBuilder.vertex(middleX + x2m2, middleY + y2m2, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+					bufferBuilder.vertex(middleX + x1m2, middleY + y1m2, 0f).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 				}
 				Tesselator.getInstance().end();
 			}
