@@ -1,7 +1,6 @@
 package dev.huskcasaca.effortless.randomizer;
 
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import static java.util.Map.entry;
 
 public record Randomizer(
         String name,
-        List<Holder> holders
+        List<ItemProbability> holders
 ) {
 
     public static final Randomizer EMPTY = create("");
@@ -261,10 +260,10 @@ public record Randomizer(
     );
 
     private static Randomizer create(String name, Map.Entry<Item, Integer>... entries) {
-        var holders = new ArrayList<Holder>() {
+        var holders = new ArrayList<ItemProbability>() {
         };
         for (var entry : entries) {
-            holders.add(new Holder(entry.getKey(), entry.getValue()));
+            holders.add(new ItemProbability(entry.getKey(), entry.getValue()));
         }
         return new Randomizer(name, Collections.unmodifiableList(holders));
     }
@@ -275,21 +274,6 @@ public record Randomizer(
 
     public ItemSource createRandomSource() {
         return new ItemRandom(this);
-    }
-
-    public record Holder(
-            Item item,
-            int count
-    ) {
-
-        public Holder withCount(int count) {
-            return new Holder(item, count);
-        }
-
-        public ItemStack singleItemStack() {
-            return new ItemStack(item, 1);
-        }
-
     }
 
 

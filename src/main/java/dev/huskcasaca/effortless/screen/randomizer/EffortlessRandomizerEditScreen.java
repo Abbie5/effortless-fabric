@@ -3,17 +3,19 @@ package dev.huskcasaca.effortless.screen.randomizer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import dev.huskcasaca.effortless.randomizer.ItemProbability;
 import dev.huskcasaca.effortless.randomizer.Randomizer;
 import dev.huskcasaca.effortless.render.ScissorsHandler;
+import dev.huskcasaca.effortless.screen.config.EditorList;
 import dev.huskcasaca.effortless.screen.widget.NumberField;
 import dev.huskcasaca.effortless.utils.RandomizerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CenteredStringWidget;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.CommonComponents;
@@ -21,11 +23,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.awt.*;
-import java.util.List;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -67,12 +66,12 @@ public class EffortlessRandomizerEditScreen extends Screen {
 	public void tick() {
 		nameEditBox.tick();
 		entries.tick();
+		updateButtonValidity();
 	}
 
 	@Override
 	protected void init() {
-
-		this.entries = addRenderableWidget(new DetailsList());
+		this.entries = addRenderableWidget(new DetailsList(minecraft, width, height, 50, height - 60, 24));
 		this.entries.reset(lastSettings.holders());
 
 		this.nameEditBox = addRenderableWidget(
@@ -85,24 +84,17 @@ public class EffortlessRandomizerEditScreen extends Screen {
 		addRenderableWidget(new CenteredStringWidget(width, 26, title, minecraft.font));
 
 		this.deleteButton = addRenderableWidget(Button.builder(Component.translatable("Delete Item"), (button) -> {
-			entries.delete();
+			entries.deleteSelected();
 			updateSettings();
-			updateButtonValidity();
 		}).bounds(width / 2 - 154, height - 52, 150, 20).build());
 		this.addButton = addRenderableWidget(Button.builder(Component.translatable("Add New Item"), (button) -> {
 			minecraft.setScreen(new EffortlessItemPickerScreen(this,
 					(itemStack) -> {
-						entries.add(new Randomizer.Holder(itemStack.getItem(), 1));
+						entries.insertSelected(new ItemProbability(itemStack.getItem(), 1));
 						updateSettings();
-						updateButtonValidity();
 					}));
-			updateButtonValidity();
-
-
 			updateSettings();
-			updateButtonValidity();
 		}).bounds(width / 2 + 4, height - 52, 150, 20).build());
-
 
 		this.saveButton = addRenderableWidget(Button.builder(Component.translatable("Save"), (button) -> {
 			updateSettings();
@@ -112,7 +104,6 @@ public class EffortlessRandomizerEditScreen extends Screen {
 		addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, (button) -> {
 			minecraft.setScreen(parent);
 		}).bounds(width / 2 + 4, height - 28, 150, 20).build());
-		updateButtonValidity();
 	}
 
 	void updateButtonValidity() {
@@ -136,28 +127,10 @@ public class EffortlessRandomizerEditScreen extends Screen {
 	}
 
 	@Environment(EnvType.CLIENT)
-	private class DetailsList extends ObjectSelectionList<DetailsList.Entry> {
+	private class DetailsList extends EditorList<ItemProbability> {
 
-		public DetailsList() {
-			super(
-					EffortlessRandomizerEditScreen.this.minecraft,
-					EffortlessRandomizerEditScreen.this.width,
-					EffortlessRandomizerEditScreen.this.height,
-					50,
-					EffortlessRandomizerEditScreen.this.height - 60,
-					24
-			);
-		}
-
-		@Override
-		public void setSelected(@Nullable Entry entry) {
-			super.setSelected(entry);
-			updateButtonValidity();
-		}
-
-		@Override
-		public int getRowWidth() {
-			return ROW_WIDTH;
+		public DetailsList(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight) {
+			super(minecraft, width, height, top, bottom, itemHeight);
 		}
 
 		@Override
@@ -171,86 +144,37 @@ public class EffortlessRandomizerEditScreen extends Screen {
 		}
 
 		@Override
-		public void render(PoseStack poseStack, int i, int j, float f) {
-			if (minecraft.level != null) {
-				setRenderBackground(false);
-				setRenderTopAndBottom(false);
-				ScissorsHandler.scissor(new Rectangle(0, y0, this.width, y1 - y0));
-			} else {
-				setRenderBackground(true);
-				setRenderTopAndBottom(true);
-			}
-			super.render(poseStack, i, j, f);
-		}
-
-		@Override
-		protected void renderBackground(PoseStack poseStack) {
-			if (this.minecraft.level != null) {
-				this.fillGradient(poseStack, 0, 0, this.width, this.height, 0xa1101010, 0x8c101010);
-			}
-		}
-
-		@Override
 		protected void renderDecorations(PoseStack poseStack, int i, int j) {
 			if (this.minecraft.level != null) {
 				ScissorsHandler.removeLastScissor();
 			}
 			var entry = this.getHovered();
 			if (entry != null && i < (this.width + this.getRowWidth()) / 2 - 48) {
-				renderComponentTooltip(poseStack, RandomizerUtils.getRandomizerEntryTooltip(entry.holder, totalCount()), i, j);
+				renderComponentTooltip(poseStack, RandomizerUtils.getRandomizerEntryTooltip(entry.getItem(), totalCount()), i, j);
 			}
 		}
 
-		public int add(Randomizer.Holder holder) {
-			var index = getSelected() == null ? children().size() : (children().indexOf(getSelected()) + 1);
-			var entry = new EffortlessRandomizerEditScreen.DetailsList.Entry(holder);
-			children().add(index, entry);
-			setSelected(entry);
-			return index;
-		}
-
-		public void delete() {
-			var selected = entries.getSelected();
-			var index = children().indexOf(selected);
-			removeEntry(selected);
-			if (index >= 0 && index < children().size()) {
-				setSelected(children().get(index));
-			}
-		}
-
-		public void reset(List<Randomizer.Holder> itemStacks) {
-			int i = children().indexOf(getSelected());
-			clearEntries();
-
-			itemStacks.forEach((itemStack) -> {
-				addEntry(new Entry(itemStack));
-			});
-
-			var list = children();
-			if (i >= 0 && i < list.size()) {
-				setSelected(list.get(i));
-			}
-		}
-
-		public List<Randomizer.Holder> items() {
-			return children().stream().map((it) -> it.holder).toList();
+		@Override
+		protected EditorList<ItemProbability>.Entry createHolder(ItemProbability item) {
+			return new Entry(item);
 		}
 
 		public int totalCount() {
-			return items().stream().mapToInt(Randomizer.Holder::count).sum();
+			return items().stream().mapToInt(ItemProbability::count).sum();
 		}
 
 		public void tick() {
-			children().forEach((entry) -> entry.numberField.tick());
+			children().forEach((entry) -> ((Entry) entry).tick());
 		}
 
 		@Environment(EnvType.CLIENT)
-		class Entry extends ObjectSelectionList.Entry<Entry> {
+		class Entry extends EditorList<ItemProbability>.Entry {
 
 			private final NumberField numberField;
-			private Randomizer.Holder holder;
+			private ItemProbability holder;
 
-			public Entry(Randomizer.Holder holder) {
+			public Entry(ItemProbability holder) {
+				super(holder);
 				this.holder = holder;
 				this.numberField = new NumberField(0, 0, 42, 18);
 				this.numberField.getTextField().setFilter((string) -> {
@@ -288,16 +212,11 @@ public class EffortlessRandomizerEditScreen extends Screen {
 				var percentage = String.format("%.2f%%", 100.0 * holder.count() / totalCount());
 				GuiComponent.drawString(poseStack, minecraft.font, percentage, k + ROW_WIDTH - 50 - minecraft.font.width(percentage), j + 6, 0xFFFFFFFF);
 
-
 				numberField.setX(k + getRowWidth() - 46);
 				numberField.setY(j + 1);
 				numberField.render(poseStack, n, o, f);
 
-//				if (isMouseOver(n, o)) {
-//					setTooltipForNextRenderPass(itemStack.getHoverName());
-//				}
-
-				if (EffortlessRandomizerEditScreen.DetailsList.this.getSelected() != this) {
+				if (DetailsList.this.getSelected() != this) {
 					numberField.getTextField().setFocus(false);
 					numberField.setFocused(null);
 				}
@@ -341,11 +260,15 @@ public class EffortlessRandomizerEditScreen extends Screen {
 				return numberField.charTyped(c, i) || super.charTyped(c, i);
 			}
 
-			private Component getDisplayName(Randomizer.Holder holder) {
+			public void tick() {
+				numberField.tick();
+			}
+
+			private Component getDisplayName(ItemProbability holder) {
 				return holder.singleItemStack().getHoverName();
 			}
 
-			private void blitSlot(PoseStack poseStack, int i, int j, Randomizer.Holder holder) {
+			private void blitSlot(PoseStack poseStack, int i, int j, ItemProbability holder) {
 				blitSlotBg(poseStack, i + 1, j + 1);
 				blitSlotItem(poseStack, i + 2, j + 2, holder.singleItemStack(), Integer.toString(holder.count()));
 			}

@@ -30,12 +30,12 @@ import java.util.function.Consumer;
 
 public class RadialSection extends AbstractWidget {
 
-    private static final Color SIDE_BUTTON_COLOR = new Color(0f, 0f, 0f, .5f);
+    private static final Color SIDE_BUTTON_COLOR = new Color(0f, 0f, 0f, .42f);
     private static final Color SIDE_BUTTON_SELECTED_COLOR = new Color(.5f, .5f, .5f, .78f);
     private static final Color SIDE_BUTTON_HIGHLIGHT_COLOR = new Color(0.42f, 0.42f, 0.42f,  0.5f);
     private static final Color SIDE_BUTTON_HIGHLIGHT_SELECTED_COLOR = new Color(0.60f, 0.60f, 0.60f, .78f);
 
-    private static final Color RADIAL_BUTTON_COLOR = new Color(0f, 0f, 0f, .5f);
+    private static final Color RADIAL_BUTTON_COLOR = new Color(0f, 0f, 0f, .42f);
     private static final Color RADIAL_BUTTON_SELECTED_COLOR = new Color(.5f, .5f, .5f, .78f);
     private static final Color RADIAL_BUTTON_HIGHLIGHT_COLOR = new Color(0.42f, 0.42f, 0.42f,  0.5f);
     private static final Color RADIAL_BUTTON_HIGHLIGHT_SELECTED_COLOR = new Color(0.60f, 0.60f, 0.60f, .78f);
@@ -43,9 +43,9 @@ public class RadialSection extends AbstractWidget {
     private static final int WHITE_TEXT_COLOR = 0xffffffff;
     private static final int OPTION_TEXT_COLOR = 0xeeeeeeff;
 
-    private static final double RING_INNER_EDGE = 36;
-    private static final double RING_OUTER_EDGE = 74;
-    private static final double CATEGORY_LINE_OUTER_EDGE = 40;
+    private static final double RING_INNER_EDGE = 32;
+    private static final double RING_OUTER_EDGE = 67;
+    private static final double CATEGORY_LINE_OUTER_EDGE = 36;
 
     private static final double TEXT_DISTANCE = 84;
 

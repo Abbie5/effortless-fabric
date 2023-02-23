@@ -1,15 +1,14 @@
-package dev.huskcasaca.effortless.screen.randomizer;
+package dev.huskcasaca.effortless.screen.pattern;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.huskcasaca.effortless.pattern.Pattern;
+import dev.huskcasaca.effortless.pattern.PatternSettings;
 import dev.huskcasaca.effortless.randomizer.ItemProbability;
-import dev.huskcasaca.effortless.randomizer.Randomizer;
-import dev.huskcasaca.effortless.randomizer.RandomizerSettings;
 import dev.huskcasaca.effortless.screen.config.EditorList;
-import dev.huskcasaca.effortless.utils.RandomizerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -26,19 +25,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
 import java.awt.*;
-import java.util.Collections;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class EffortlessRandomizerSettingsScreen extends Screen {
-	private static final int SLOT_TEX_SIZE = 128;
-	private static final int SLOT_BG_SIZE = 18;
-	private static final int SLOT_STAT_HEIGHT = 20;
-	private static final int SLOT_BG_X = 1;
-	private static final int SLOT_BG_Y = 1;
-	private static final int SLOT_FG_X = 2;
-	private static final int SLOT_FG_Y = 2;
+public class EffortlessPatternSettingsScreen extends Screen {
 
 	private static final int SLOT_OFFSET_X = 20;
 	private static final int SLOT_OFFSET_Y = 20;
@@ -59,21 +49,21 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 	private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
 
 	protected final Screen parent;
-	private final Consumer<RandomizerSettings> applySettings;
-	private RandomizerSettings lastSettings;
+	private final Consumer<PatternSettings> applySettings;
+	private PatternSettings lastSettings;
 	private DetailsList entries;
 	private Button editRandomizerButton;
 	private Button deleteRandomizerButton;
 
-	public EffortlessRandomizerSettingsScreen(Screen screen, Consumer<RandomizerSettings> consumer, RandomizerSettings randomizerSettings) {
+	public EffortlessPatternSettingsScreen(Screen screen, Consumer<PatternSettings> consumer, PatternSettings patternSettings) {
 		super(Component.translatable("randomizer.config.title"));
 		this.parent = screen;
 		this.applySettings = consumer;
-		this.lastSettings = randomizerSettings;
+		this.lastSettings = patternSettings;
 	}
 
 	private void updateSettings() {
-		lastSettings = new RandomizerSettings(
+		lastSettings = new PatternSettings(
 				entries.items()
 		);
 	}
@@ -81,18 +71,18 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 	@Override
 	protected void init() {
 		this.entries = addRenderableWidget(new DetailsList(minecraft, width, height, 32, height - 60, 24 + 12));
-		this.entries.reset(lastSettings.randomizers());
+		this.entries.reset(lastSettings.patterns());
 		addRenderableWidget(new CenteredStringWidget(width, 49, title, minecraft.font));
 
 		this.editRandomizerButton = addRenderableWidget(Button.builder(Component.translatable("Edit"), (button) -> {
-			if (hasValidSelection()) {
-				minecraft.setScreen(new EffortlessRandomizerEditScreen(this,
-						(randomizer) -> {
-							entries.replaceSelect(randomizer);
-							updateSettings();
-						},
-						entries.getSelected().getItem()));
-			}
+//			if (hasValidSelection()) {
+//				minecraft.setScreen(new EffortlessRandomizerEditScreen(this,
+//						(randomizer) -> {
+//							entries.replaceSelect(randomizer);
+//							updateSettings();
+//						},
+//						entries.getSelected().getItem()));
+//			}
 		}).bounds(width / 2 - 154, height - 52, 72, 20).build());
 
 		this.deleteRandomizerButton = addRenderableWidget(Button.builder(Component.translatable("Delete"), (button) -> {
@@ -102,13 +92,13 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 			}
 		}).bounds(width / 2 - 76, height - 52, 72, 20).build());
 
-		addRenderableWidget(Button.builder(Component.translatable("Create New Randomizer"), (button) -> {
-			minecraft.setScreen(new EffortlessRandomizerEditScreen(this,
-					(randomizer) -> {
-						entries.insertSelected(randomizer);
-						updateSettings();
-					},
-					Randomizer.EMPTY));
+		addRenderableWidget(Button.builder(Component.translatable("Create New Pattern"), (button) -> {
+//			minecraft.setScreen(new EffortlessRandomizerEditScreen(this,
+//					(randomizer) -> {
+//						entries.insertSelected(randomizer);
+//						updateSettings();
+//					},
+//					Randomizer.EMPTY));
 		}).bounds(width / 2 + 4, height - 52, 150, 20).build());
 
 
@@ -144,14 +134,9 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 	}
 
 	@Environment(EnvType.CLIENT)
-	class DetailsList extends EditorList<Randomizer> {
+	class DetailsList extends EditorList<Pattern> {
 		public DetailsList(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight) {
 			super(minecraft, width, height, top, bottom, itemHeight);
-		}
-
-		@Override
-		protected boolean isFocused() {
-			return EffortlessRandomizerSettingsScreen.this.getFocused() == this;
 		}
 
 		private static void drawRadialButtonBackgrounds(PoseStack poseStack, double middleX, double middleY, double ringInnerEdge, double ringOuterEdge, int selected) {
@@ -188,6 +173,11 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 		}
 
 		@Override
+		protected boolean isFocused() {
+			return EffortlessPatternSettingsScreen.this.getFocused() == this;
+		}
+
+		@Override
 		protected void renderEntry(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry) {
 			GuiComponent.fill(poseStack, k, j, k + ICON_WIDTH, j + ICON_WIDTH, 0x9f6c6c6c);
 
@@ -209,17 +199,17 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 			}
 			drawString(poseStack, minecraft.font, getDisplayName(entry.getItem()), k + 2 + 32 + 1 , j + 2, 0xFFFFFFFF);
 
-			var slot = new AtomicInteger(0);
-			entry.getItem().holders().forEach((holder) -> {
-				var last = slot.getAndIncrement();
-				if (last >= MAX_SLOT_COUNT) {
-					if (last == MAX_SLOT_COUNT) {
-						blitExtraSlot(poseStack, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1);
-					}
-					return;
-				}
-				blitSlot(poseStack, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1, holder);
-			});
+//			var slot = new AtomicInteger(0);
+//			entry.getItem().holders().forEach((holder) -> {
+//				var last = slot.getAndIncrement();
+//				if (last >= MAX_SLOT_COUNT) {
+//					if (last == MAX_SLOT_COUNT) {
+//						blitExtraSlot(poseStack, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1);
+//					}
+//					return;
+//				}
+//				blitSlot(poseStack, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1, holder);
+//			});
 		}
 
 		@Override
@@ -231,53 +221,53 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 				return;
 			}
 
-			var x0 = (this.width - ROW_WIDTH) / 2 + 2;
-			var x1 = (this.width - ROW_WIDTH) / 2 + ICON_WIDTH + 2;
-
-			if (i >= x0 && i <= x1) {
-				var index = children().indexOf(entry);
-				if (index + 1 < RADIAL_SIZE) {
-					renderTooltip(poseStack, Component.literal("Slot " + (index + 1)), i, j);
-				} else {
-					renderTooltip(poseStack, Component.literal("Not in Slot"), i, j);
-				}
-				return;
-			}
-
-			if (entry.isMouseOver(i, j - 13) && entry.isMouseOver(i, j + 3)) {
-				var index = new AtomicInteger(0);
-				var holders = entry.getItem().holders();
-				var totalCount = holders.stream().mapToInt((holder) -> holder.count()).sum();
-				for (var holder : holders) {
-					var last = index.getAndIncrement();
-					if (last > MAX_SLOT_COUNT) break;
-
-					x0 = (this.width - ROW_WIDTH) / 2 + 3 + last * SLOT_OFFSET_X + ICON_WIDTH + 1;
-					x1 = (this.width - ROW_WIDTH) / 2 + 3 + (last + 1) * SLOT_OFFSET_X + (last == MAX_SLOT_COUNT ? ICON_WIDTH / 2 : ICON_WIDTH);
-					if (i < x0 || i > x1) continue;
-
-					if (last == MAX_SLOT_COUNT) {
-						renderComponentTooltip(poseStack, Collections.singletonList(Component.literal("+" + (holders.size() - MAX_SLOT_COUNT) + " More")), i, j);
-					} else {
-						renderComponentTooltip(poseStack, RandomizerUtils.getRandomizerEntryTooltip(holder, totalCount), i, j);
-					}
-				}
-			}
+//			var x0 = (this.width - ROW_WIDTH) / 2 + 2;
+//			var x1 = (this.width - ROW_WIDTH) / 2 + ICON_WIDTH + 2;
+//
+//			if (i >= x0 && i <= x1) {
+//				var index = children().indexOf(entry);
+//				if (index + 1 < RADIAL_SIZE) {
+//					renderTooltip(poseStack, Component.literal("Slot " + (index + 1)), i, j);
+//				} else {
+//					renderTooltip(poseStack, Component.literal("Not in Slot"), i, j);
+//				}
+//				return;
+//			}
+//
+//			if (entry.isMouseOver(i, j - 13) && entry.isMouseOver(i, j + 3)) {
+//				var index = new AtomicInteger(0);
+//				var holders = entry.getItem().holders();
+//				var totalCount = holders.stream().mapToInt((holder) -> holder.count()).sum();
+//				for (var holder : holders) {
+//					var last = index.getAndIncrement();
+//					if (last > MAX_SLOT_COUNT) break;
+//
+//					x0 = (this.width - ROW_WIDTH) / 2 + 3 + last * SLOT_OFFSET_X + ICON_WIDTH + 1;
+//					x1 = (this.width - ROW_WIDTH) / 2 + 3 + (last + 1) * SLOT_OFFSET_X + (last == MAX_SLOT_COUNT ? ICON_WIDTH / 2 : ICON_WIDTH);
+//					if (i < x0 || i > x1) continue;
+//
+//					if (last == MAX_SLOT_COUNT) {
+//						renderComponentTooltip(poseStack, Collections.singletonList(Component.literal("+" + (holders.size() - MAX_SLOT_COUNT) + " More")), i, j);
+//					} else {
+//						renderComponentTooltip(poseStack, RandomizerUtils.getRandomizerEntryTooltip(holder, totalCount), i, j);
+//					}
+//				}
+//			}
 		}
 
 		@Override
-		protected Component getNarration(Randomizer randomizer) {
-			return Component.translatable("narrator.select", getDisplayName(randomizer));
+		protected Component getNarration(Pattern pattern) {
+			return Component.translatable("narrator.select", getDisplayName(pattern));
 		}
 
-		private Component getDisplayName(Randomizer randomizer) {
-			if (randomizer.isEmpty()) {
-				return Component.literal("" + ChatFormatting.GRAY + ChatFormatting.ITALIC + "Empty Randomizer" + ChatFormatting.RESET);
+		private Component getDisplayName(Pattern pattern) {
+			if (pattern.isEmpty()) {
+				return Component.literal("" + ChatFormatting.GRAY + ChatFormatting.ITALIC + "Empty Pattern" + ChatFormatting.RESET);
 			}
-			if (randomizer.name().isBlank()) {
+			if (pattern.name().isBlank()) {
 				return Component.literal("" + ChatFormatting.GRAY + ChatFormatting.ITALIC + "No Name" + ChatFormatting.RESET);
 			}
-			return Component.literal(randomizer.name());
+			return Component.literal(pattern.name());
 		}
 
 		private void blitSlot(PoseStack poseStack, int i, int j, ItemProbability holder) {

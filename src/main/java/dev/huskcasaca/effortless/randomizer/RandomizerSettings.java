@@ -30,8 +30,6 @@ public record RandomizerSettings(
 						Randomizer.COLORFUL_SHULKER_BOX,
 						Randomizer.COLORFUL_BED,
 						Randomizer.COLORFUL_BANNER
-
-
 				)
 		);
 	}
