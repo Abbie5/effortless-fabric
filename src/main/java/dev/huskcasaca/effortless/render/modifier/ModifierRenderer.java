@@ -2,7 +2,6 @@ package dev.huskcasaca.effortless.render.modifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.huskcasaca.effortless.buildmodifier.BuildModifierHelper;
 import dev.huskcasaca.effortless.render.RenderUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -33,21 +32,21 @@ public class ModifierRenderer {
     }
 
     public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Camera camera) {
-        //Mirror lines and areas
-        var player = minecraft.player;
-        var mirrorSettings = BuildModifierHelper.getModifierSettings(player).mirrorSettings();
-
-        if (mirrorSettings != null && mirrorSettings.enabled() && (mirrorSettings.mirrorX() || mirrorSettings.mirrorY() || mirrorSettings.mirrorZ())) {
-            var pos = mirrorSettings.position().subtract(camera.getPosition());
-            renderMirror(multiBufferSource, pos, mirrorSettings.radius(), mirrorSettings.getMirrorAxis(), mirrorSettings.drawPlanes(), mirrorSettings.drawLines());
-        }
-
-        //Radial mirror lines and areas
-        var radialMirrorSettings = BuildModifierHelper.getModifierSettings(player).radialMirrorSettings();
-        if (radialMirrorSettings != null && radialMirrorSettings.enabled()) {
-            var pos = radialMirrorSettings.position().subtract(camera.getPosition());
-            renderRadial(multiBufferSource, pos.add(EPSILON), radialMirrorSettings.radius(), radialMirrorSettings.slices(), radialMirrorSettings.drawPlanes(), radialMirrorSettings.drawLines());
-        }
+//        //Mirror lines and areas
+//        var player = minecraft.player;
+//        var mirrorSettings = EffortlessBuilder.getInstance().getModifierSettings(player).mirrorSettings();
+//
+//        if (mirrorSettings != null && mirrorSettings.enabled() && (mirrorSettings.mirrorX() || mirrorSettings.mirrorY() || mirrorSettings.mirrorZ())) {
+//            var pos = mirrorSettings.position().subtract(camera.getPosition());
+//            renderMirror(multiBufferSource, pos, mirrorSettings.radius(), mirrorSettings.getMirrorAxis(), mirrorSettings.drawPlanes(), mirrorSettings.drawLines());
+//        }
+//
+//        //Radial mirror lines and areas
+//        var radialMirrorSettings = EffortlessBuilder.getInstance().getModifierSettings(player).radialMirrorSettings();
+//        if (radialMirrorSettings != null && radialMirrorSettings.enabled()) {
+//            var pos = radialMirrorSettings.position().subtract(camera.getPosition());
+//            renderRadial(multiBufferSource, pos.add(EPSILON), radialMirrorSettings.radius(), radialMirrorSettings.slices(), radialMirrorSettings.drawPlanes(), radialMirrorSettings.drawLines());
+//        }
     }
 
     private void drawAxisPlane(VertexConsumer buffer, Vec3 pos, Integer range, Direction.Axis axis, Color color) {

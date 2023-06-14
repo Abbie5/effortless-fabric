@@ -1,7 +1,6 @@
 package dev.huskcasaca.effortless.mixin;
 
-
-import dev.huskcasaca.effortless.Effortless;
+import dev.huskcasaca.effortless.core.event.common.ServerPlayerEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -16,12 +15,12 @@ public abstract class ServerPlayerEventMixin {
 
     @Inject(method = "changeDimension", at = @At("RETURN"))
     private void onPlayerChangeDimension(ServerLevel serverLevel, CallbackInfoReturnable<Entity> cir) {
-        Effortless.onPlayerChangedDimension((ServerPlayer) cir.getReturnValue());
+        ServerPlayerEvent.CHANGE_DIMENSION.invoker().onChangeDimension(serverLevel, (ServerPlayer) cir.getReturnValue());
     }
 
     @Inject(method = "restoreFrom", at = @At("TAIL"))
     private void onPlayerRestoreFrom(ServerPlayer oldPlayer, boolean alive, CallbackInfo ci) {
-        Effortless.onPlayerClone((ServerPlayer) (Object) this, oldPlayer, alive);
+        ServerPlayerEvent.CLONE.invoker().onClone((ServerPlayer) (Object) this, oldPlayer, alive);
     }
 
 }

@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.mixin;
 
-import dev.huskcasaca.effortless.event.ClientScreenInputEvent;
+import dev.huskcasaca.effortless.core.event.client.ClientScreenInputEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyboardHandler;

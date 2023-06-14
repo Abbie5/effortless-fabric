@@ -4,8 +4,7 @@ import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.config.ConfigManager;
 import dev.huskcasaca.effortless.config.EffortlessConfig;
 import dev.huskcasaca.effortless.config.PreviewConfig;
-import dev.huskcasaca.effortless.gui.BuildInfoOverlay;
-import dev.huskcasaca.effortless.render.preview.BlockRenderOptions;
+import dev.huskcasaca.effortless.screen.BuildInfoOverlay;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -13,17 +12,13 @@ import me.shedaniel.clothconfig2.impl.builders.IntSliderBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class EffortlessSettingsScreen {
 
     private static final Function<Boolean, Component> yesNoTextSupplier = bool -> {
@@ -100,14 +95,15 @@ public class EffortlessSettingsScreen {
                         .setYesNoTextSupplier(yesNoTextSupplier)
                         .build()
         );
-        previewSubCat.add(
-                entryBuilder.startEnumSelector(Component.literal("Block Preview Mode"), BlockRenderOptions.class, config.getPreviewConfig().getBlockPreviewMode())
-                        .setTooltip(Component.translatable("effortless.settings.block_preview_type.tooltip"))
-                        .setDefaultValue(defaults.getPreviewConfig().getBlockPreviewMode())
-                        .setSaveConsumer(config.getPreviewConfig()::setBlockPreviewMode)
-                        .setEnumNameProvider(anEnum -> Component.translatable(((BlockRenderOptions) anEnum).getNameKey()))
-                        .build()
-        );
+        // TODO: 23/5/23  
+//        previewSubCat.add(
+//                entryBuilder.startEnumSelector(Component.literal("Block Preview Mode"), BlockRenderOptions.class, config.getPreviewConfig().getBlockPreviewMode())
+//                        .setTooltip(Component.translatable("effortless.settings.block_preview_type.tooltip"))
+//                        .setDefaultValue(defaults.getPreviewConfig().getBlockPreviewMode())
+//                        .setSaveConsumer(config.getPreviewConfig()::setBlockPreviewMode)
+//                        .setEnumNameProvider(anEnum -> Component.translatable(((BlockRenderOptions) anEnum).getNameKey()))
+//                        .build()
+//        );
 
 
 //        previewSubCat.add(

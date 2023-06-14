@@ -2,25 +2,17 @@ package dev.huskcasaca.effortless.screen.radial;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import dev.huskcasaca.effortless.buildmode.BuildModeOptions;
-import dev.huskcasaca.effortless.buildmode.NewBuildMode;
-import dev.huskcasaca.effortless.control.Keys;
-import dev.huskcasaca.effortless.gui.components.RadialSection;
+import dev.huskcasaca.effortless.keybinding.Keys;
+import dev.huskcasaca.effortless.screen.widget.RadialSection;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import org.joml.Matrix4f;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Arrays;
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class AbstractRadialScreen extends Screen {
 
     private static final float FADE_SPEED = 0.5f;
@@ -68,17 +60,6 @@ public class AbstractRadialScreen extends Screen {
         radial = addRenderableWidget(
                 new RadialSection(0, 0, this.width, this.height, Component.empty())
         );
-        radial.setFixedOptions(
-                List.of(BuildModeOptions.UNDO_REDO, BuildModeOptions.SETTINGS)
-        );
-        radial.setRadialSelectResponder((slot) -> {
-            if (slot instanceof NewBuildMode) {
-                radial.setLocalOptions(((NewBuildMode) slot).getOptionSets());
-            }
-        });
-        radial.setRadialSlots(
-                Arrays.stream(NewBuildMode.values()).toList()
-        );
     }
 
     @Override
@@ -114,9 +95,9 @@ public class AbstractRadialScreen extends Screen {
     }
 
     // horizontal fill
-    protected void fillGradient2(PoseStack poseStack, int i, int j, int k, int l, int m, int n) {
-        fillGradient2(poseStack, i, j, k, l, m, n, this.getBlitOffset());
-    }
+//    protected void fillGradient2(PoseStack poseStack, int i, int j, int k, int l, int m, int n) {
+//        fillGradient2(poseStack, i, j, k, l, m, n, this.getBlitOffset());
+//    }
 
 }
 

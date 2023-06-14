@@ -26,12 +26,16 @@ public class ConfigManager {
         readConfig(false);
     }
 
+    public static ConfigManager getInstance() {
+        return INSTANCE;
+    }
+
     public static EffortlessConfig getGlobalConfig() {
-        return INSTANCE.getConfig();
+        return getInstance().getConfig();
     }
 
     public static PreviewConfig getGlobalPreviewConfig() {
-        return getGlobalConfig().getPreviewConfig();
+        return getInstance().getConfig().getPreviewConfig();
     }
 
     public void readConfig(boolean async) {
@@ -56,8 +60,11 @@ public class ConfigManager {
             }
         };
 
-        if (async) executor.execute(task);
-        else task.run();
+        if (async) {
+            executor.execute(task);
+        } else {
+            task.run();
+        }
     }
 
     public void writeNewConfig() {

@@ -30,6 +30,8 @@ dependencies {
     modImplementation(libs.cloth.config)
 
     implementation(libs.findbugs)
+
+    testImplementation(libs.junit)
 }
 
 java {

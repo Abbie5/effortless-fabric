@@ -4,19 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.screen.ScreenUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-/**
- * This class provides a checkbox style control.
- */
 @Environment(EnvType.CLIENT)
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class Checkbox extends Button {
     private final int boxWidth;
     private boolean isChecked;

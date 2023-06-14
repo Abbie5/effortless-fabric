@@ -38,6 +38,7 @@ public class CompatHelper {
         return ItemStack.EMPTY;
     }
 
+    @SuppressWarnings("deprecation")
     public static ItemStack getItemBlockByState(ItemStack stack, BlockState state) {
         if (state == null) return ItemStack.EMPTY;
 

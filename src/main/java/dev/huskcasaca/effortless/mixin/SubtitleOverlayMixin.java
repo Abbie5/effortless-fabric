@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.huskcasaca.effortless.gui.BuildInfoOverlay;
+import dev.huskcasaca.effortless.screen.BuildInfoOverlay;
 import net.minecraft.client.gui.components.SubtitleOverlay;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

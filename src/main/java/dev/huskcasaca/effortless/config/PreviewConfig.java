@@ -1,8 +1,7 @@
 package dev.huskcasaca.effortless.config;
 
 import com.google.gson.annotations.Expose;
-import dev.huskcasaca.effortless.gui.BuildInfoOverlay;
-import dev.huskcasaca.effortless.render.preview.BlockRenderOptions;
+import dev.huskcasaca.effortless.screen.BuildInfoOverlay;
 
 public class PreviewConfig extends Config {
 
@@ -17,15 +16,9 @@ public class PreviewConfig extends Config {
     private boolean alwaysShowBlockPreview = false;
     @Expose
     private int shaderDissolveTimeMultiplier = 10;
-    @Expose
-    private int blockPreviewMode = BlockRenderOptions.DISSOLVE_SHADER.ordinal();
 
     public static double shaderDissolveTimeMultiplier() {
         return ConfigManager.getGlobalPreviewConfig().getShaderDissolveTimeMultiplier() * 0.1;
-    }
-
-    public static boolean useShader() {
-        return ConfigManager.getGlobalPreviewConfig().getBlockPreviewMode() == BlockRenderOptions.DISSOLVE_SHADER;
     }
 
     public boolean isShowingBuildInfo() {
@@ -66,14 +59,6 @@ public class PreviewConfig extends Config {
 
     public void setShaderDissolveTimeMultiplier(int shaderDissolveTimeMultiplier) {
         this.shaderDissolveTimeMultiplier = shaderDissolveTimeMultiplier;
-    }
-
-    public BlockRenderOptions getBlockPreviewMode() {
-        return BlockRenderOptions.values()[blockPreviewMode];
-    }
-
-    public void setBlockPreviewMode(BlockRenderOptions blockPreviewMode) {
-        this.blockPreviewMode = blockPreviewMode.ordinal();
     }
 
     @Override

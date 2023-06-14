@@ -4,20 +4,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class IconButton extends Button {
 
     private final ResourceLocation resourceLocation;

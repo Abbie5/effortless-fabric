@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.utils;
 
-import dev.huskcasaca.effortless.randomizer.ItemProbability;
+import dev.huskcasaca.effortless.building.pattern.randomizer.ItemProbability;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;

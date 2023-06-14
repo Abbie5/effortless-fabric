@@ -15,6 +15,10 @@ jsr305 = "3.0.2"
 modmenu = "5.0.1"
 cloth-config = "9.0.94"
 
+# Tests
+junit = "4.13.1"
+
+
 [libraries]
 minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
 fabric-loader = { group = "net.fabricmc", name = "fabric-loader", version.ref = "fabric-loader" }
@@ -24,6 +28,8 @@ findbugs = { group = "com.google.code.findbugs", name = "jsr305", version.ref = 
 
 modmenu = { group = "com.terraformersmc", name = "modmenu", version.ref = "modmenu" }
 cloth-config = { group = "me.shedaniel.cloth", name = "cloth-config-fabric", version.ref = "cloth-config" }
+
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 
 [bundles]
 fabric = ["fabric-loader", "fabric-api"]

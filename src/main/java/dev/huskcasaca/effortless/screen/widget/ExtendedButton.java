@@ -4,16 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.screen.ScreenUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 @Environment(EnvType.CLIENT)
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class ExtendedButton extends Button {
     public ExtendedButton(int posX, int posY, int width, int height, Component displayString, OnPress handler) {
         super(posX, posY, width, height, displayString, handler, Button.DEFAULT_NARRATION);
