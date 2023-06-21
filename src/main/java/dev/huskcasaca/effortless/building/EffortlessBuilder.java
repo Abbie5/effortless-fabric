@@ -10,7 +10,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -47,8 +46,8 @@ public class EffortlessBuilder {
         var context = provider.get(player);
         var updated = updater.apply(context);
         if (updated.isFulfilled()) {
-            provider.remove(player);
             Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(updated));
+            provider.set(player, updated.idle());
             return BuildingResult.COMPLETED;
         } else {
             provider.set(player, updated);
@@ -87,9 +86,8 @@ public class EffortlessBuilder {
     }
 
     public void handlePlayerBreak(Player player) {
-        var context = getContext(player).withState(BuildingState.BREAKING);
         // add breaking state
-        var hitResult = context.trace(player, false);
+        var hitResult = getContext(player).withState(BuildingState.BREAKING).trace(player, false);
 
         var perform = perform(player, BuildingState.BREAKING, hitResult);
         Effortless.log("handlePlayerBreak: " + perform);
@@ -110,11 +108,10 @@ public class EffortlessBuilder {
         setRightClickCooldown(4); // for single build speed
 
         for (var interactionHand : InteractionHand.values()) {
-            var context = getContext(player).withState(BuildingState.PLACING);
             var itemStack = player.getItemInHand(interactionHand);
 
             // add placing state
-            var hitResult = context.trace(player, false);
+            var hitResult = getContext(player).withState(BuildingState.PLACING).trace(player, false);
 
 //            if (!(itemStack.getItem() instanceof BlockItem)) return false; // pass
 
@@ -124,12 +121,14 @@ public class EffortlessBuilder {
             if (perform.isSuccess()) {
                 //play sound if further than normal
 
-                if ((hitResult.getLocation().subtract(player.getEyePosition(1f))).lengthSqr() > 25f) {
-                    var state = ((BlockItem) itemStack.getItem()).getBlock().defaultBlockState();
-                    var blockPos = hitResult.getBlockPos();
-                    var soundType = state.getBlock().getSoundType(state);
-                    player.level.playSound(player, player.blockPosition(), soundType.getPlaceSound(), SoundSource.BLOCKS, 0.4f, soundType.getPitch());
-                }
+                // TODO: 18/6/23  
+//                if ((hitResult.getLocation().subtract(player.getEyePosition(1f))).lengthSqr() > 25f) {
+//                    // FIXME: 18/6/23 java.lang.ClassCastException: class net.minecraft.world.item.AirItem cannot be cast to class net.minecraft.world.item.BlockItem (net.minecraft.world.item.AirItem and net.minecraft.world.item.BlockItem are in unnamed module of loader net.fabricmc.loader.impl.launch.knot.KnotClassLoader @68c4039c)
+//                    var state = ((BlockItem) itemStack.getItem()).getBlock().defaultBlockState();
+//                    var blockPos = hitResult.getBlockPos();
+//                    var soundType = state.getBlock().getSoundType(state);
+//                    player.level.playSound(player, player.blockPosition(), soundType.getPlaceSound(), SoundSource.BLOCKS, 0.4f, soundType.getPitch());
+//                }
             }
 
             player.swing(InteractionHand.MAIN_HAND);
@@ -140,8 +139,8 @@ public class EffortlessBuilder {
 //        return false; // pass
     }
 
-    public void use(Player player, BuildContext context) {
-        context.getStructure(player).perform();
+    public void perform(Player player, BuildContext context) {
+        context.getStructure(player.getLevel(), player).perform();
     }
 
     public void cycleReplaceMode(Player player) {

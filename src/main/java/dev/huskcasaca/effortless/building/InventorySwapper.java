@@ -47,20 +47,20 @@ public final class InventorySwapper {
         return item;
     }
 
-    public boolean swap() {
+    public boolean swapSelected() {
         lastSlot = findItemSlot(inventory, item);
         return swapSlot(inventory, lastSlot);
     }
 
-    public void restore() {
+    public void restoreSelected() {
         swapSlot(inventory, lastSlot);
         lastSlot = -1;
     }
 
     public void consume(Consumer<ItemStack> consumer) {
-        if (swap()) {
+        if (swapSelected()) {
             consumer.accept(inventory.getSelected());
-            restore();
+            restoreSelected();
         }
     }
 

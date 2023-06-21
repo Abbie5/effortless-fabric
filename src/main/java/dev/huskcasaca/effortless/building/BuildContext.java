@@ -5,6 +5,7 @@ import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.BuildFeature.*;
 import dev.huskcasaca.effortless.building.mode.BuildMode;
 import dev.huskcasaca.effortless.building.mode.BuildOption;
+import dev.huskcasaca.effortless.building.operation.StructurePlaceOperation;
 import dev.huskcasaca.effortless.building.pattern.randomizer.Randomizer;
 import dev.huskcasaca.effortless.building.replace.ReplaceMode;
 import net.minecraft.client.resources.language.I18n;
@@ -13,7 +14,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.IntStream;
@@ -23,7 +23,7 @@ public record BuildContext(
         UUID uuid,
         BuildingState state,
         List<BlockHitResult> blockHitResults,
-        boolean skipRaytrace,
+        @Deprecated() boolean skipRaytrace,
 
         ModeParams modeParams,
         PatternParams patternParams,
@@ -146,14 +146,37 @@ public record BuildContext(
             return this;
         }
         return switch (state) {
-            case IDLE -> idle();
-            case PLACING -> placing();
-            case BREAKING -> breaking();
+            case IDLE -> new BuildContext(
+                    uuid,
+                    BuildingState.IDLE,
+                    blockHitResults,
+                    skipRaytrace,
+                    modeParams,
+                    patternParams,
+                    randomizerParams,
+                    reachParams
+            );
+            case PLACING -> new BuildContext(
+                    uuid,
+                    BuildingState.PLACING,
+                    blockHitResults,
+                    skipRaytrace,
+                    modeParams,
+                    patternParams,
+                    randomizerParams,
+                    reachParams
+            );
+            case BREAKING -> new BuildContext(
+                    uuid,
+                    BuildingState.BREAKING,
+                    blockHitResults,
+                    skipRaytrace,
+                    modeParams,
+                    patternParams,
+                    randomizerParams,
+                    reachParams
+            );
         };
-    }
-
-    public BuildContext withNextStateHit(BuildingState state, @Nullable BlockHitResult blockHitResult) {
-        return withState(state).withNextHit(blockHitResult);
     }
 
     public boolean isPlacing() {
@@ -169,11 +192,11 @@ public record BuildContext(
     }
 
     public boolean isBuilding() {
-        return state != BuildingState.IDLE;
+        return buildMode() != BuildMode.DISABLED && state != BuildingState.IDLE;
     }
 
     public boolean isSkipTracing() {
-        return skipRaytrace || modeParams().replaceMode() == ReplaceMode.QUICK;
+        return state().isBreaking() || modeParams().replaceMode() == ReplaceMode.QUICK;
     }
 
     public BlockHitResult firstBlockHitResult() {
@@ -303,11 +326,11 @@ public record BuildContext(
 
     // reach
     public int maxBlockPlacePerAxis() {
-        return reachParams.maxBlockPlacePerAxis();
+        return 64; // reachParams.maxBlockPlacePerAxis();
     }
 
     public int maxReachDistance() {
-        return reachParams.maxReachDistance();
+        return 128; // reachParams.maxReachDistance();
     }
 
     public boolean isFulfilled() {
@@ -315,7 +338,7 @@ public record BuildContext(
     }
 
     public boolean isMissingHit() {
-        return isBuilding() && blockHitResults.stream().anyMatch((blockHitResult) -> blockHitResult.getType() != BlockHitResult.Type.BLOCK);
+        return isBuilding() && blockHitResults.stream().anyMatch((blockHitResult) -> blockHitResult == null || blockHitResult.getType() != BlockHitResult.Type.BLOCK);
     }
 
     // for build mode only
@@ -323,6 +346,8 @@ public record BuildContext(
         var result = buildMode().getInstance().trace(player, this);
         if (!preview) {
             Effortless.log("traceBuildMode: " + result);
+        } else {
+            if (result != null) Effortless.log("traceIt", result.getType(), result.getBlockPos());
         }
         return result;
     }
@@ -336,7 +361,7 @@ public record BuildContext(
             return TracingResult.fail();
         }
 
-        var hitResults = buildMode().getInstance().collect(this).map((blockPos) -> firstBlockHitResult().withPosition(blockPos));
+        var hitResults = buildMode().getInstance().collect(this).map((blockPos) -> firstBlockHitResult().withPosition(blockPos)).toList();
 
         if (isFulfilled()) {
             return TracingResult.success(hitResults);
@@ -345,12 +370,12 @@ public record BuildContext(
         }
     }
 
-    public StructurePlaceOperation getStructure(Player player) {
-        return new StructurePlaceOperation(player.getLevel(), player, this);
+    public StructurePlaceOperation getStructure(Level level, Player player) {
+        return new StructurePlaceOperation(level, player, null, this);
     }
 
-    public StructurePlaceOperation getStructure(Level level, Player player) {
-        return new StructurePlaceOperation(level, player, this);
+    public StructurePlaceOperation getStructure(Level level, Player player, ItemStorage storage) {
+        return new StructurePlaceOperation(level, player, storage, this);
     }
 
     public BlockFilter getBlockFilter(Level level, Player player) {

@@ -2,27 +2,28 @@ package dev.huskcasaca.effortless.building;
 
 import net.minecraft.world.phys.BlockHitResult;
 
-import java.util.stream.Stream;
+import java.util.Collections;
+import java.util.List;
 
 public record TracingResult(
-        Stream<BlockHitResult> result,
+        List<BlockHitResult> result,
         Type type
 ) {
 
-    public static TracingResult success(Stream<BlockHitResult> result) {
+    public static TracingResult success(List<BlockHitResult> result) {
         return new TracingResult(result, Type.SUCCESS);
     }
 
-    public static TracingResult partial(Stream<BlockHitResult> result) {
+    public static TracingResult partial(List<BlockHitResult> result) {
         return new TracingResult(result, Type.SUCCESS_PARTIAL);
     }
 
     public static TracingResult pass() { // placing
-        return new TracingResult(Stream.empty(), Type.PASS);
+        return new TracingResult(Collections.emptyList(), Type.PASS);
     }
 
     public static TracingResult fail() {
-        return new TracingResult(Stream.empty(), Type.FAIL);
+        return new TracingResult(Collections.emptyList(), Type.FAIL);
     }
 
 //    public static TracingResult trace(Player player, HitResult hitResult, boolean skip, boolean use) {

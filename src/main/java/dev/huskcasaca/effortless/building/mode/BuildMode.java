@@ -76,6 +76,14 @@ public enum BuildMode {
         return new ResourceLocation(Effortless.MOD_ID, "textures/mode/" + name + ".png");
     }
 
+    public boolean isDisabled() {
+        return this == BuildMode.DISABLED;
+    }
+
+    public boolean isEnabled() {
+        return this != BuildMode.DISABLED;
+    }
+
     public enum Category {
         BASIC(new Color(0f, .5f, 1f, .5f)),
         SQUARE(new Color(1f, .54f, .24f, .5f)),

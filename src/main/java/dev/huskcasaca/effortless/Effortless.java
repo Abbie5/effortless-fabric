@@ -8,6 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Arrays;
+
 public class Effortless implements ModInitializer {
 
     public static final String MOD_ID = "effortless";
@@ -15,6 +17,10 @@ public class Effortless implements ModInitializer {
 
     public static void log(String msg) {
         logger.info(msg);
+    }
+
+    public static void log(Object... elses) {
+        logger.info(Arrays.stream(elses).map(Object::toString).reduce((a, b) -> a + " " + b).orElse("null"));
     }
 
     public static void log(Player player, String msg) {

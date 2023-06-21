@@ -9,7 +9,7 @@ public enum BuildingState {
         return this == IDLE;
     }
 
-    public boolean isBuilding() {
+    public boolean isPlacing() {
         return this == PLACING;
     }
 

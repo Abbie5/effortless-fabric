@@ -32,7 +32,7 @@ public class ServerEffortlessPacketHandler implements ServerEffortlessPacketList
     @Override
     public void handle(ServerboundPlayerBuildPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
-        EffortlessBuilder.getInstance().use(player, packet.buildContext());
+        EffortlessBuilder.getInstance().perform(player, packet.buildContext());
 
     }
 

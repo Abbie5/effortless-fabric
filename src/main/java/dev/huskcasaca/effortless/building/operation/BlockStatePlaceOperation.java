@@ -1,13 +1,11 @@
 package dev.huskcasaca.effortless.building.operation;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.building.BlockStatePlaceContext;
+import dev.huskcasaca.effortless.building.BuildContext;
 import dev.huskcasaca.effortless.building.InventorySwapper;
 import dev.huskcasaca.effortless.building.ItemStorage;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -26,16 +24,35 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-public record BlockStatePlaceOperation(
-        Level level,
-        BlockPos blockPos,
-        BlockState blockState
-) implements Operation<Player, ItemStorage, InteractionResult> {
+public final class BlockStatePlaceOperation extends BlockStateOperation {
+    private final Level level;
+    private final Player player;
+    private final ItemStorage storage;
+    private final BuildContext context;
+    private final BlockPos blockPos;
+    private final BlockState blockState;
+
+    public BlockStatePlaceOperation(
+            Level level, Player player,
+            ItemStorage storage,
+            BuildContext context,
+            // for preview
+            BlockPos blockPos,
+            BlockState blockState
+    ) {
+        this.level = level;
+        this.player = player;
+        this.storage = storage;
+        this.context = context;
+        this.blockPos = blockPos;
+        this.blockState = blockState;
+    }
 
     public static InteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
         if (!(player.getMainHandItem().getItem() instanceof BlockItem)) {
             return InteractionResult.FAIL;
         }
+
         // TODO: 8/3/23
 //        if (!canPlace(level, player, blockPos, blockState)) {
 //            return InteractionResult.FAIL;
@@ -171,32 +188,26 @@ public record BlockStatePlaceOperation(
     }
 
     @Override
-    public InteractionResult perform(Player performer) {
-        var holder = new InventorySwapper(performer.getInventory(), blockState.getBlock().asItem());
-        holder.swap();
-        var result = placeBlock(level, performer, InteractionHand.MAIN_HAND, blockPos, blockState);
-        holder.restore();
-        return result;
+    public Result perform() {
+        if (storage != null) {
+            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
+        } else {
+            var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
+
+            swapper.swapSelected();
+            var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
+            swapper.restoreSelected();
+
+            return new Result(this, result, ItemStack.EMPTY, ItemStack.EMPTY);
+        }
     }
 
     @Override
-    public InteractionResult preview(Player performer, ItemStorage extras) {
-        return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public ItemStack getRequiredItemStack() {
+    public ItemStack requiredItemStack() {
         return new ItemStack(blockState.getBlock().asItem());
     }
 
-    @Override
-    public ItemStack getResultItemStack() {
-        return null;
-    }
-
-
     // block placement
-
     @Override
     public BlockPos getPosition() {
         return blockPos;
@@ -207,28 +218,41 @@ public record BlockStatePlaceOperation(
         return Type.WORLD_PLACE_OP;
     }
 
-    public final static class DefaultPreviewer implements Operation.Preview<BlockStatePlaceOperation, Player, InteractionResult> {
-
-        @Override
-        public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, BlockStatePlaceOperation operation, InteractionResult result) {
-
-            var dispatcher = Minecraft.getInstance().getBlockRenderer();
-            var level = operation.level();
-            var blockPos = operation.blockPos();
-            var blockState = operation.blockState();
-            var item = blockState.getBlock().asItem();
-
-//            if (item instanceof BlockItem blockItem && itemStack.is(item)) {
-//                blockState = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState);
-//            }
-//            var red = breaking || (!skip && itemStack.isEmpty());
-
-            // TODO: 26/5/23
-//            renderBlockDissolveShader(poseStack, multiBufferSource, dispatcher, blockPos, blockState, dissolve, firstPos, secondPos, red);
-
-        }
-
+    @Override
+    public Operation.Renderer<Result> getRenderer() {
+        return null;
     }
+
+    @Override
+    public Level level() {
+        return level;
+    }
+
+    @Override
+    public Player player() {
+        return player;
+    }
+
+    @Override
+    public ItemStorage storage() {
+        return storage;
+    }
+
+    @Override
+    public BuildContext context() {
+        return context;
+    }
+
+    @Override
+    public BlockPos blockPos() {
+        return blockPos;
+    }
+
+    @Override
+    public BlockState blockState() {
+        return blockState;
+    }
+
 
 
 }

@@ -5,7 +5,6 @@ import net.minecraft.world.item.ItemStack;
 
 public interface ItemStorage {
 
-
     ItemStack findByStack(ItemStack stack);
 
     ItemStack findByItem(Item item);

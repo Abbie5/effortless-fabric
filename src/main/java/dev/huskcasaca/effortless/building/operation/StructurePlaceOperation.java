@@ -1,6 +1,8 @@
-package dev.huskcasaca.effortless.building;
+package dev.huskcasaca.effortless.building.operation;
 
-import dev.huskcasaca.effortless.building.operation.BlockStatePlaceOperation;
+import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.ItemStorage;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -11,32 +13,35 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class StructurePlaceOperation {
+public final class StructurePlaceOperation extends StructureOperation {
     private final Level level;
     private final Player player;
+    private final ItemStorage storage;
     private final BuildContext context;
 
     public StructurePlaceOperation(
             Level level,
             Player player,
+            ItemStorage storage,
             BuildContext context
     ) {
         this.level = level;
         this.player = player;
+        this.storage = storage;
         this.context = context;
     }
 
-    public static Stream<BlockStatePlaceOperation> create(Level level, Player player, BuildContext context) {
+    public Stream<BlockStatePlaceOperation> stream() {
         var state = context.state();
         var filter = context.getBlockFilter(level, player);
 
         return context.collect()
                 .result()
+                .stream()
                 .map((hitResult) -> new BlockStatePlaceOperation(
-                        level,
+                        level, player, storage, context,
                         hitResult.getBlockPos(),
                         getBlockStateFromMainHand(player, hitResult)))
                 .flatMap(Stream::of) // for modifiers
@@ -61,32 +66,40 @@ public class StructurePlaceOperation {
         }
     }
 
-    public void perform() {
-        create(level, player, context).forEach((op) -> op.perform(player));
+    public Result perform() {
+        return new Result(this, context.collect().type(), stream().map(Operation::perform).toList());
     }
 
-    public StructurePreview preview() {
-        var storage = new TempItemStorage(player.getInventory().items);
-        var op2Result = new ArrayList<OperationResult>();
-
-        for (var operation : create(level, player, context).toList()) {
-            op2Result.add(new OperationResult(operation, operation.preview(player, storage)));
-        }
-
-        return new StructurePreview(op2Result);
+    @Override
+    public BlockPos getPosition() {
+        return null;
     }
 
+    @Override
+    public Type getType() {
+        return null;
+    }
+
+    @Override
     public Level level() {
         return level;
     }
 
+    @Override
     public Player player() {
         return player;
     }
 
+    public ItemStorage storage() {
+        return storage;
+    }
 
+    @Override
+    public BuildContext context() {
+        return context;
+    }
 
-//    public static void placeBlocks(Player player, List<BlockHitResult> hitResults) {
+    //    public static void placeBlocks(Player player, List<BlockHitResult> hitResults) {
 //        if (player.getLevel().isClientSide()) {
 //            BlockPreviewRenderer.getInstance().saveCurrentPreview();
 //        }

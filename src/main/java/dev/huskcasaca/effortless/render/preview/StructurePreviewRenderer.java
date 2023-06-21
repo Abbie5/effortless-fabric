@@ -3,14 +3,13 @@ package dev.huskcasaca.effortless.render.preview;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.BuildingState;
 import dev.huskcasaca.effortless.building.EffortlessBuilder;
-import dev.huskcasaca.effortless.building.StructurePreview;
+import dev.huskcasaca.effortless.building.TempItemStorage;
 import dev.huskcasaca.effortless.building.mode.BuildMode;
 import dev.huskcasaca.effortless.building.operation.BlockStatePlaceOperation;
+import dev.huskcasaca.effortless.building.operation.StructureOperation;
 import dev.huskcasaca.effortless.config.ConfigManager;
-import dev.huskcasaca.effortless.config.PreviewConfig;
-import dev.huskcasaca.effortless.render.RenderTypes;
-import dev.huskcasaca.effortless.render.outliner.OutlineRenderer;
 import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,7 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,15 +29,13 @@ public class StructurePreviewRenderer {
 
     private static final StructurePreviewRenderer INSTANCE = new StructurePreviewRenderer(Minecraft.getInstance());
     private final Minecraft minecraft;
-    private final List<StructurePreview> history = new ArrayList<>();
+    private final List<StructureOperation.Result> history = new ArrayList<>();
     private final EffortlessBuilder builder = EffortlessBuilder.getInstance();
     private int soundTime = 0;
     private boolean hasLastMessage = false;
 
-    private static final Color PLACING_COLOR = new Color(0.92f, 0.92f, 0.92f, 1f);
-    private static final Color BREAKING_COLOR = new Color(0.95f, 0f, 0f, 1f);
     private final ConfigManager configManager = ConfigManager.getInstance();
-    private StructurePreview currentPreview = StructurePreview.EMPTY;
+    private StructureOperation.Result currentPreview = StructureOperation.Result.EMPTY;
 
     public StructurePreviewRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -67,7 +63,7 @@ public class StructurePreviewRenderer {
         saveCurrentPreview(currentPreview);
     }
 
-    public void saveCurrentPreview(StructurePreview preview) {
+    public void saveCurrentPreview(StructureOperation.Result preview) {
         if (shouldRenderBlockPreviews(minecraft.player) && !preview.isEmpty()) {
 //            history.add(preview);
         }
@@ -77,7 +73,7 @@ public class StructurePreviewRenderer {
         saveCurrentBreakPreview(currentPreview);
     }
 
-    public void saveCurrentBreakPreview(StructurePreview preview) {
+    public void saveCurrentBreakPreview(StructureOperation.Result preview) {
         if (shouldRenderBlockPreviews(minecraft.player) && !preview.isEmpty()) {
 //            history.add(preview);
         }
@@ -93,8 +89,8 @@ public class StructurePreviewRenderer {
         // no-op
     }
 
-    public StructurePreview getCurrentPreview() {
-        return currentPreview == null ? StructurePreview.EMPTY : currentPreview;
+    public StructureOperation.Result getCurrentPreview() {
+        return currentPreview == null ? StructureOperation.Result.EMPTY : currentPreview;
     }
 
     public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource) {
@@ -119,91 +115,43 @@ public class StructurePreviewRenderer {
 
     private void renderStructurePreview(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Player player) {
         if (!shouldRenderBlockPreviews(player)) {
-            currentPreview = StructurePreview.EMPTY;
+            currentPreview = StructureOperation.Result.EMPTY;
             return;
         }
 
-        var context = builder.getContext(player).withNextHit(player, true);
-        var state = context.state();
-        var tracingResult = context.collect();
-        var preview = context.getStructure(player).preview();
+        var context = builder.getContext(player).withState(BuildingState.PLACING).withNextHit(player, true);
+        var storage = new TempItemStorage(player.getInventory().items);
+        var operation = context.getStructure(player.getLevel(), player, storage);
+        var result = operation.perform();
+        operation.getRenderer().render(poseStack, multiBufferSource, result);
 
-        if (tracingResult.type().isSuccess()) {
-//            if (!preview.isEmpty() && soundTime < getGameTime() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {
-//                soundTime = getGameTime();
-//                var soundType = preview.blockPosStates().get(0).blockState().getSoundType();
-//                player.getLevel().playSound(player, player.blockPosition(), context.isBreaking() ? soundType.getBreakSound() : soundType.getPlaceSound(), SoundSource.BLOCKS, 0.3f, 0.8f);
-//            }
-//                switch (ConfigManager.getGlobalPreviewConfig().getBlockPreviewMode()) {
-//                    case OUTLINES -> renderBlockOutlines(poseStack, multiBufferSource, preview, 0);
-//                    case DISSOLVE_SHADER -> renderStructureShader(poseStack, multiBufferSource, preview, 0);
-//                }
-            currentPreview = preview;
-            renderStructureShader(poseStack, multiBufferSource, preview);
+        // TODO: 21/6/23 move to op renderer
+        if (result.type().isSuccess()) {
+            currentPreview = result;
 
-            OutlineRenderer.getInstance().showCluster(context.uuid(), preview.blockPoses())
-                    .texture(RenderTypes.CHECKERED_THIN_TEXTURE_LOCATION)
-                    .stroke(1 / 64f)
-                    .colored(context.isBreaking() ? BREAKING_COLOR : PLACING_COLOR)
-                    .disableNormals();
 
-            if (context.isBuilding()) {
-                showBlockPlaceMessage(player, preview, context);
-            } else {
-                clearMessage(player);
-            }
         } else {
-            currentPreview = StructurePreview.EMPTY;
-            if (context.isBuilding()) {
-                showTracingFailedMessage(player, context);
-            } else {
-                clearMessage(player);
-            }
+            currentPreview = StructureOperation.Result.EMPTY;
+        }
+
+        if (context.isBuilding()) {
+            showMessage(player, context, result);
+        } else {
+            clearMessage(player);
         }
 
     }
 
-    private void renderStructureShader(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, StructurePreview preview) {
-        if (preview.isEmpty()) return;
-        var dispatcher = minecraft.getBlockRenderer();
-
-        double totalTime = preview.dissolveSize() * PreviewConfig.shaderDissolveTimeMultiplier();
-//        float dissolve = (getGameTime() - preview.time()) / (float) totalTime;
-
-        float dissolve = 1;
-
-        var firstPos = preview.firstPos();
-        var secondPos = preview.secondPos();
-
-//        var states =  preview.operations().stream().map((op) -> {
-//            return op.getFirst().ge
-//        }).collect(Collectors.toList());
-//
-//        for (var blockPosState :) {
-//            var level = blockPosState.level();
-//            var blockPos = blockPosState.blockPos();
-//            var blockState = blockPosState.blockState();
-//            var item = blockState.getBlock().asItem();
-//            var itemStack = inventory.findItemStackByItem(item);
-//
-//            if (item instanceof BlockItem blockItem && itemStack.is(item)) {
-//                blockState = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState);
-//            }
-//            var red = breaking || (!skip && itemStack.isEmpty());
-//
-//            renderBlockDissolveShader(poseStack, multiBufferSource, dispatcher, blockPos, blockState, dissolve, firstPos, secondPos, red);
-//            if (skip || breaking) {
-//                continue;
-//            }
-//            itemStack.shrink(1);
-//        }
+    private void showMessage(Player player, BuildContext context, StructureOperation.Result result) {
+        if (result.type().isSuccess()) {
+            showBlockPlaceMessage(player, context, result);
+        } else {
+            showTracingFailedMessage(player, context);
+        }
     }
 
-
-
-
-    private void showBlockPlaceMessage(Player player, StructurePreview preview, BuildContext context) {
-        var volume = preview.size();
+    private void showBlockPlaceMessage(Player player, BuildContext context, StructureOperation.Result result) {
+        var volume = result.size();
 
         var dimensions = "(";
         if (volume.getX() > 1) dimensions += volume.getX() + "x";
@@ -212,7 +160,7 @@ public class StructurePreviewRenderer {
         dimensions = dimensions.substring(0, dimensions.length() - 1);
         if (dimensions.length() > 1) dimensions += ")";
 
-        var blockCounter = "" + ChatFormatting.WHITE + preview.usages().sufficientCount() + ChatFormatting.RESET + (preview.usages().isFilled() ? " " : " + " + ChatFormatting.RED + preview.usages().insufficientCount() + ChatFormatting.RESET + " ") + (preview.usages().totalCount() == 1 ? "block" : "blocks");
+        var blockCounter = "" + ChatFormatting.WHITE + result.usages().sufficientCount() + ChatFormatting.RESET + (result.usages().isFilled() ? " " : " + " + ChatFormatting.RED + result.usages().insufficientCount() + ChatFormatting.RESET + " ") + (result.usages().totalCount() == 1 ? "block" : "blocks");
 
         var buildingText = switch (context.state()) {
             case IDLE -> "idle";
@@ -222,6 +170,7 @@ public class StructurePreviewRenderer {
 
         displayActionBarMessage(player, "%s%s%s of %s %s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, buildingText, blockCounter, dimensions));
     }
+
 
     private void showTracingFailedMessage(Player player, BuildContext context) {
         displayActionBarMessage(player, "%s%s%s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, "cannot be traced"));

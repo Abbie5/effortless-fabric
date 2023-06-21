@@ -4,16 +4,10 @@ package dev.huskcasaca.effortless.utils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.GameMasterBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 public class SurvivalHelper {
 
@@ -104,18 +98,4 @@ public class SurvivalHelper {
 //        }
 //        return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE);
 //    }
-
-    public static boolean doesBecomeDoubleSlab(Player player, BlockPos pos, Direction facing) {
-        BlockState placedBlockState = player.level.getBlockState(pos);
-
-        ItemStack itemstack = player.getItemInHand(InteractionHand.MAIN_HAND);
-        if (CompatHelper.isItemBlockProxy(itemstack))
-            itemstack = CompatHelper.getItemBlockFromStack(itemstack);
-
-        if (itemstack.isEmpty() || !(itemstack.getItem() instanceof BlockItem) || !(((BlockItem) itemstack.getItem()).getBlock() instanceof SlabBlock heldSlab))
-            return false;
-
-        return false;
-    }
-
 }
