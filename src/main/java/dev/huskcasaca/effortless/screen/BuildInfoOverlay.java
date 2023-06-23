@@ -2,17 +2,26 @@ package dev.huskcasaca.effortless.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.Effortless;
+import dev.huskcasaca.effortless.building.BuildContext;
 import dev.huskcasaca.effortless.building.EffortlessBuilder;
-import dev.huskcasaca.effortless.building.mode.BuildMode;
+import dev.huskcasaca.effortless.building.operation.StructureOperation;
 import dev.huskcasaca.effortless.config.ConfigManager;
-import dev.huskcasaca.effortless.render.preview.StructurePreviewRenderer;
 import dev.huskcasaca.effortless.screen.mode.EffortlessModeRadialScreen;
+import dev.huskcasaca.effortless.screen.radial.RadialButton;
+import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class BuildInfoOverlay extends GuiComponent {
 
@@ -39,26 +48,35 @@ public class BuildInfoOverlay extends GuiComponent {
         }
     }
 
+    private boolean hasLastMessage = false; // prevent clearing vanilla message
+
     private void renderBuildMode(PoseStack poseStack) {
-//        lastBuildInfoTextHeight = 0;
-//        var textSide = ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis();
-//        if (textSide == null) {
-//            return;
-//        }
-//        if (textSide == Direction.AxisDirection.POSITIVE && (minecraft.options.showAutosaveIndicator().get() && (minecraft.gui.autosaveIndicatorValue > 0.0F || minecraft.gui.lastAutosaveIndicatorValue > 0.0F)) && Mth.floor(255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), minecraft.gui.lastAutosaveIndicatorValue, minecraft.gui.autosaveIndicatorValue), 0.0F, 1.0F)) > 8) {
-//            return;
-//        }
-//        if (EffortlessModeRadialScreen.getInstance().isVisible()) {
-//            return;
-//        }
-//        var player = minecraft.player;
-//        var mode = EffortlessBuilder.getInstance().getBuildMode(player);
-//
-//        if (mode == BuildMode.DISABLED) {
-//            return;
-//        }
-//
-//        var texts = new ArrayList<Component>();
+        lastBuildInfoTextHeight = 0;
+        var contentSide = ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis();
+        if (contentSide == null) {
+            return;
+        }
+        if (contentSide == Direction.AxisDirection.POSITIVE
+                && (minecraft.options.showAutosaveIndicator().get()
+                && (minecraft.gui.autosaveIndicatorValue > 0.0F
+                || minecraft.gui.lastAutosaveIndicatorValue > 0.0F))
+                && Mth.floor(255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), minecraft.gui.lastAutosaveIndicatorValue, minecraft.gui.autosaveIndicatorValue), 0.0F, 1.0F)) > 8 || EffortlessModeRadialScreen.getInstance().isVisible()) {
+            return;
+        }
+        var player = minecraft.player;
+        var context = EffortlessBuilder.getInstance().getContext(player);
+
+        if (context.buildMode().isDisabled()) {
+            return;
+        }
+
+        var items = (List<ItemStack>) new ArrayList<ItemStack>();
+        var result = EffortlessBuilder.getInstance().getLastResult();
+        if (result instanceof StructureOperation.Result) {
+            items = ((StructureOperation.Result) result).usages().sufficientItems();
+        }
+
+        var texts = new ArrayList<Component>();
 //
 //        var modifier = EffortlessBuilder.getInstance().getModifierSettings(player);
 //
@@ -86,80 +104,136 @@ public class BuildInfoOverlay extends GuiComponent {
 //            ));
 //        }
 //
-//        if (modifier.enableReplace()) {
-//            texts.add(EffortlessBuilder.getInstance().getReplaceModeName(player));
-//        }
-//
-//        texts.add(Component.literal(ChatFormatting.WHITE + EffortlessBuilder.getInstance().getTranslatedModeOptionName(player) + ChatFormatting.RESET));
-//
-//        lastBuildInfoTextHeight = texts.size() * 10;
-//        var font = minecraft.font;
-//        var positionY = minecraft.getWindow().getGuiScaledHeight() - 15;
-//        for (Component text : texts) {
-//            var positionX = textSide == Direction.AxisDirection.POSITIVE ? minecraft.getWindow().getGuiScaledWidth() - font.width(text) - 10 : 10;
-//            font.drawShadow(poseStack, text, positionX, positionY, 16777215);
-//            positionY -= 10;
-//        }
+
+        for (var supportedFeature : context.buildMode().getSupportedFeatures()) {
+            var option = Arrays.stream(context.buildFeatures()).filter((feature) -> Objects.equals(feature.getCategory(), supportedFeature.getName())).findFirst();
+            if (option.isEmpty()) continue;
+            var button = RadialButton.option(option.get());
+            texts.add(Component.literal(ChatFormatting.WHITE + button.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + button.getNameComponent().getString() + ChatFormatting.RESET));
+        }
+        var replace = RadialButton.option(context.modeParams().replaceMode());
+        texts.add(Component.literal(ChatFormatting.WHITE + replace.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + replace.getNameComponent().getString() + ChatFormatting.RESET));
+
+        texts.add(Component.literal(ChatFormatting.WHITE + "Structure " + ChatFormatting.GOLD + context.buildMode().getNameComponent().getString() + ChatFormatting.RESET));
+
+        poseStack.pushPose();
+        poseStack.translate(-1f * contentSide.getStep(), 0, 0);
+
+        lastBuildInfoTextHeight = texts.size() * 10;
+        var font = minecraft.font;
+
+        var paddingX = 10;
+        var paddingY = 2;
+
+        var baseY = minecraft.getWindow().getGuiScaledHeight();
+        var maxCol = 9;
+
+        var textSizeX = texts.stream().mapToInt(font::width).max().orElse(0);
+        var textSizeY = texts.size() * paddingX;
+        var textBgSizeX = textSizeX + paddingX * 2;
+        var textBgSizeY = textSizeY + 2 * paddingY + 2;
+        var textBgPositionX = contentSide == Direction.AxisDirection.POSITIVE ? minecraft.getWindow().getGuiScaledWidth() : textBgSizeX;
+        var textBgPositionY = baseY - 8;
+        var textRenderPositionY = textBgPositionY - paddingY - 10;
+
+        if (!texts.isEmpty()) {
+            fill(poseStack, textBgPositionX, textBgPositionY, textBgPositionX - textBgSizeX, textBgPositionY - textBgSizeY, this.minecraft.options.getBackgroundColor(0.8F));
+        }
+
+        for (var text : texts) {
+            var positionX = contentSide == Direction.AxisDirection.POSITIVE ? minecraft.getWindow().getGuiScaledWidth() - font.width(text) - 10 : 10;
+            font.drawShadow(poseStack, text, positionX, textRenderPositionY, 16777215);
+            textRenderPositionY -= 10;
+        }
+
+        var itemSizeX = Math.min(maxCol, items.size()) * ITEM_SPACING_X - 4;
+        var itemSizeY = Mth.ceil(1f * items.size() / maxCol) * ITEM_SPACING_Y + (items.isEmpty() ? 0 : 6);
+        var itemBgSizeX = itemSizeX + paddingX * 2;
+        var itemBgSizeY = itemSizeY + 2 * paddingY - 4;
+        var itemBgPositionX = contentSide == Direction.AxisDirection.POSITIVE ? minecraft.getWindow().getGuiScaledWidth() : itemBgSizeX;
+        var itemBgPositionY = textRenderPositionY + 5;
+        var itemRenderPositionY = itemBgPositionY - paddingY - ITEM_SPACING_Y;
+
+        if (!items.isEmpty()) {
+            fill(poseStack, itemBgPositionX, itemBgPositionY, itemBgPositionX - itemBgSizeX, itemBgPositionY - itemBgSizeY, this.minecraft.options.getBackgroundColor(0.8F));
+        }
+
+        var itemCol = 0;
+        var itemRow = 0;
+
+        for (var stack : items) {
+            var width = (contentSide == Direction.AxisDirection.POSITIVE ? minecraft.getWindow().getGuiScaledWidth() - ITEM_SPACING_X - 8 : 8) - itemCol * ITEM_SPACING_X * contentSide.getStep();
+            var height = itemRenderPositionY - itemRow * ITEM_SPACING_Y;
+            minecraft.getItemRenderer().renderGuiItem(stack, width, height);
+            minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, stack, width, height, Integer.toString(stack.getCount()));
+            if (itemCol < maxCol - 1) {
+                itemCol += 1;
+            } else {
+                itemCol = 0;
+                itemRow += 1;
+            }
+        }
+
+        poseStack.popPose();
 
     }
 
     public void render(PoseStack poseStack) {
         renderBuildMode(poseStack);
-        renderBuildingStack(poseStack);
+        renderActionBarMessage();
     }
 
-    private void renderBuildingStack(PoseStack poseStack) {
-        var itemSide = ConfigManager.getGlobalPreviewConfig().getItemUsagePosition().getAxis();
-        if (itemSide == null) {
-            return;
+    private void renderActionBarMessage() {
+
+    }
+
+    private void showMessage(Player player, BuildContext context, StructureOperation.Result result) {
+        if (result.type().isSuccess()) {
+            showBlockPlaceMessage(player, context, result);
+        } else {
+            showTracingFailedMessage(player, context);
         }
-        if (EffortlessModeRadialScreen.getInstance().isVisible()) {
-            return;
-        }
-        var player = minecraft.player;
-        var mode = EffortlessBuilder.getInstance().getContext(player).buildMode();
+    }
 
-        if (mode == BuildMode.DISABLED) {
-            return;
-        }
+    private void showBlockPlaceMessage(Player player, BuildContext context, StructureOperation.Result result) {
+        var volume = result.size();
 
-        var itemUsages = StructurePreviewRenderer.getInstance().getCurrentPreview().usages();
-        var sufficientItems = itemUsages.sufficientItems();
-        var insufficientItems = itemUsages.insufficientItems();
+        var dimensions = "(";
+        if (volume.getX() > 1) dimensions += volume.getX() + "x";
+        if (volume.getZ() > 1) dimensions += volume.getZ() + "x";
+        if (volume.getY() > 1) dimensions += volume.getY() + "x";
+        dimensions = dimensions.substring(0, dimensions.length() - 1);
+        if (dimensions.length() > 1) dimensions += ")";
 
-        var defaultWidth = minecraft.getWindow().getGuiScaledWidth() / 2 + ((itemSide == Direction.AxisDirection.POSITIVE) ? 10 : -10 - ITEM_SPACING_X);
-        var defaultHeight = minecraft.getWindow().getGuiScaledHeight() / 2 - 8 - (sufficientItems.size() + insufficientItems.size() - 1) / 9 * ITEM_SPACING_Y / 2;
-        var positionX = new AtomicInteger(0);
-        var positionY = new AtomicInteger(0);
+        var blockCounter = "" + ChatFormatting.WHITE + result.usages().sufficientCount() + ChatFormatting.RESET + (result.usages().isFilled() ? " " : " + " + ChatFormatting.RED + result.usages().insufficientCount() + ChatFormatting.RESET + " ") + (result.usages().totalCount() == 1 ? "block" : "blocks");
 
-        var sign = itemSide == Direction.AxisDirection.POSITIVE ? 1 : -1;
+        var buildingText = switch (context.state()) {
+            case IDLE -> "idle";
+            case PLACING -> "placing";
+            case BREAKING -> "breaking";
+        };
 
-        for (var stack : sufficientItems) {
-            var width = defaultWidth + positionX.get() * ITEM_SPACING_X * sign;
-            var height = defaultHeight + positionY.get() * ITEM_SPACING_Y;
-            minecraft.getItemRenderer().renderGuiItem(stack, width, height);
-            minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, stack, width, height, Integer.toString(stack.getCount()));
-            if (positionX.get() >= 8) {
-                positionX.set(0);
-                positionY.getAndIncrement();
-            } else {
-                positionX.getAndIncrement();
-            }
-        }
+        displayMessage(player, "%s%s%s of %s %s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, buildingText, blockCounter, dimensions));
+    }
 
-        for (var stack : insufficientItems) {
-            var width = defaultWidth + positionX.get() * ITEM_SPACING_X * sign;
-            var height = defaultHeight + positionY.get() * ITEM_SPACING_Y;
-            minecraft.getItemRenderer().renderGuiItem(stack, width, height);
-            minecraft.getItemRenderer().renderGuiItemDecorations(minecraft.font, stack, width, height, ChatFormatting.RED + Integer.toString(stack.getCount()) + ChatFormatting.RESET);
-            if (positionX.get() >= 8) {
-                positionX.set(0);
-                positionY.getAndIncrement();
-            } else {
-                positionX.getAndIncrement();
-            }
-        }
 
+    private void showTracingFailedMessage(Player player, BuildContext context) {
+        displayMessage(player, "%s%s%s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, "cannot be traced"));
+    }
+
+    private void displayMessage(Player player, String message) {
+        player.displayClientMessage(Component.literal(message), true);
+        hasLastMessage = true;
+    }
+
+    private void clearMessage(Player player) {
+        if (!hasLastMessage) return;
+        player.displayClientMessage(Component.literal(""), true);
+        hasLastMessage = false;
+    }
+
+    private int getGameTime() {
+        return AnimationTicker.getTicks();
     }
 
     public enum Position {

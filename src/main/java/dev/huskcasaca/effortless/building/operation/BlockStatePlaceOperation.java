@@ -219,8 +219,8 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
     }
 
     @Override
-    public Operation.Renderer<Result> getRenderer() {
-        return null;
+    public DefaultRenderer getRenderer() {
+        return DefaultRenderer.getInstance();
     }
 
     @Override

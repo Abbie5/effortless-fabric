@@ -3,8 +3,10 @@ package dev.huskcasaca.effortless.building;
 import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.BuildMode;
+import dev.huskcasaca.effortless.building.operation.Operation;
 import dev.huskcasaca.effortless.network.Packets;
 import dev.huskcasaca.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
+import dev.huskcasaca.effortless.render.preview.OperationPreviewRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -29,8 +31,28 @@ public class EffortlessBuilder {
         return provider.get(player);
     }
 
+    private Operation.Result<?> lastResult;
+
+    public Operation.Result<?> getLastResult() {
+        return lastResult;
+    }
+
     public void tick() {
         provider.tick();
+
+        var player = Minecraft.getInstance().player;
+        if (player == null) {
+            lastResult = null;
+            return;
+        }
+        if (getContext(player).isDisabled()) return;
+
+        var context = getContext(player).withState(BuildingState.PLACING).withNextHit(player, true);
+        var storage = new TempItemStorage(player.getInventory().items);
+        var operation = context.getStructure(player.getLevel(), player, storage);
+        var result = operation.perform();
+        lastResult = result;
+        OperationPreviewRenderer.getInstance().putOpResult(result);
     }
 
     // from settings screen

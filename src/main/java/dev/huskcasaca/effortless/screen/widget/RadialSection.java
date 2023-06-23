@@ -366,8 +366,9 @@ public class RadialSection extends AbstractWidget {
 
         var tooltip = new ArrayList<Component>();
 
-        tooltip.add(hoveredEntry.getNameComponent().copy().withStyle(ChatFormatting.WHITE));
-        tooltip.add(hoveredEntry.getCategoryComponent().copy().withStyle(ChatFormatting.GOLD));
+        // TODO: 23/6/23 keybinding
+        tooltip.add(hoveredEntry.getCategoryComponent().copy().withStyle(ChatFormatting.WHITE));
+        tooltip.add(hoveredEntry.getNameComponent().copy().withStyle(ChatFormatting.GOLD));
 
 //            tooltip.add(Component.empty());
 

@@ -12,7 +12,7 @@ import dev.huskcasaca.effortless.render.SuperRenderTypeBuffer;
 import dev.huskcasaca.effortless.render.modifier.ModifierRenderer;
 import dev.huskcasaca.effortless.render.modifier.Shaders;
 import dev.huskcasaca.effortless.render.outliner.OutlineRenderer;
-import dev.huskcasaca.effortless.render.preview.StructurePreviewRenderer;
+import dev.huskcasaca.effortless.render.preview.OperationPreviewRenderer;
 import dev.huskcasaca.effortless.screen.BuildInfoOverlay;
 import dev.huskcasaca.effortless.utils.AnimationTicker;
 import net.minecraft.client.Camera;
@@ -66,7 +66,7 @@ public class ClientEvents {
         var bufferBuilder = Tesselator.getInstance().getBuilder();
         var bufferSource = MultiBufferSource.immediate(bufferBuilder);
 
-        StructurePreviewRenderer.getInstance().render(poseStack, bufferSource);
+        OperationPreviewRenderer.getInstance().render(poseStack, bufferSource);
     }
 
     public static void renderModifierSettings(PoseStack poseStack, Camera camera) {

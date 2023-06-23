@@ -25,6 +25,13 @@ public abstract class BlockStateOperation implements Operation<BlockStateOperati
     public abstract ItemStack requiredItemStack();
 
     public final static class DefaultRenderer implements Renderer<Result> {
+
+        private final static DefaultRenderer INSTANCE = new DefaultRenderer();
+
+        public static DefaultRenderer getInstance() {
+            return INSTANCE;
+        }
+
         @Override
         public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Result result) {
 

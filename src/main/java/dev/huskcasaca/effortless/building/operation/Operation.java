@@ -29,6 +29,10 @@ public interface Operation<R extends Operation.Result<R>> {
 
         Operation<O> operation();
 
+        default void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource) {
+            operation().getRenderer().render(poseStack, multiBufferSource, (O) this);
+        }
+
 
     }
 }

@@ -17,6 +17,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.awt.*;
@@ -31,8 +32,18 @@ public abstract class StructureOperation implements Operation<StructureOperation
     public abstract Player player();
     public abstract BuildContext context();
 
+    private static void sortOnDistanceToPlayer(List<BlockStateOperation> blockPosStates, Player player) {
+        blockPosStates.sort((lpl, rpl) -> {
+            // -1 - less than, 1 - greater than, 0 - equal
+            double lhsDistanceToPlayer = Vec3.atLowerCornerOf(lpl.blockPos()).subtract(player.getEyePosition(1f)).lengthSqr();
+            double rhsDistanceToPlayer = Vec3.atLowerCornerOf(rpl.blockPos()).subtract(player.getEyePosition(1f)).lengthSqr();
+            return (int) Math.signum(lhsDistanceToPlayer - rhsDistanceToPlayer);
+        });
+
+    }
+
     public DefaultRenderer getRenderer() {
-        return null;
+        return DefaultRenderer.getInstance();
     }
 
     // for preview
@@ -73,11 +84,16 @@ public abstract class StructureOperation implements Operation<StructureOperation
 //        }
     }
 
-    public abstract static class DefaultRenderer implements Renderer<Result> {
+    public final static class DefaultRenderer implements Renderer<Result> {
 
         private static final Color PLACING_COLOR = new Color(0.92f, 0.92f, 0.92f, 1f);
         private static final Color BREAKING_COLOR = new Color(0.95f, 0f, 0f, 1f);
 
+        private final static DefaultRenderer INSTANCE = new DefaultRenderer();
+
+        public static DefaultRenderer getInstance() {
+            return INSTANCE;
+        }
         public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, StructureOperation.Result result) {
             if (!result.type().isSuccess()) return;
 
@@ -106,8 +122,6 @@ public abstract class StructureOperation implements Operation<StructureOperation
             List<BlockStateOperation.Result> result
     ) implements Operation.Result<Result> {
 
-        public static final Result EMPTY = new Result(null, TracingResult.Type.PASS, Collections.emptyList());
-
         // TODO: 30/3/23 replcae HashMap with tag
         public ItemUsage usages() {
             var sufficientItems = new HashMap<Item, Integer>();
@@ -118,10 +132,12 @@ public abstract class StructureOperation implements Operation<StructureOperation
                 var required = operation.operation().requiredItemStack();
                 switch (operation.operation().getType()) {
                     case WORLD_PLACE_OP -> {
-                        (operation.result() == InteractionResult.SUCCESS ? sufficientItems : insufficientItems).put(required.getItem(), required.getCount());
+                        var items = (operation.result() == InteractionResult.SUCCESS ? sufficientItems : insufficientItems);
+                        items.put(required.getItem(), items.getOrDefault(required.getItem(), 0) + required.getCount());
                     }
                     case WORLD_BREAK_OP -> {
-                        insufficientItems.put(required.getItem(), required.getCount());
+                        var items = insufficientItems;
+                        items.put(required.getItem(), items.getOrDefault(required.getItem(), 0) + required.getCount());
                     }
                 }
             }
