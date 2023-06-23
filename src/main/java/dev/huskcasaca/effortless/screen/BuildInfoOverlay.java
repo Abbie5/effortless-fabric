@@ -111,7 +111,7 @@ public class BuildInfoOverlay extends GuiComponent {
             var button = RadialButton.option(option.get());
             texts.add(Component.literal(ChatFormatting.WHITE + button.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + button.getNameComponent().getString() + ChatFormatting.RESET));
         }
-        var replace = RadialButton.option(context.modeParams().replaceMode());
+        var replace = RadialButton.option(context.structureParams().replaceMode());
         texts.add(Component.literal(ChatFormatting.WHITE + replace.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + replace.getNameComponent().getString() + ChatFormatting.RESET));
 
         texts.add(Component.literal(ChatFormatting.WHITE + "Structure " + ChatFormatting.GOLD + context.buildMode().getNameComponent().getString() + ChatFormatting.RESET));

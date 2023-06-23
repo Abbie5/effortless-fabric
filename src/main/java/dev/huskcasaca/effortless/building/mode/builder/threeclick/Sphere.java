@@ -43,7 +43,7 @@ public class Sphere extends ThreeClickBuilder {
         float radiusY;
         float radiusZ;
 
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             if (context.circleStart() == BuildFeature.CircleStart.CIRCLE_START_CORNER) {
                 centerX = x1 + (x2 - x1) / 2f;
                 centerY = y1 + (y3 - y1) / 2f;
@@ -148,7 +148,7 @@ public class Sphere extends ThreeClickBuilder {
 
     @Override
     protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Floor.traceFloor(player, context);
         } else {
             return Wall.traceWall(player, context);
@@ -157,7 +157,7 @@ public class Sphere extends ThreeClickBuilder {
 
     @Override
     protected BlockHitResult traceThirdHit(Player player, BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return traceLineY(player, context);
         } else {
             if (context.firstPos().getX() == context.secondPos().getX()) {
@@ -175,7 +175,7 @@ public class Sphere extends ThreeClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectInterBlocks(BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Circle.collectFloorCircleBlocks(context);
         } else {
             return Circle.collectWallCircleBlocks(context);

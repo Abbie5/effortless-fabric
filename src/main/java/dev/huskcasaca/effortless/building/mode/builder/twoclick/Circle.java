@@ -188,7 +188,7 @@ public class Circle extends TwoClickBuilder {
 
     @Override
     protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Floor.traceFloor(player, context);
         } else {
             return Wall.traceWall(player, context);
@@ -197,7 +197,7 @@ public class Circle extends TwoClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return collectFloorCircleBlocks(context);
         } else {
             return collectWallCircleBlocks(context);

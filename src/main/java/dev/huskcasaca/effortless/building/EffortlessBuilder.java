@@ -47,7 +47,7 @@ public class EffortlessBuilder {
         }
         if (getContext(player).isDisabled()) return;
 
-        var context = getContext(player).withState(BuildingState.PLACING).withNextHit(player, true);
+        var context = getContext(player).withPlacingState().withNextHit(player, true);
         var storage = new TempItemStorage(player.getInventory().items);
         var operation = context.getStructure(player.getLevel(), player, storage);
         var result = operation.perform();
@@ -69,7 +69,7 @@ public class EffortlessBuilder {
         var updated = updater.apply(context);
         if (updated.isFulfilled()) {
             Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(updated));
-            provider.set(player, updated.idle());
+            provider.set(player, updated.reset());
             return BuildingResult.COMPLETED;
         } else {
             provider.set(player, updated);
@@ -90,14 +90,14 @@ public class EffortlessBuilder {
         return updateContext(player, context -> {
             if (hitResult == null) {
                 Effortless.log("perform: hitResult is null");
-                return context.idle();
+                return context.reset();
             }
             if (hitResult.getType() == HitResult.Type.ENTITY) {
                 Effortless.log("perform: hitResult is " + hitResult.getType());
-                return context.idle();
+                return context.reset();
             }
             if (context.isBuilding() && context.state() != state) {
-                return context.idle();
+                return context.reset();
             }
             return context.withState(state).withNextHit(hitResult);
         });
@@ -109,7 +109,7 @@ public class EffortlessBuilder {
 
     public void handlePlayerBreak(Player player) {
         // add breaking state
-        var hitResult = getContext(player).withState(BuildingState.BREAKING).trace(player, false);
+        var hitResult = getContext(player).withBreakingState().trace(player, false);
 
         var perform = perform(player, BuildingState.BREAKING, hitResult);
         Effortless.log("handlePlayerBreak: " + perform);
@@ -133,7 +133,7 @@ public class EffortlessBuilder {
             var itemStack = player.getItemInHand(interactionHand);
 
             // add placing state
-            var hitResult = getContext(player).withState(BuildingState.PLACING).trace(player, false);
+            var hitResult = getContext(player).withPlacingState().trace(player, false);
 
 //            if (!(itemStack.getItem() instanceof BlockItem)) return false; // pass
 

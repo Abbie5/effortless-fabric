@@ -29,7 +29,7 @@ public class Cylinder extends ThreeClickBuilder {
         var y3 = context.thirdPos().getY();
         var z3 = context.thirdPos().getZ();
 
-        switch (context.planeOrientation()) {
+        switch (context.planeFacing()) {
             case HORIZONTAL -> {
                 var circleBlocks = Circle.collectFloorCircleBlocks(context).toList();
                 int lowest = Math.min(y1, y3);
@@ -75,7 +75,7 @@ public class Cylinder extends ThreeClickBuilder {
 
     @Override
     protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Floor.traceFloor(player, context);
         } else {
             return Wall.traceWall(player, context);
@@ -84,7 +84,7 @@ public class Cylinder extends ThreeClickBuilder {
 
     @Override
     protected BlockHitResult traceThirdHit(Player player, BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return traceLineY(player, context);
         } else {
             if (context.firstPos().getX() == context.secondPos().getX()) {
@@ -102,7 +102,7 @@ public class Cylinder extends ThreeClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectInterBlocks(BuildContext context) {
-        if (context.planeOrientation() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Circle.collectFloorCircleBlocks(context);
         } else {
             return Circle.collectWallCircleBlocks(context);

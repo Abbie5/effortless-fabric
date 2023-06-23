@@ -23,12 +23,12 @@ public record BuildContext(
         UUID uuid,
         BuildingState state,
         List<BlockHitResult> blockHitResults,
-        @Deprecated() boolean skipRaytrace,
 
-        ModeParams modeParams,
+        StructureParams structureParams,
         PatternParams patternParams,
         RandomizerParams randomizerParams,
-        ReachParams reachParams
+        ReachParams reachParams,
+        @Deprecated() boolean skipRaytrace
 ) {
 
     public static void write(FriendlyByteBuf friendlyByteBuf, BuildContext context) {
@@ -36,9 +36,16 @@ public record BuildContext(
         friendlyByteBuf.writeEnum(context.state());
         friendlyByteBuf.writeVarInt(context.blockHitResults().size());
         context.blockHitResults().forEach(friendlyByteBuf::writeBlockHitResult);
-        friendlyByteBuf.writeBoolean(context.skipRaytrace());
 
         friendlyByteBuf.writeEnum(context.buildMode());
+        friendlyByteBuf.writeEnum(context.circleStart());
+        friendlyByteBuf.writeEnum(context.cubeFilling());
+        friendlyByteBuf.writeEnum(context.planeFilling());
+        friendlyByteBuf.writeEnum(context.planeFacing());
+        friendlyByteBuf.writeEnum(context.raisedEdge());
+        friendlyByteBuf.writeEnum(context.replaceMode());
+
+        friendlyByteBuf.writeBoolean(context.skipRaytrace());
     }
 
     public static BuildContext decodeBuf(FriendlyByteBuf friendlyByteBuf) {
@@ -48,18 +55,18 @@ public record BuildContext(
                 IntStream.range(0, friendlyByteBuf.readVarInt())
                         .mapToObj(i -> friendlyByteBuf.readBlockHitResult())
                         .toList(),
-                friendlyByteBuf.readBoolean(),
-                new ModeParams(
+                new StructureParams(
                         friendlyByteBuf.readEnum(BuildMode.class),
-                        CircleStart.CIRCLE_START_CORNER,
-                        CubeFilling.CUBE_FULL,
-                        PlaneFilling.PLANE_FULL,
-                        PlaneFacing.HORIZONTAL,
-                        RaisedEdge.RAISE_LONG_EDGE,
-                        ReplaceMode.DISABLED),
+                        friendlyByteBuf.readEnum(CircleStart.class),
+                        friendlyByteBuf.readEnum(CubeFilling.class),
+                        friendlyByteBuf.readEnum(PlaneFilling.class),
+                        friendlyByteBuf.readEnum(PlaneFacing.class),
+                        friendlyByteBuf.readEnum(RaisedEdge.class),
+                        friendlyByteBuf.readEnum(ReplaceMode.class)),
                 new PatternParams(),
                 new RandomizerParams(Randomizer.EMPTY),
-                new ReachParams(0, 0)
+                new ReachParams(0, 0),
+                friendlyByteBuf.readBoolean()
         );
     }
 
@@ -68,8 +75,7 @@ public record BuildContext(
                 UUID.randomUUID(),
                 BuildingState.IDLE,
                 Collections.emptyList(),
-                false,
-                new ModeParams(
+                new StructureParams(
                         BuildMode.DISABLED,
                         CircleStart.CIRCLE_START_CORNER,
                         CubeFilling.CUBE_FULL,
@@ -79,21 +85,18 @@ public record BuildContext(
                         ReplaceMode.DISABLED),
                 new PatternParams(),
                 new RandomizerParams(Randomizer.EMPTY),
-                new ReachParams(0, 0)
+                new ReachParams(0, 0),
+                false
         );
     }
 
     // new context for idle
-    public BuildContext idle() {
+    public BuildContext reset() {
         return new BuildContext(
                 UUID.randomUUID(),
                 BuildingState.IDLE,
                 Collections.emptyList(),
-                skipRaytrace,
-                modeParams,
-                patternParams,
-                randomizerParams,
-                reachParams
+                structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
         );
     }
 
@@ -103,11 +106,7 @@ public record BuildContext(
                 UUID.randomUUID(),
                 BuildingState.PLACING,
                 Collections.emptyList(),
-                skipRaytrace,
-                modeParams,
-                patternParams,
-                randomizerParams,
-                reachParams
+                structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
         );
     }
 
@@ -117,11 +116,7 @@ public record BuildContext(
                 UUID.randomUUID(),
                 BuildingState.BREAKING,
                 Collections.emptyList(),
-                skipRaytrace,
-                modeParams,
-                patternParams,
-                randomizerParams,
-                reachParams
+                structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
         );
     }
 
@@ -129,7 +124,7 @@ public record BuildContext(
         if (isBreaking()) {
             return this.withNextHit(blockHitResult);
         } else {
-            return this.breaking().withNextHit(blockHitResult);
+            return this.withBreakingState().withNextHit(blockHitResult);
         }
     }
 
@@ -137,8 +132,16 @@ public record BuildContext(
         if (isBreaking()) {
             return this.withNextHit(blockHitResult);
         } else {
-            return this.placing().withNextHit(blockHitResult);
+            return this.withPlacingState().withNextHit(blockHitResult);
         }
+    }
+
+    public BuildContext withPlacingState() {
+        return this.withState(BuildingState.PLACING);
+    }
+
+    public BuildContext withBreakingState() {
+        return this.withState(BuildingState.BREAKING);
     }
 
     public BuildContext withState(BuildingState state) {
@@ -150,31 +153,19 @@ public record BuildContext(
                     uuid,
                     BuildingState.IDLE,
                     blockHitResults,
-                    skipRaytrace,
-                    modeParams,
-                    patternParams,
-                    randomizerParams,
-                    reachParams
+                    structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
             case PLACING -> new BuildContext(
                     uuid,
                     BuildingState.PLACING,
                     blockHitResults,
-                    skipRaytrace,
-                    modeParams,
-                    patternParams,
-                    randomizerParams,
-                    reachParams
+                    structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
             case BREAKING -> new BuildContext(
                     uuid,
                     BuildingState.BREAKING,
                     blockHitResults,
-                    skipRaytrace,
-                    modeParams,
-                    patternParams,
-                    randomizerParams,
-                    reachParams
+                    structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
         };
     }
@@ -196,7 +187,7 @@ public record BuildContext(
     }
 
     public boolean isSkipTracing() {
-        return state().isBreaking() || modeParams().replaceMode() == ReplaceMode.QUICK;
+        return state().isBreaking() || structureParams().replaceMode() == ReplaceMode.QUICK;
     }
 
     public BlockHitResult firstBlockHitResult() {
@@ -260,15 +251,15 @@ public record BuildContext(
     }
 
     public BuildContext withNextHit(BlockHitResult blockHitResult) {
-        return new BuildContext(uuid, state, Stream.concat(blockHitResults.stream(), Stream.of(blockHitResult)).toList(), skipRaytrace, modeParams, patternParams, randomizerParams, reachParams);
+        return new BuildContext(uuid, state, Stream.concat(blockHitResults.stream(), Stream.of(blockHitResult)).toList(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     public BuildContext withHits(BlockHitResult... hitResults) {
-        return new BuildContext(uuid, state, Arrays.asList(hitResults), skipRaytrace, modeParams, patternParams, randomizerParams, reachParams);
+        return new BuildContext(uuid, state, Arrays.asList(hitResults), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     public BuildContext withEmptyHits() {
-        return new BuildContext(uuid, state, new ArrayList<>(), skipRaytrace, modeParams, patternParams, randomizerParams, reachParams);
+        return new BuildContext(uuid, state, new ArrayList<>(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     public BuildContext withNextHit(Player player, boolean preview) {
@@ -276,11 +267,11 @@ public record BuildContext(
     }
 
     public BuildContext withBuildMode(BuildMode buildMode) {
-        return new BuildContext(uuid, state, blockHitResults, skipRaytrace, modeParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams);
+        return new BuildContext(uuid, state, blockHitResults, structureParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     public BuildContext withBuildFeature(BuildFeature.Entry feature) {
-        return new BuildContext(uuid, state, blockHitResults, skipRaytrace, modeParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams);
+        return new BuildContext(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     public BuildContext withUUID() {
@@ -288,40 +279,44 @@ public record BuildContext(
     }
 
     public BuildContext withUUID(UUID uuid) {
-        return new BuildContext(uuid, state, blockHitResults, skipRaytrace, modeParams, patternParams, randomizerParams, reachParams);
+        return new BuildContext(uuid, state, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     // mode
     public BuildMode buildMode() {
-        return modeParams.buildMode();
+        return structureParams.buildMode();
     }
 
     public BuildOption[] buildFeatures() {
-        return modeParams.buildFeatures();
+        return structureParams.buildFeatures();
     }
 
     public boolean isDisabled() {
-        return modeParams.buildMode() == BuildMode.DISABLED;
+        return structureParams.buildMode() == BuildMode.DISABLED;
     }
 
     public CircleStart circleStart() {
-        return modeParams.circleStart();
+        return structureParams.circleStart();
     }
 
     public CubeFilling cubeFilling() {
-        return modeParams.cubeFilling();
+        return structureParams.cubeFilling();
     }
 
     public PlaneFilling planeFilling() {
-        return modeParams.planeFilling();
+        return structureParams.planeFilling();
     }
 
-    public PlaneFacing planeOrientation() {
-        return modeParams.planeFacing();
+    public PlaneFacing planeFacing() {
+        return structureParams.planeFacing();
     }
 
     public RaisedEdge raisedEdge() {
-        return modeParams.raisedEdge();
+        return structureParams.raisedEdge();
+    }
+
+    public ReplaceMode replaceMode() {
+        return structureParams.replaceMode();
     }
 
     // reach
@@ -334,7 +329,7 @@ public record BuildContext(
     }
 
     public boolean isFulfilled() {
-        return isBuilding() && modeParams().buildMode().getInstance().totalClicks(this) == clicks();
+        return isBuilding() && structureParams().buildMode().getInstance().totalClicks(this) == clicks();
     }
 
     public boolean isMissingHit() {
@@ -379,7 +374,7 @@ public record BuildContext(
     }
 
     public BlockFilter getBlockFilter(Level level, Player player) {
-        return new BlockFilter(level, player, state, modeParams.replaceMode());
+        return new BlockFilter(level, player, state, structureParams.replaceMode());
     }
 
     public String getTranslatedModeOptionName() {
@@ -400,7 +395,7 @@ public record BuildContext(
     ) {
     }
 
-    public record ModeParams(
+    public record StructureParams(
             BuildMode buildMode,
 
             CircleStart circleStart,
@@ -422,11 +417,11 @@ public record BuildContext(
             };
         }
 
-        public ModeParams withBuildMode(BuildMode buildMode) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withBuildMode(BuildMode buildMode) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public ModeParams withBuildFeature(BuildFeature.Entry feature) {
+        public StructureParams withBuildFeature(BuildFeature.Entry feature) {
             if (feature instanceof CircleStart) return withCircleStart((CircleStart) feature);
             if (feature instanceof CubeFilling) return withCubeFilling((CubeFilling) feature);
             if (feature instanceof PlaneFilling) return withPlaneFilling((PlaneFilling) feature);
@@ -435,28 +430,28 @@ public record BuildContext(
             return this;
         }
 
-        public ModeParams withCircleStart(CircleStart circleStart) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withCircleStart(CircleStart circleStart) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public ModeParams withCubeFilling(CubeFilling cubeFilling) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withCubeFilling(CubeFilling cubeFilling) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public ModeParams withPlaneFilling(PlaneFilling planeFilling) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withPlaneFilling(PlaneFilling planeFilling) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public ModeParams withPlaneFacing(PlaneFacing planeFacing) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withPlaneFacing(PlaneFacing planeFacing) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public ModeParams withRaisedEdge(RaisedEdge raisedEdge) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withRaisedEdge(RaisedEdge raisedEdge) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public ModeParams withReplaceMode(ReplaceMode replaceMode) {
-            return new ModeParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
+        public StructureParams withReplaceMode(ReplaceMode replaceMode) {
+            return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
     }
