@@ -5,7 +5,6 @@ import dev.huskcasaca.effortless.building.BuildContext;
 import dev.huskcasaca.effortless.building.InventorySwapper;
 import dev.huskcasaca.effortless.building.ItemStorage;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -61,14 +60,14 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
 //            return InteractionResult.FAIL;
 //        }
 
-        if (player instanceof ServerPlayer) {
-            return placeBlockServer(level, (ServerPlayer) player, interactionHand, blockPos, blockState);
+        if (player.getLevel().isClientSide()) {
+            return placeBlockClient(level, player, interactionHand, blockPos, blockState);
         } else {
-            return placeBlockClient(level, (LocalPlayer) player, interactionHand, blockPos, blockState);
+            return placeBlockServer(level, player, interactionHand, blockPos, blockState);
         }
     }
 
-    private static InteractionResult placeBlockServer(Level level, ServerPlayer player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
+    private static InteractionResult placeBlockServer(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
         var itemStack = player.getItemInHand(interactionHand);
         var fakeResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
@@ -95,14 +94,14 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
         }
 
         if (interactionResult.consumesAction()) {
-            CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(player, blockPos, itemStack2);
+            CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack2);
         }
 
         return interactionResult;
 
     }
 
-    private static InteractionResult placeBlockClient(Level level, LocalPlayer localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
+    private static InteractionResult placeBlockClient(Level level, Player localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
         var itemStack = localPlayer.getItemInHand(interactionHand);
         var blockHitResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 

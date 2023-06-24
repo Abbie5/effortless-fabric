@@ -38,7 +38,7 @@ public class Effortless implements ModInitializer {
     @Override
     public void onInitialize() {
         CommonEvents.register();
-        Packets.register();
+        Packets.registerServer();
     }
 
 }

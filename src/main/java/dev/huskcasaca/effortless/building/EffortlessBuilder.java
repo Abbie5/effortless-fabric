@@ -161,10 +161,6 @@ public class EffortlessBuilder {
 //        return false; // pass
     }
 
-    public void perform(Player player, BuildContext context) {
-        context.getStructure(player.getLevel(), player).perform();
-    }
-
     public void cycleReplaceMode(Player player) {
         // TODO: 23/5/23  
 //        setReplaceMode(player, ReplaceMode.values()[(getReplaceMode(player).ordinal() + 1) % ReplaceMode.values().length]);

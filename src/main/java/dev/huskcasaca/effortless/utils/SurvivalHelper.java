@@ -1,8 +1,6 @@
 package dev.huskcasaca.effortless.utils;
 
-
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -11,16 +9,15 @@ import net.minecraft.world.level.block.GameMasterBlock;
 
 public class SurvivalHelper {
 
-
     public static boolean destroyBlock(Level level, Player player, BlockPos blockPos) {
-        if (player instanceof ServerPlayer) {
-            return destroyBlockServer(level, (ServerPlayer) player, blockPos);
+        if (player.getLevel().isClientSide()) {
+            return destroyBlockClient(level, player, blockPos);
         } else {
-            return destroyBlockClient(level, (LocalPlayer) player, blockPos);
+            return destroyBlockServer(level, player, blockPos);
         }
     }
 
-    private static boolean destroyBlockClient(Level level, LocalPlayer player, BlockPos blockPos) {
+    private static boolean destroyBlockClient(Level level, Player player, BlockPos blockPos) {
         if (player.blockActionRestricted(level, blockPos, Minecraft.getInstance().gameMode.getPlayerMode())) {
             return false;
         }
@@ -44,7 +41,7 @@ public class SurvivalHelper {
         return removed;
     }
 
-    private static boolean destroyBlockServer(Level level, ServerPlayer player, BlockPos blockPos) {
+    private static boolean destroyBlockServer(Level level, Player player, BlockPos blockPos) {
         var blockState = level.getBlockState(blockPos);
         if (!player.getMainHandItem().getItem().canAttackBlock(blockState, level, blockPos, player)) {
             return false;
@@ -55,7 +52,7 @@ public class SurvivalHelper {
             level.sendBlockUpdated(blockPos, blockState, blockState, 3);
             return false;
         }
-        if (player.blockActionRestricted(level, blockPos, player.gameMode.getGameModeForPlayer())) {
+        if (player.blockActionRestricted(level, blockPos, ((ServerPlayer) player).gameMode.getGameModeForPlayer())) {
             return false;
         }
         block.playerWillDestroy(level, blockPos, blockState, player);

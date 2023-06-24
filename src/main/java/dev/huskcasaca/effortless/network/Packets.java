@@ -1,36 +1,49 @@
 package dev.huskcasaca.effortless.network;
 
 import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.core.network.SimpleChannel;
+import dev.huskcasaca.effortless.core.network.FabricNetworkChannel;
+import dev.huskcasaca.effortless.core.network.NetworkChannel;
 import dev.huskcasaca.effortless.network.protocol.ClientEffortlessPacketListener;
 import dev.huskcasaca.effortless.network.protocol.ServerEffortlessPacketListener;
 import dev.huskcasaca.effortless.network.protocol.building.ServerboundPlayerActionPacket;
 import dev.huskcasaca.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
 import dev.huskcasaca.effortless.network.protocol.settings.ClientboundPlayerSettingsPacket;
 import dev.huskcasaca.effortless.network.protocol.settings.ServerboundPlayerSettingsPacket;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 import net.minecraft.resources.ResourceLocation;
 
 public class Packets {
 
-    private static final SimpleChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel = new SimpleChannel<>(
-            new ResourceLocation(Effortless.MOD_ID, "default_channel"),
-            (server, player, listener, sender) -> new ServerEffortlessPacketHandler(server, player, listener),
-            (client, listener, sender) -> new ClientEffortlessPacketHandler(client, listener));
+    private static final NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel = createChannel();
 
-    public static SimpleChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel() {
+    private static NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> createChannel() {
+        var clientPacketHandlerCreator = (NetworkChannel.ClientHandlerCreator<ClientEffortlessPacketListener>) null;
+        if (FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.CLIENT) {
+            clientPacketHandlerCreator = ClientEffortlessPacketHandler::new;
+        }
+
+        return new FabricNetworkChannel<>(
+                new ResourceLocation(Effortless.MOD_ID, "default_channel"),
+                ServerEffortlessPacketHandler::new,
+                clientPacketHandlerCreator
+        );
+    }
+
+    public static NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel() {
         return channel;
     }
 
-    public static void register() {
-        channel.register();
-        channel.registerC2SPacket(ServerboundPlayerActionPacket.class, ServerboundPlayerActionPacket::new);
-        channel.registerC2SPacket(ServerboundPlayerSettingsPacket.class, ServerboundPlayerSettingsPacket::new);
-        channel.registerC2SPacket(ServerboundPlayerBuildPacket.class, ServerboundPlayerBuildPacket::new);
+    public static void registerServer() {
+        channel.registerServer();
+        channel.registerServerBoundPacket(ServerboundPlayerActionPacket.class, ServerboundPlayerActionPacket::new);
+        channel.registerServerBoundPacket(ServerboundPlayerSettingsPacket.class, ServerboundPlayerSettingsPacket::new);
+        channel.registerServerBoundPacket(ServerboundPlayerBuildPacket.class, ServerboundPlayerBuildPacket::new);
     }
 
     public static void registerClient() {
         channel.registerClient();
-        channel.registerS2CPacket(ClientboundPlayerSettingsPacket.class, ClientboundPlayerSettingsPacket::new);
+        channel.registerClientBoundPacket(ClientboundPlayerSettingsPacket.class, ClientboundPlayerSettingsPacket::new);
     }
 
 }

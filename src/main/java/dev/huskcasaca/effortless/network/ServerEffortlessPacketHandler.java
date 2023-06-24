@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.network;
 
-import dev.huskcasaca.effortless.building.EffortlessBuilder;
+import dev.huskcasaca.effortless.building.EffortlessServerBuilder;
 import dev.huskcasaca.effortless.network.protocol.ServerEffortlessPacketListener;
 import dev.huskcasaca.effortless.network.protocol.building.ServerboundPlayerActionPacket;
 import dev.huskcasaca.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
@@ -32,8 +32,7 @@ public class ServerEffortlessPacketHandler implements ServerEffortlessPacketList
     @Override
     public void handle(ServerboundPlayerBuildPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
-        EffortlessBuilder.getInstance().perform(player, packet.buildContext());
-
+        EffortlessServerBuilder.getInstance().perform(player, packet.buildContext());
     }
 
     @Override
