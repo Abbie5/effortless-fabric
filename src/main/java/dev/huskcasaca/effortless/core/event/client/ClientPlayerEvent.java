@@ -1,54 +1,54 @@
 package dev.huskcasaca.effortless.core.event.client;
 
-
 import dev.huskcasaca.effortless.core.event.api.Event;
 import dev.huskcasaca.effortless.core.event.api.EventFactory;
 import net.minecraft.client.player.LocalPlayer;
-
+import net.minecraft.world.InteractionResult;
 
 public class ClientPlayerEvent {
 
-    public static final Event<StartAttach> START_ATTACH = EventFactory.createArrayBacked(StartAttach.class, callbacks -> (player) -> {
-        for (StartAttach callback : callbacks) {
-            var result = callback.onStartAttach(player);
-            if (result != null) {
+    public static final Event<StartAttack> START_ATTACH = EventFactory.createArrayBacked(StartAttack.class, callbacks -> (player) -> {
+        for (var callback : callbacks) {
+            var result = callback.onStartAttack(player);
+            if (result != InteractionResult.PASS) {
                 return result;
-            };
+            }
         }
-        return false;
+        return InteractionResult.PASS;
+    });
+
+    public static final Event<StartUse> START_USE = EventFactory.createArrayBacked(StartUse.class, callbacks -> (player) -> {
+        for (var callback : callbacks) {
+            var result = callback.onStartUse(player);
+            if (result != InteractionResult.PASS) {
+                return result;
+            }
+        }
+        return InteractionResult.PASS;
     });
 
     public static final Event<ContinueAttack> CONTINUE_ATTACK = EventFactory.createArrayBacked(ContinueAttack.class, callbacks -> (player) -> {
-        for (ContinueAttack callback : callbacks) {
+        for (var callback : callbacks) {
             if (!callback.onContinueAttack(player)) {
                 return false;
             };
         }
-        return false;
-    });
-
-    public static final Event<StartUseItem> START_USE_ITEM = EventFactory.createArrayBacked(StartUseItem.class, callbacks -> (player) -> {
-        for (StartUseItem callback : callbacks) {
-            if (!callback.onStartUseItem(player)) {
-                return false;
-            };
-        }
-        return false;
+        return true;
     });
 
     @FunctionalInterface
-    public interface StartAttach {
-        Boolean onStartAttach(LocalPlayer player);
+    public interface StartAttack {
+        InteractionResult onStartAttack(LocalPlayer player);
+    }
+
+    @FunctionalInterface
+    public interface StartUse {
+        InteractionResult onStartUse(LocalPlayer player);
     }
 
     @FunctionalInterface
     public interface ContinueAttack {
-        Boolean onContinueAttack(LocalPlayer player);
-    }
-
-    @FunctionalInterface
-    public interface StartUseItem {
-        Boolean onStartUseItem(LocalPlayer player);
+        boolean onContinueAttack(LocalPlayer player);
     }
 
 }

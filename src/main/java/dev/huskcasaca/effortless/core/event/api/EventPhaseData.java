@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Data of an {@link ArrayBackedEvent} phase.
- */
 class EventPhaseData<T> {
 	final ResourceLocation id;
 	final List<EventPhaseData<T>> subsequentPhases = new ArrayList<>();

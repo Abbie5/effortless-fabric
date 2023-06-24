@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.packs.resources.ResourceProvider;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
@@ -94,38 +95,47 @@ public class ClientEvents {
         BuildCommand.register(dispatcher, commandBuildContext);
     }
 
-    public static Boolean onPlayerStartAttack(LocalPlayer player) {
+    public static InteractionResult onPlayerStartAttack(LocalPlayer player) {
         var context = EffortlessBuilder.getInstance().getContext(player);
-        if (context.isDisabled()) return null; // pass
+        if (context.isDisabled()) {
+            return InteractionResult.PASS;
+        }
 
         var minecraft = Minecraft.getInstance();
         var hitResult = minecraft.hitResult;
-        if (hitResult != null && hitResult.getType() == HitResult.Type.ENTITY) return null; // pass
+        if (hitResult != null && hitResult.getType() == HitResult.Type.ENTITY) {
+            return InteractionResult.PASS;
+        }
 
-        if (minecraft.missTime > 0) return false; // consumed
-        if (player.isHandsBusy()) return false; // consumed
+        if (minecraft.missTime > 0 || player.isHandsBusy()) {
+            return InteractionResult.FAIL;
+        }
 
         EffortlessBuilder.getInstance().handlePlayerBreak(player); // consumed
-        return true;
+        return InteractionResult.SUCCESS;
+    }
+
+    public static InteractionResult onPlayerStartUseItem(Player player) {
+        var context = EffortlessBuilder.getInstance().getContext(player);
+        if (context.isDisabled()) {
+            return InteractionResult.PASS;
+        }
+
+        var minecraft = Minecraft.getInstance();
+
+        var hitResult = minecraft.hitResult;
+        if (hitResult != null && hitResult.getType() == HitResult.Type.ENTITY) {
+            return InteractionResult.PASS;
+        }
+
+        EffortlessBuilder.getInstance().handlePlayerPlace(player); // consumed else pass
+        return InteractionResult.SUCCESS;
     }
 
     public static boolean onPlayerContinueAttack(Player player) {
         var context = EffortlessBuilder.getInstance().getContext(player);
         if (context.isDisabled()) return false; // pass
         return true; // consumed
-    }
-
-    public static boolean onPlayerStartUseItem(Player player) {
-        var context = EffortlessBuilder.getInstance().getContext(player);
-        if (context.isDisabled()) return false; // pass
-
-        var minecraft = Minecraft.getInstance();
-
-        var hitResult = minecraft.hitResult;
-        if (hitResult != null && hitResult.getType() == HitResult.Type.ENTITY) return false; // pass
-
-        EffortlessBuilder.getInstance().handlePlayerPlace(player); // consumed else pass
-        return true;
     }
 
     public static void register() {
@@ -144,8 +154,8 @@ public class ClientEvents {
         ClientCommandEvent.REGISTER.register(ClientEvents::onRegisterCommands);
 
         ClientPlayerEvent.START_ATTACH.register(ClientEvents::onPlayerStartAttack);
+        ClientPlayerEvent.START_USE.register(ClientEvents::onPlayerStartUseItem);
         ClientPlayerEvent.CONTINUE_ATTACK.register(ClientEvents::onPlayerContinueAttack);
-        ClientPlayerEvent.START_USE_ITEM.register(ClientEvents::onPlayerStartUseItem);
     }
 
 }

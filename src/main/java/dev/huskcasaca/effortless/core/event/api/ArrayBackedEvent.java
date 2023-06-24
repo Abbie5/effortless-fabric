@@ -42,7 +42,7 @@ class ArrayBackedEvent<T> extends Event<T> {
 	}
 
 	private EventPhaseData<T> getOrCreatePhase(ResourceLocation id, boolean sortIfCreate) {
-		EventPhaseData<T> phase = phases.get(id);
+		var phase = phases.get(id);
 
 		if (phase == null) {
 			phase = new EventPhaseData<>(id, handlers.getClass().getComponentType());
@@ -58,25 +58,21 @@ class ArrayBackedEvent<T> extends Event<T> {
 	}
 
 	private void rebuildInvoker(int newLength) {
-		// Rebuild handlers.
 		if (sortedPhases.size() == 1) {
-			// Special case with a single phase: use the array of the phase directly.
 			handlers = sortedPhases.get(0).listeners;
 		} else {
 			@SuppressWarnings("unchecked")
-			T[] newHandlers = (T[]) Array.newInstance(handlers.getClass().getComponentType(), newLength);
-			int newHandlersIndex = 0;
+			var newHandlers = (T[]) Array.newInstance(handlers.getClass().getComponentType(), newLength);
+			var newHandlersIndex = 0;
 
-			for (EventPhaseData<T> existingPhase : sortedPhases) {
-				int length = existingPhase.listeners.length;
+			for (var existingPhase : sortedPhases) {
+				var length = existingPhase.listeners.length;
 				System.arraycopy(existingPhase.listeners, 0, newHandlers, newHandlersIndex, length);
 				newHandlersIndex += length;
 			}
 
 			handlers = newHandlers;
 		}
-
-		// Rebuild invoker.
 		update();
 	}
 
@@ -87,8 +83,8 @@ class ArrayBackedEvent<T> extends Event<T> {
 		if (firstPhase.equals(secondPhase)) throw new IllegalArgumentException("Tried to add a phase that depends on itself.");
 
 		synchronized (lock) {
-			EventPhaseData<T> first = getOrCreatePhase(firstPhase, false);
-			EventPhaseData<T> second = getOrCreatePhase(secondPhase, false);
+			var first = getOrCreatePhase(firstPhase, false);
+			var second = getOrCreatePhase(secondPhase, false);
 			first.subsequentPhases.add(second);
 			second.previousPhases.add(first);
 			PhaseSorting.sortPhases(this.sortedPhases);
