@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 public class Sphere extends ThreeClickBuilder {
 
-    public static Stream<BlockPos> collectSphereBlocks(BuildContext context) {
+    public static Stream<BlockPos> collectSphereBlocks(Context context) {
         var list = new ArrayList<BlockPos>();
 
         var x1 = context.firstPos().getX();
@@ -142,12 +142,12 @@ public class Sphere extends ThreeClickBuilder {
     }
 
     @Override
-    protected BlockHitResult traceFirstHit(Player player, BuildContext context) {
+    protected BlockHitResult traceFirstHit(Player player, Context context) {
         return Single.traceSingle(player, context);
     }
 
     @Override
-    protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
+    protected BlockHitResult traceSecondHit(Player player, Context context) {
         if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Floor.traceFloor(player, context);
         } else {
@@ -156,7 +156,7 @@ public class Sphere extends ThreeClickBuilder {
     }
 
     @Override
-    protected BlockHitResult traceThirdHit(Player player, BuildContext context) {
+    protected BlockHitResult traceThirdHit(Player player, Context context) {
         if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return traceLineY(player, context);
         } else {
@@ -169,12 +169,12 @@ public class Sphere extends ThreeClickBuilder {
     }
 
     @Override
-    protected Stream<BlockPos> collectStartBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectStartBlocks(Context context) {
         return Single.collectSingleBlocks(context);
     }
 
     @Override
-    protected Stream<BlockPos> collectInterBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectInterBlocks(Context context) {
         if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Circle.collectFloorCircleBlocks(context);
         } else {
@@ -183,7 +183,7 @@ public class Sphere extends ThreeClickBuilder {
     }
 
     @Override
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         return collectSphereBlocks(context);
     }
 }

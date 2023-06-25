@@ -27,7 +27,7 @@ public class EffortlessBuilder {
         return INSTANCE;
     }
 
-    public BuildContext getContext(Player player) {
+    public Context getContext(Player player) {
         return provider.get(player);
     }
 
@@ -64,7 +64,7 @@ public class EffortlessBuilder {
         updateContext(player, context -> context.withUUID().withBuildFeature(feature).withEmptyHits());
     }
 
-    private BuildingResult updateContext(Player player, Function<BuildContext, BuildContext> updater) {
+    private BuildingResult updateContext(Player player, Function<Context, Context> updater) {
         var context = provider.get(player);
         var updated = updater.apply(context);
         if (updated.isFulfilled()) {

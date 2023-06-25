@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.operation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.TracingResult;
 import dev.huskcasaca.effortless.config.PreviewConfig;
 import dev.huskcasaca.effortless.render.RenderTypes;
@@ -30,7 +30,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
 
     public abstract Level level();
     public abstract Player player();
-    public abstract BuildContext context();
+    public abstract Context context();
 
     private static void sortOnDistanceToPlayer(List<SingleBlockOperation> blockPosStates, Player player) {
         blockPosStates.sort((lpl, rpl) -> {

@@ -10,7 +10,7 @@ public class EffortlessServerBuilder {
         return INSTANCE;
     }
 
-    public void perform(Player player, BuildContext context) {
+    public void perform(Player player, Context context) {
         context.getStructure(player.getLevel(), player).perform();
     }
 

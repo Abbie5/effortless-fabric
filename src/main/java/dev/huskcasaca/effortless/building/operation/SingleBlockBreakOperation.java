@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.operation;
 
-import dev.huskcasaca.effortless.building.BuildContext;
-import dev.huskcasaca.effortless.building.ItemStorage;
+import dev.huskcasaca.effortless.building.Context;
+import dev.huskcasaca.effortless.building.Storage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,21 +16,21 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class SingleBlockBreakOperation extends SingleBlockOperation {
     private final Level level;
     private final Player player;
-    private final ItemStorage storage;
-    private final BuildContext context;
+    private final Context context;
+    private final Storage storage;
     private final BlockPos blockPos;
 
     public SingleBlockBreakOperation(
-            Level level, Player player,
-            ItemStorage storage,
-            BuildContext context,
-            // for preview
+            Level level,
+            Player player,
+            Context context,
+            Storage storage, // for preview
             BlockPos blockPos
     ) {
         this.level = level;
         this.player = player;
-        this.storage = storage;
         this.context = context;
+        this.storage = storage;
         this.blockPos = blockPos;
     }
 
@@ -98,7 +98,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
         return true;
     }
 
-    private static boolean testBreak(BuildContext context, Level level, Player player, BlockPos blockPos) {
+    private static boolean testBreak(Context context, Level level, Player player, BlockPos blockPos) {
         if (!canInteract(level, player, blockPos)) {
             return false;
         }
@@ -151,12 +151,12 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     }
 
     @Override
-    public ItemStorage storage() {
+    public Storage storage() {
         return storage;
     }
 
     @Override
-    public BuildContext context() {
+    public Context context() {
         return context;
     }
 

@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder.oneclick;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.builder.SingleClickBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -12,12 +12,12 @@ import java.util.stream.Stream;
 public class Disable extends SingleClickBuilder {
 
     @Override
-    protected BlockHitResult traceFirstHit(Player player, BuildContext context) {
+    protected BlockHitResult traceFirstHit(Player player, Context context) {
         return (Minecraft.getInstance().hitResult instanceof BlockHitResult hitResult) ? hitResult : null;
     }
 
     @Override
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         return Stream.of(context.firstPos());
     }
 

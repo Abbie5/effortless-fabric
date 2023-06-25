@@ -1,8 +1,8 @@
 package dev.huskcasaca.effortless.building.operation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.huskcasaca.effortless.building.BuildContext;
-import dev.huskcasaca.effortless.building.ItemStorage;
+import dev.huskcasaca.effortless.building.Context;
+import dev.huskcasaca.effortless.building.Storage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
@@ -17,8 +17,8 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 
     public abstract Level level();
     public abstract Player player();
-    public abstract ItemStorage storage();
-    public abstract BuildContext context();
+    public abstract Storage storage();
+    public abstract Context context();
     // for preview
     public abstract BlockPos blockPos();
     public abstract BlockState blockState();

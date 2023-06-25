@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TempItemStorage implements ItemStorage {
+public class TempItemStorage implements Storage {
 
     private final List<ItemStack> itemStacks;
 

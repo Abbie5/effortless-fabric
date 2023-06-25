@@ -2,7 +2,7 @@ package dev.huskcasaca.effortless.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.EffortlessBuilder;
 import dev.huskcasaca.effortless.building.operation.StructureOperation;
 import dev.huskcasaca.effortless.config.ConfigManager;
@@ -190,7 +190,7 @@ public class BuildInfoOverlay extends GuiComponent {
 
     }
 
-    private void showMessage(Player player, BuildContext context, StructureOperation.Result result) {
+    private void showMessage(Player player, Context context, StructureOperation.Result result) {
         if (result.type().isSuccess()) {
             showBlockPlaceMessage(player, context, result);
         } else {
@@ -198,7 +198,7 @@ public class BuildInfoOverlay extends GuiComponent {
         }
     }
 
-    private void showBlockPlaceMessage(Player player, BuildContext context, StructureOperation.Result result) {
+    private void showBlockPlaceMessage(Player player, Context context, StructureOperation.Result result) {
         var volume = result.size();
 
         var dimensions = "(";
@@ -220,7 +220,7 @@ public class BuildInfoOverlay extends GuiComponent {
     }
 
 
-    private void showTracingFailedMessage(Player player, BuildContext context) {
+    private void showTracingFailedMessage(Player player, Context context) {
         displayMessage(player, "%s%s%s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, "cannot be traced"));
     }
 

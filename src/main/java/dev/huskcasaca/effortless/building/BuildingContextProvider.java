@@ -9,19 +9,19 @@ import java.util.UUID;
 
 public class BuildingContextProvider {
 
-    private final Map<UUID, BuildContext> contexts = new HashMap<>();
+    private final Map<UUID, Context> contexts = new HashMap<>();
 
-    public static BuildContext defaultContext() {
-        return BuildContext.defaultSet();
+    public static Context defaultContext() {
+        return Context.defaultSet();
     }
 
-    public BuildContext get(Player player) {
+    public Context get(Player player) {
         return contexts.computeIfAbsent(player.getUUID(), (uuid) -> defaultContext());
     }
 
-    public void set(Player player, BuildContext context) {
+    public void set(Player player, Context context) {
         contexts.put(player.getUUID(), context);
-        Effortless.log("setBuildContext: " + player.getUUID() + " to " + context);
+        Effortless.log("setContext: " + player.getUUID() + " to " + context);
     }
 
     public void remove(Player player) {

@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
@@ -13,32 +13,32 @@ import java.util.stream.Stream;
 public class Dome extends ThreeClickBuilder {
 
     @Override
-    protected BlockHitResult traceFirstHit(Player player, BuildContext context) {
+    protected BlockHitResult traceFirstHit(Player player, Context context) {
         return Single.traceSingle(player, context);
     }
 
     @Override
-    protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
+    protected BlockHitResult traceSecondHit(Player player, Context context) {
         return Floor.traceFloor(player, context);
     }
 
     @Override
-    protected BlockHitResult traceThirdHit(Player player, BuildContext context) {
+    protected BlockHitResult traceThirdHit(Player player, Context context) {
         return traceLineY(player, context);
     }
 
     @Override
-    protected Stream<BlockPos> collectStartBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectStartBlocks(Context context) {
         return Single.collectSingleBlocks(context);
     }
 
     @Override
-    protected Stream<BlockPos> collectInterBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectInterBlocks(Context context) {
         return Floor.collectFloorBlocks(context);
     }
 
     @Override
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         //TODO
         return SlopeFloor.collectSlopeFloorBlocks(context);
     }

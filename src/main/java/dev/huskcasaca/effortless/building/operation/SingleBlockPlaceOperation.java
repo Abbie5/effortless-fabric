@@ -1,9 +1,9 @@
 package dev.huskcasaca.effortless.building.operation;
 
 import dev.huskcasaca.effortless.building.BlockStatePlaceContext;
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.InventorySwapper;
-import dev.huskcasaca.effortless.building.ItemStorage;
+import dev.huskcasaca.effortless.building.Storage;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -27,23 +27,23 @@ import net.minecraft.world.phys.Vec3;
 public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     private final Level level;
     private final Player player;
-    private final ItemStorage storage;
-    private final BuildContext context;
+    private final Context context;
+    private final Storage storage;
     private final BlockPos blockPos;
     private final BlockState blockState;
 
     public SingleBlockPlaceOperation(
-            Level level, Player player,
-            ItemStorage storage,
-            BuildContext context,
-            // for preview
-            BlockPos blockPos,
+            Level level,
+            Player player,
+            Context context,
+            Storage storage,
+            BlockPos blockPos, // for preview
             BlockState blockState
     ) {
         this.level = level;
         this.player = player;
-        this.storage = storage;
         this.context = context;
+        this.storage = storage;
         this.blockPos = blockPos;
         this.blockState = blockState;
     }
@@ -89,7 +89,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         return InteractionResult.sidedSuccess(level.isClientSide());
     }
 
-    private static boolean testPlace(BuildContext context, Level level, Player player, BlockPos blockPos) {
+    private static boolean testPlace(Context context, Level level, Player player, BlockPos blockPos) {
         if (!canInteract(level, player, blockPos)) {
             return false;
         }
@@ -147,12 +147,12 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     }
 
     @Override
-    public ItemStorage storage() {
+    public Storage storage() {
         return storage;
     }
 
     @Override
-    public BuildContext context() {
+    public Context context() {
         return context;
     }
 

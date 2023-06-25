@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder.twoclick;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.builder.TwoClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
@@ -103,7 +103,7 @@ public class Circle extends TwoClickBuilder {
         }
     }
 
-    public static Stream<BlockPos> collectFloorCircleBlocks(BuildContext context) {
+    public static Stream<BlockPos> collectFloorCircleBlocks(Context context) {
         var list = new ArrayList<BlockPos>();
 
         var x1 = context.firstPos().getX();
@@ -136,7 +136,7 @@ public class Circle extends TwoClickBuilder {
         return list.stream();
     }
 
-    public static Stream<BlockPos> collectWallCircleBlocks(BuildContext context) {
+    public static Stream<BlockPos> collectWallCircleBlocks(Context context) {
         var list = new ArrayList<BlockPos>();
 
         var x1 = context.firstPos().getX();
@@ -182,12 +182,12 @@ public class Circle extends TwoClickBuilder {
     }
 
     @Override
-    protected BlockHitResult traceFirstHit(Player player, BuildContext context) {
+    protected BlockHitResult traceFirstHit(Player player, Context context) {
         return Single.traceSingle(player, context);
     }
 
     @Override
-    protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
+    protected BlockHitResult traceSecondHit(Player player, Context context) {
         if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return Floor.traceFloor(player, context);
         } else {
@@ -196,7 +196,7 @@ public class Circle extends TwoClickBuilder {
     }
 
     @Override
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
             return collectFloorCircleBlocks(context);
         } else {

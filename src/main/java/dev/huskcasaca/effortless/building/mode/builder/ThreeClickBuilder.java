@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public abstract class ThreeClickBuilder extends MultipleClickBuilder {
 
-    private static BlockHitResult traceLineByAxis(Player player, BuildContext context, Axis axis) {
+    private static BlockHitResult traceLineByAxis(Player player, Context context, Axis axis) {
         var center = context.secondPos().getCenter();
         var reach = context.maxReachDistance();
         var skipRaytrace = context.skipRaytrace();
@@ -31,19 +31,19 @@ public abstract class ThreeClickBuilder extends MultipleClickBuilder {
                 .orElse(null);
     }
 
-    public static BlockHitResult traceLineY(Player player, BuildContext context) {
+    public static BlockHitResult traceLineY(Player player, Context context) {
         return traceLineByAxis(player, context, Axis.Y);
     }
 
-    public static BlockHitResult traceLineX(Player player, BuildContext context) {
+    public static BlockHitResult traceLineX(Player player, Context context) {
         return traceLineByAxis(player, context, Axis.X);
     }
 
-    public static BlockHitResult traceLineZ(Player player, BuildContext context) {
+    public static BlockHitResult traceLineZ(Player player, Context context) {
         return traceLineByAxis(player, context, Axis.Z);
     }
 
-    private static BlockHitResult tracePlaneByAxis(Player player, BuildContext context, Axis axis) {
+    private static BlockHitResult tracePlaneByAxis(Player player, Context context, Axis axis) {
         var center = context.secondPos().getCenter();
         var reach = context.maxReachDistance();
         var skipRaytrace = context.skipRaytrace();
@@ -60,32 +60,32 @@ public abstract class ThreeClickBuilder extends MultipleClickBuilder {
                 .orElse(null);
     }
 
-    public static BlockHitResult tracePlaneY(Player player, BuildContext context) {
+    public static BlockHitResult tracePlaneY(Player player, Context context) {
         return tracePlaneByAxis(player, context, Axis.Y);
     }
 
-    public static BlockHitResult tracePlaneX(Player player, BuildContext context) {
+    public static BlockHitResult tracePlaneX(Player player, Context context) {
         return tracePlaneByAxis(player, context, Axis.X);
     }
 
-    public static BlockHitResult tracePlaneZ(Player player, BuildContext context) {
+    public static BlockHitResult tracePlaneZ(Player player, Context context) {
         return tracePlaneByAxis(player, context, Axis.Z);
     }
 
-    protected abstract BlockHitResult traceFirstHit(Player player, BuildContext context);
+    protected abstract BlockHitResult traceFirstHit(Player player, Context context);
 
-    protected abstract BlockHitResult traceSecondHit(Player player, BuildContext context);
+    protected abstract BlockHitResult traceSecondHit(Player player, Context context);
 
-    protected abstract BlockHitResult traceThirdHit(Player player, BuildContext context);
+    protected abstract BlockHitResult traceThirdHit(Player player, Context context);
 
-    protected abstract Stream<BlockPos> collectStartBlocks(BuildContext context);
+    protected abstract Stream<BlockPos> collectStartBlocks(Context context);
 
-    protected abstract Stream<BlockPos> collectInterBlocks(BuildContext context);
+    protected abstract Stream<BlockPos> collectInterBlocks(Context context);
 
-    protected abstract Stream<BlockPos> collectFinalBlocks(BuildContext context);
+    protected abstract Stream<BlockPos> collectFinalBlocks(Context context);
 
     @Override
-    public BlockHitResult trace(Player player, BuildContext context) {
+    public BlockHitResult trace(Player player, Context context) {
         return switch (context.clicks()) {
             case 0 -> traceFirstHit(player, context);
             case 1 -> traceSecondHit(player, context);
@@ -95,7 +95,7 @@ public abstract class ThreeClickBuilder extends MultipleClickBuilder {
     }
 
     @Override
-    public Stream<BlockPos> collect(BuildContext context) {
+    public Stream<BlockPos> collect(Context context) {
         return switch (context.clicks()) {
             case 1 -> collectStartBlocks(context);
             case 2 -> collectInterBlocks(context);
@@ -105,7 +105,7 @@ public abstract class ThreeClickBuilder extends MultipleClickBuilder {
     }
 
     @Override
-    public int totalClicks(BuildContext context) {
+    public int totalClicks(Context context) {
         return 3;
     }
 

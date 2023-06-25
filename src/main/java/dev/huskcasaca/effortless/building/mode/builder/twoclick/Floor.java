@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder.twoclick;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.builder.TwoClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 public class Floor extends TwoClickBuilder {
 
-    public static BlockHitResult traceFloor(Player player, BuildContext context) {
+    public static BlockHitResult traceFloor(Player player, Context context) {
         var center = context.firstPos().getCenter();
         var reach = context.maxReachDistance();
         var skipRaytrace = context.skipRaytrace();
@@ -31,7 +31,7 @@ public class Floor extends TwoClickBuilder {
                 .orElse(null);
     }
 
-    public static Stream<BlockPos> collectFloorBlocks(BuildContext context) {
+    public static Stream<BlockPos> collectFloorBlocks(Context context) {
         var list = new ArrayList<BlockPos>();
 
         var x1 = context.firstPos().getX();
@@ -68,17 +68,17 @@ public class Floor extends TwoClickBuilder {
     }
 
     @Override
-    protected BlockHitResult traceFirstHit(Player player, BuildContext context) {
+    protected BlockHitResult traceFirstHit(Player player, Context context) {
         return Single.traceSingle(player, context);
     }
 
     @Override
-    protected BlockHitResult traceSecondHit(Player player, BuildContext context) {
+    protected BlockHitResult traceSecondHit(Player player, Context context) {
         return traceFloor(player, context);
     }
 
     @Override
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         return collectFloorBlocks(context);
     }
 

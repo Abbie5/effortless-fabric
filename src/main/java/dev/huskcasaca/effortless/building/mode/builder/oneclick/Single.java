@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.mode.builder.oneclick;
 
 import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.builder.SingleClickBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class Single extends SingleClickBuilder {
 
-    public static BlockHitResult traceSingle(Player player, BuildContext context) {
+    public static BlockHitResult traceSingle(Player player, Context context) {
         return transformCurrentHit(player, context);
     }
 
@@ -46,7 +46,7 @@ public class Single extends SingleClickBuilder {
     }
 
 
-    public static BlockHitResult transformCurrentHit(Player player, BuildContext context) {
+    public static BlockHitResult transformCurrentHit(Player player, Context context) {
         var hitResult = clipInRange(player, context.maxReachDistance());
         var startPos = hitResult.getBlockPos();
 
@@ -66,17 +66,17 @@ public class Single extends SingleClickBuilder {
         return hitResult.withPosition(startPos);
     }
 
-    public static Stream<BlockPos> collectSingleBlocks(BuildContext context) {
+    public static Stream<BlockPos> collectSingleBlocks(Context context) {
         return Stream.of(context.firstPos());
     }
 
     @Override
-    protected BlockHitResult traceFirstHit(Player player, BuildContext context) {
+    protected BlockHitResult traceFirstHit(Player player, Context context) {
         return traceSingle(player, context);
     }
 
     @Override
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         return collectSingleBlocks(context);
     }
 

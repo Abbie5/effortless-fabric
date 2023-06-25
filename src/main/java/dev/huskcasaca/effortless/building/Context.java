@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public record BuildContext(
+public record Context(
         UUID uuid,
         BuildingState state,
         List<BlockHitResult> blockHitResults,
@@ -31,7 +31,7 @@ public record BuildContext(
         @Deprecated() boolean skipRaytrace
 ) {
 
-    public static void write(FriendlyByteBuf friendlyByteBuf, BuildContext context) {
+    public static void write(FriendlyByteBuf friendlyByteBuf, Context context) {
         friendlyByteBuf.writeUUID(context.uuid());
         friendlyByteBuf.writeEnum(context.state());
         friendlyByteBuf.writeVarInt(context.blockHitResults().size());
@@ -48,8 +48,8 @@ public record BuildContext(
         friendlyByteBuf.writeBoolean(context.skipRaytrace());
     }
 
-    public static BuildContext decodeBuf(FriendlyByteBuf friendlyByteBuf) {
-        return new BuildContext(
+    public static Context decodeBuf(FriendlyByteBuf friendlyByteBuf) {
+        return new Context(
                 friendlyByteBuf.readUUID(),
                 friendlyByteBuf.readEnum(BuildingState.class),
                 IntStream.range(0, friendlyByteBuf.readVarInt())
@@ -70,8 +70,8 @@ public record BuildContext(
         );
     }
 
-    public static BuildContext defaultSet() {
-        return new BuildContext(
+    public static Context defaultSet() {
+        return new Context(
                 UUID.randomUUID(),
                 BuildingState.IDLE,
                 Collections.emptyList(),
@@ -91,8 +91,8 @@ public record BuildContext(
     }
 
     // new context for idle
-    public BuildContext reset() {
-        return new BuildContext(
+    public Context reset() {
+        return new Context(
                 UUID.randomUUID(),
                 BuildingState.IDLE,
                 Collections.emptyList(),
@@ -101,8 +101,8 @@ public record BuildContext(
     }
 
     // new context for placing
-    public BuildContext placing() {
-        return new BuildContext(
+    public Context placing() {
+        return new Context(
                 UUID.randomUUID(),
                 BuildingState.PLACING,
                 Collections.emptyList(),
@@ -111,8 +111,8 @@ public record BuildContext(
     }
 
     // new context for breaking
-    public BuildContext breaking() {
-        return new BuildContext(
+    public Context breaking() {
+        return new Context(
                 UUID.randomUUID(),
                 BuildingState.BREAKING,
                 Collections.emptyList(),
@@ -120,7 +120,7 @@ public record BuildContext(
         );
     }
 
-    public BuildContext withNextBreak(BlockHitResult blockHitResult) {
+    public Context withNextBreak(BlockHitResult blockHitResult) {
         if (isBreaking()) {
             return this.withNextHit(blockHitResult);
         } else {
@@ -128,7 +128,7 @@ public record BuildContext(
         }
     }
 
-    public BuildContext withNextPlace(BlockHitResult blockHitResult) {
+    public Context withNextPlace(BlockHitResult blockHitResult) {
         if (isBreaking()) {
             return this.withNextHit(blockHitResult);
         } else {
@@ -136,32 +136,32 @@ public record BuildContext(
         }
     }
 
-    public BuildContext withPlacingState() {
+    public Context withPlacingState() {
         return this.withState(BuildingState.PLACING);
     }
 
-    public BuildContext withBreakingState() {
+    public Context withBreakingState() {
         return this.withState(BuildingState.BREAKING);
     }
 
-    public BuildContext withState(BuildingState state) {
+    public Context withState(BuildingState state) {
         if (this.state == state) {
             return this;
         }
         return switch (state) {
-            case IDLE -> new BuildContext(
+            case IDLE -> new Context(
                     uuid,
                     BuildingState.IDLE,
                     blockHitResults,
                     structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
-            case PLACING -> new BuildContext(
+            case PLACING -> new Context(
                     uuid,
                     BuildingState.PLACING,
                     blockHitResults,
                     structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
-            case BREAKING -> new BuildContext(
+            case BREAKING -> new Context(
                     uuid,
                     BuildingState.BREAKING,
                     blockHitResults,
@@ -218,68 +218,68 @@ public record BuildContext(
         return thirdBlockHitResult().getBlockPos();
     }
 
-    public BuildContext withFirstPos(int x, int y, int z) {
+    public Context withFirstPos(int x, int y, int z) {
         return withPos(0, new BlockPos(x, y, z));
     }
 
-    public BuildContext withFirstPos(BlockPos pos) {
+    public Context withFirstPos(BlockPos pos) {
         return withPos(0, pos);
     }
 
-    public BuildContext withSecondPos(int x, int y, int z) {
+    public Context withSecondPos(int x, int y, int z) {
         return withPos(1, new BlockPos(x, y, z));
     }
 
-    public BuildContext withSecondPos(BlockPos pos) {
+    public Context withSecondPos(BlockPos pos) {
         return withPos(1, pos);
     }
 
-    public BuildContext withThirdPos(int x, int y, int z) {
+    public Context withThirdPos(int x, int y, int z) {
         return withPos(2, new BlockPos(x, y, z));
     }
 
 
     // builder
 
-    public BuildContext withThirdPos(BlockPos pos) {
+    public Context withThirdPos(BlockPos pos) {
         return withPos(2, pos);
     }
 
-    public BuildContext withPos(int position, BlockPos pos) {
+    public Context withPos(int position, BlockPos pos) {
         var result = IntStream.range(0, blockHitResults.size()).mapToObj((i) -> i == position ? blockHitResults.get(i).withPosition(pos) : blockHitResults.get(i)).toArray(BlockHitResult[]::new);
         return withHits(result);
     }
 
-    public BuildContext withNextHit(BlockHitResult blockHitResult) {
-        return new BuildContext(uuid, state, Stream.concat(blockHitResults.stream(), Stream.of(blockHitResult)).toList(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+    public Context withNextHit(BlockHitResult blockHitResult) {
+        return new Context(uuid, state, Stream.concat(blockHitResults.stream(), Stream.of(blockHitResult)).toList(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public BuildContext withHits(BlockHitResult... hitResults) {
-        return new BuildContext(uuid, state, Arrays.asList(hitResults), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+    public Context withHits(BlockHitResult... hitResults) {
+        return new Context(uuid, state, Arrays.asList(hitResults), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public BuildContext withEmptyHits() {
-        return new BuildContext(uuid, state, new ArrayList<>(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+    public Context withEmptyHits() {
+        return new Context(uuid, state, new ArrayList<>(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public BuildContext withNextHit(Player player, boolean preview) {
+    public Context withNextHit(Player player, boolean preview) {
         return withNextHit(trace(player, preview));
     }
 
-    public BuildContext withBuildMode(BuildMode buildMode) {
-        return new BuildContext(uuid, state, blockHitResults, structureParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams, skipRaytrace);
+    public Context withBuildMode(BuildMode buildMode) {
+        return new Context(uuid, state, blockHitResults, structureParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public BuildContext withBuildFeature(BuildFeature.Entry feature) {
-        return new BuildContext(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
+    public Context withBuildFeature(BuildFeature.Entry feature) {
+        return new Context(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public BuildContext withUUID() {
+    public Context withUUID() {
         return withUUID(UUID.randomUUID());
     }
 
-    public BuildContext withUUID(UUID uuid) {
-        return new BuildContext(uuid, state, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+    public Context withUUID(UUID uuid) {
+        return new Context(uuid, state, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
     // mode
@@ -366,11 +366,11 @@ public record BuildContext(
     }
 
     public StructurePlaceOperation getStructure(Level level, Player player) {
-        return new StructurePlaceOperation(level, player, null, this);
+        return new StructurePlaceOperation(level, player, this, null);
     }
 
-    public StructurePlaceOperation getStructure(Level level, Player player, ItemStorage storage) {
-        return new StructurePlaceOperation(level, player, storage, this);
+    public StructurePlaceOperation getStructure(Level level, Player player, Storage storage) {
+        return new StructurePlaceOperation(level, player, this, storage);
     }
 
     public String getTranslatedModeOptionName() {

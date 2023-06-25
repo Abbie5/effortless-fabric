@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 
 public interface Builder {
 
-    BlockHitResult trace(Player player, BuildContext context);
+    BlockHitResult trace(Player player, Context context);
 
-    Stream<BlockPos> collect(BuildContext context);
+    Stream<BlockPos> collect(Context context);
 
-    int totalClicks(BuildContext context);
+    int totalClicks(Context context);
 
 
 }

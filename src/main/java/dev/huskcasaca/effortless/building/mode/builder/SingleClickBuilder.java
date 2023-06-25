@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
@@ -9,12 +9,12 @@ import java.util.stream.Stream;
 
 public abstract class SingleClickBuilder implements Builder {
 
-    protected abstract BlockHitResult traceFirstHit(Player player, BuildContext context);
+    protected abstract BlockHitResult traceFirstHit(Player player, Context context);
 
-    protected abstract Stream<BlockPos> collectFinalBlocks(BuildContext context);
+    protected abstract Stream<BlockPos> collectFinalBlocks(Context context);
 
     @Override
-    public BlockHitResult trace(Player player, BuildContext context) {
+    public BlockHitResult trace(Player player, Context context) {
         return switch (context.clicks()) {
             case 0 -> traceFirstHit(player, context);
             default -> null; // FIXME: 7/3/23
@@ -23,12 +23,12 @@ public abstract class SingleClickBuilder implements Builder {
     }
 
     @Override
-    public Stream<BlockPos> collect(BuildContext context) {
+    public Stream<BlockPos> collect(Context context) {
         return collectFinalBlocks(context);
     }
 
     @Override
-    public int totalClicks(BuildContext context) {
+    public int totalClicks(Context context) {
         return 1;
     }
 

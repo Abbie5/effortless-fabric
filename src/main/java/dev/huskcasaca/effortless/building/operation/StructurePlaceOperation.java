@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.operation;
 
-import dev.huskcasaca.effortless.building.BuildContext;
-import dev.huskcasaca.effortless.building.ItemStorage;
+import dev.huskcasaca.effortless.building.Context;
+import dev.huskcasaca.effortless.building.Storage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -18,19 +18,19 @@ import java.util.stream.Stream;
 public final class StructurePlaceOperation extends StructureOperation {
     private final Level level;
     private final Player player;
-    private final ItemStorage storage;
-    private final BuildContext context;
+    private final Context context;
+    private final Storage storage;
 
     public StructurePlaceOperation(
             Level level,
             Player player,
-            ItemStorage storage,
-            BuildContext context
+            Context context,
+            Storage storage
     ) {
         this.level = level;
         this.player = player;
-        this.storage = storage;
         this.context = context;
+        this.storage = storage;
     }
 
     public Stream<SingleBlockOperation> stream() {
@@ -41,10 +41,10 @@ public final class StructurePlaceOperation extends StructureOperation {
                     .result()
                     .stream()
                     .map((hitResult) -> context.isPlacing() ? new SingleBlockPlaceOperation(
-                            level, player, storage, context,
+                            level, player, context, storage,
                             hitResult.getBlockPos(),
                             getBlockStateFromMainHand(player, hitResult)) : new SingleBlockBreakOperation(
-                            level, player, storage, context,
+                            level, player, context, storage,
                             hitResult.getBlockPos()))
                     .flatMap(Stream::of) // for modifiers
                     .map((op) -> op);
@@ -95,12 +95,12 @@ public final class StructurePlaceOperation extends StructureOperation {
         return player;
     }
 
-    public ItemStorage storage() {
+    public Storage storage() {
         return storage;
     }
 
     @Override
-    public BuildContext context() {
+    public Context context() {
         return context;
     }
 

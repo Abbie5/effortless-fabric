@@ -3,7 +3,7 @@ package dev.huskcasaca.effortless.building;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public interface ItemStorage {
+public interface Storage {
 
     ItemStack findByStack(ItemStack stack);
 

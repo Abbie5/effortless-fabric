@@ -1,6 +1,6 @@
 package dev.huskcasaca.effortless.building.mode.builder;
 
-import dev.huskcasaca.effortless.building.BuildContext;
+import dev.huskcasaca.effortless.building.Context;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -11,20 +11,20 @@ import java.util.stream.Stream;
 
 public abstract class TwoClickBuilder extends MultipleClickBuilder {
 
-    protected abstract BlockHitResult traceFirstHit(Player player, BuildContext context);
+    protected abstract BlockHitResult traceFirstHit(Player player, Context context);
 
-    protected abstract BlockHitResult traceSecondHit(Player player, BuildContext context);
+    protected abstract BlockHitResult traceSecondHit(Player player, Context context);
 
-    protected Stream<BlockPos> collectFirstBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFirstBlocks(Context context) {
         return Stream.of(context.firstPos());
     };
 
-    protected Stream<BlockPos> collectFinalBlocks(BuildContext context) {
+    protected Stream<BlockPos> collectFinalBlocks(Context context) {
         return Stream.empty();
     }
 
     @Override
-    public BlockHitResult trace(Player player, BuildContext context) {
+    public BlockHitResult trace(Player player, Context context) {
         return switch (context.clicks()) {
             case 0 -> traceFirstHit(player, context);
             case 1 -> traceSecondHit(player, context);
@@ -33,7 +33,7 @@ public abstract class TwoClickBuilder extends MultipleClickBuilder {
     }
 
     @Override
-    public Stream<BlockPos> collect(BuildContext context) {
+    public Stream<BlockPos> collect(Context context) {
         return switch (context.clicks()) {
             case 1 -> collectFirstBlocks(context);
             case 2 -> collectFinalBlocks(context);
@@ -42,7 +42,7 @@ public abstract class TwoClickBuilder extends MultipleClickBuilder {
     }
 
     @Override
-    public int totalClicks(BuildContext context) {
+    public int totalClicks(Context context) {
         return 2;
     }
 }
