@@ -43,13 +43,15 @@ public class EffortlessBuilder {
         provider.tick();
 
         var player = Minecraft.getInstance().player;
-        if (player == null) {
+        if (player == null || getContext(player).isDisabled()) {
             lastResult = null;
             return;
         }
-        if (getContext(player).isDisabled()) return;
 
-        var context = getContext(player).withPlacingState().withNextHit(player, true);
+        var context = getContext(player).withNextHit(player, true);
+        if (context.clicks() == 1) {
+            context = context.withPlacingState();
+        }
         var storage = Storage.createTemp(player.getInventory().items);
         var operation = context.getStructure(player.getLevel(), player, storage);
         var result = operation.perform();
@@ -156,7 +158,7 @@ public class EffortlessBuilder {
 
             player.swing(InteractionHand.MAIN_HAND);
 
-            if (perform.isSuccess()) break;
+            break;
 //            return true; // consumed
         }
 //        return false; // pass

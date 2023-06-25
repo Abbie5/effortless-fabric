@@ -111,11 +111,21 @@ public abstract class StructureOperation implements Operation<StructureOperation
 //                    case DISSOLVE_SHADER -> renderStructureShader(poseStack, multiBufferSource, preview, 0);
 //                }
             renderStructureShader(poseStack, multiBufferSource, result);
-            OutlineRenderer.getInstance().showCluster(context.uuid(), result.blockPoses())
+            var cluster = OutlineRenderer.getInstance().showCluster(context.uuid(), result.blockPoses())
                     .texture(RenderTypes.CHECKERED_THIN_TEXTURE_LOCATION)
                     .stroke(1 / 64f)
-                    .colored(context.isBreaking() ? BREAKING_COLOR : PLACING_COLOR)
                     .disableNormals();
+
+            switch (context.state()) {
+                case IDLE -> {
+                }
+                case PLACING -> {
+                    cluster.colored(PLACING_COLOR);
+                }
+                case BREAKING -> {
+                    cluster.colored(BREAKING_COLOR);
+                }
+            }
         }
 
     }

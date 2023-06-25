@@ -15,13 +15,13 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.stream.Stream;
 
-public final class StructurePlaceOperation extends StructureOperation {
+public final class StructureBuildOperation extends StructureOperation {
     private final Level level;
     private final Player player;
     private final Context context;
     private final Storage storage;
 
-    public StructurePlaceOperation(
+    public StructureBuildOperation(
             Level level,
             Player player,
             Context context,
@@ -53,22 +53,33 @@ public final class StructurePlaceOperation extends StructureOperation {
     public Stream<SingleBlockOperation> stream() {
         var state = context.state();
 
-        if (context.isBuilding()) {
-            return context.collect()
-                    .result()
-                    .stream()
-                    .map((hitResult) -> context.isPlacing() ? new SingleBlockPlaceOperation(
-                            level, player, context, storage,
-                            hitResult.getBlockPos(),
-                            getBlockStateFromMainHand(player, hitResult)) : new SingleBlockBreakOperation(
-                            level, player, context, storage,
-                            hitResult.getBlockPos()))
-                    .flatMap(Stream::of) // for modifiers
-                    .map((op) -> op);
-        } else {
-            return Stream.empty();
+        switch (context.state()) {
+            case IDLE -> {
+                return Stream.empty();
+            }
+            case PLACING -> {
+                return context.collect()
+                        .result()
+                        .stream()
+                        .map((hitResult) -> new SingleBlockPlaceOperation(
+                                level, player, context, storage,
+                                hitResult.getBlockPos(),
+                                getBlockStateFromMainHand(player, hitResult)))
+                        .flatMap(Stream::of) // for modifiers
+                        .map((op) -> op);
+            }
+            case BREAKING -> {
+                return context.collect()
+                        .result()
+                        .stream()
+                        .map((hitResult) -> new SingleBlockBreakOperation(
+                                level, player, context, storage,
+                                hitResult.getBlockPos()))
+                        .flatMap(Stream::of) // for modifiers
+                        .map((op) -> op);
+            }
         }
-
+        return Stream.empty();
     }
 
     public Result perform() {
@@ -104,37 +115,4 @@ public final class StructurePlaceOperation extends StructureOperation {
         return context;
     }
 
-    //    public static void placeBlocks(Player player, List<BlockHitResult> hitResults) {
-//        if (player.getLevel().isClientSide()) {
-//            BlockPreviewRenderer.getInstance().saveCurrentPreview();
-//        }
-//        var blockPosStates = getBlockPosStateForPlacing(player, hitResults);
-//
-//        for (var blockPosState : blockPosStates) {
-//            if (!blockPosState.place()) continue;
-//
-//            var slot = InventoryHelper.findItemSlot(player.getInventory(), blockPosState.blockState().getBlock().asItem());
-//            var swap = InventoryHelper.swapSlot(player.getInventory(), slot);
-//            if (!swap) continue;
-//
-//            if (Constructor.getInstance().isReplace(player)) {
-//                blockPosState.breakBy(player);
-//            }
-//
-//            blockPosState.placeBy(player, InteractionHand.MAIN_HAND);
-//            InventoryHelper.swapSlot(player.getInventory(), slot);
-//        }
-//    }
-//
-//    public static void destroyBlocks(Player player, List<BlockHitResult> hitResults) {
-//        if (player.getLevel().isClientSide()) {
-//            BlockPreviewRenderer.getInstance().saveCurrentPreview();
-//        }
-//        var blockPosStates = Constructor.getInstance().getBlockPosStateForBreaking(player, hitResults);
-//
-//        for (var blockPosState : blockPosStates) {
-////            if (!blockPosState.place()) continue;
-//            blockPosState.breakBy(player);
-//        }
-//    }
 }

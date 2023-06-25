@@ -5,7 +5,7 @@ import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.BuildFeature.*;
 import dev.huskcasaca.effortless.building.mode.BuildMode;
 import dev.huskcasaca.effortless.building.mode.BuildOption;
-import dev.huskcasaca.effortless.building.operation.StructurePlaceOperation;
+import dev.huskcasaca.effortless.building.operation.StructureBuildOperation;
 import dev.huskcasaca.effortless.building.pattern.randomizer.Randomizer;
 import dev.huskcasaca.effortless.building.replace.ReplaceMode;
 import net.minecraft.client.resources.language.I18n;
@@ -365,12 +365,12 @@ public record Context(
         }
     }
 
-    public StructurePlaceOperation getStructure(Level level, Player player) {
-        return new StructurePlaceOperation(level, player, this, null);
+    public StructureBuildOperation getStructure(Level level, Player player) {
+        return new StructureBuildOperation(level, player, this, null);
     }
 
-    public StructurePlaceOperation getStructure(Level level, Player player, Storage storage) {
-        return new StructurePlaceOperation(level, player, this, storage);
+    public StructureBuildOperation getStructure(Level level, Player player, Storage storage) {
+        return new StructureBuildOperation(level, player, this, storage);
     }
 
     public String getTranslatedModeOptionName() {
