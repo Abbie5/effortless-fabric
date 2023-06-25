@@ -108,7 +108,6 @@ public class EffortlessBuilder {
     }
 
     public void handlePlayerBreak(Player player) {
-        // add breaking state
         var hitResult = getContext(player).withBreakingState().trace(player, false);
 
         var perform = perform(player, BuildingState.BREAKING, hitResult);

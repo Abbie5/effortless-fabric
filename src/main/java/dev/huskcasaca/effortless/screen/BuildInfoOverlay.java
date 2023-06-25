@@ -99,11 +99,14 @@ public class BuildInfoOverlay extends GuiComponent {
 //        if (modifier.arraySettings().enabled()) {
 //            texts.add(Component.literal(
 //                    ChatFormatting.GOLD + "Array" + ChatFormatting.RESET + " "
-//                            + ChatFormatting.WHITE + "X" + modifier.arraySettings().offset().getX() + "Y" + modifier.arraySettings().offset().getY() + "Z" + modifier.arraySettings().offset().getZ() + " "
+//                            +` ChatFormatting.WHITE + "X" + modifier.arraySettings().offset().getX() + "Y" + modifier.arraySettings().offset().getY() + "Z" + modifier.arraySettings().offset().getZ() + " "
 //                            + ChatFormatting.WHITE + "C" + ChatFormatting.WHITE + modifier.arraySettings().count() + ChatFormatting.RESET
 //            ));
 //        }
 //
+
+        texts.add(Component.literal(context.state().toString()));
+
 
         for (var supportedFeature : context.buildMode().getSupportedFeatures()) {
             var option = Arrays.stream(context.buildFeatures()).filter((feature) -> Objects.equals(feature.getCategory(), supportedFeature.getName())).findFirst();

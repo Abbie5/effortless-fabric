@@ -14,6 +14,7 @@ public final class InventorySwapper {
 
     public InventorySwapper(
             Inventory inventory,
+            // TODO: 25/6/23 use ItemPredicate
             Item item
     ) {
         this.inventory = Objects.requireNonNull(inventory);

@@ -6,13 +6,14 @@ import dev.huskcasaca.effortless.building.ItemStorage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class BlockStateOperation implements Operation<BlockStateOperation.Result> {
+public abstract class SingleBlockOperation implements Operation<SingleBlockOperation.Result> {
 
     public abstract Level level();
     public abstract Player player();
@@ -55,8 +56,13 @@ public abstract class BlockStateOperation implements Operation<BlockStateOperati
         }
     }
 
+    protected static boolean canInteract(Level level, Player player, BlockPos blockPos) {
+        var gameMode = level.isClientSide() ? Minecraft.getInstance().gameMode.getPlayerMode() : ((ServerPlayer) player).gameMode.getGameModeForPlayer();
+        return !player.blockActionRestricted(level, blockPos, gameMode);
+    }
+
     public record Result(
-            BlockStateOperation operation,
+            SingleBlockOperation operation,
             InteractionResult result,
             ItemStack consumedItem,
             ItemStack consumedTool

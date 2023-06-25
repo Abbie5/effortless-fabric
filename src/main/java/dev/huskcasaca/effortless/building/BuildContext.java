@@ -373,10 +373,6 @@ public record BuildContext(
         return new StructurePlaceOperation(level, player, storage, this);
     }
 
-    public BlockFilter getBlockFilter(Level level, Player player) {
-        return new BlockFilter(level, player, state, structureParams.replaceMode());
-    }
-
     public String getTranslatedModeOptionName() {
 
         var mode = buildMode();

@@ -32,7 +32,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
     public abstract Player player();
     public abstract BuildContext context();
 
-    private static void sortOnDistanceToPlayer(List<BlockStateOperation> blockPosStates, Player player) {
+    private static void sortOnDistanceToPlayer(List<SingleBlockOperation> blockPosStates, Player player) {
         blockPosStates.sort((lpl, rpl) -> {
             // -1 - less than, 1 - greater than, 0 - equal
             double lhsDistanceToPlayer = Vec3.atLowerCornerOf(lpl.blockPos()).subtract(player.getEyePosition(1f)).lengthSqr();
@@ -119,7 +119,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
     public record Result(
             StructureOperation operation,
             TracingResult.Type type,
-            List<BlockStateOperation.Result> result
+            List<SingleBlockOperation.Result> result
     ) implements Operation.Result<Result> {
 
         // TODO: 30/3/23 replcae HashMap with tag

@@ -33,20 +33,25 @@ public final class StructurePlaceOperation extends StructureOperation {
         this.context = context;
     }
 
-    public Stream<BlockStatePlaceOperation> stream() {
+    public Stream<SingleBlockOperation> stream() {
         var state = context.state();
-        var filter = context.getBlockFilter(level, player);
 
-        return context.collect()
-                .result()
-                .stream()
-                .map((hitResult) -> new BlockStatePlaceOperation(
-                        level, player, storage, context,
-                        hitResult.getBlockPos(),
-                        getBlockStateFromMainHand(player, hitResult)))
-                .flatMap(Stream::of) // for modifiers
-                .filter(filter)
-                .map((op) -> op);
+        if (context.isBuilding()) {
+            return context.collect()
+                    .result()
+                    .stream()
+                    .map((hitResult) -> context.isPlacing() ? new SingleBlockPlaceOperation(
+                            level, player, storage, context,
+                            hitResult.getBlockPos(),
+                            getBlockStateFromMainHand(player, hitResult)) : new SingleBlockBreakOperation(
+                            level, player, storage, context,
+                            hitResult.getBlockPos()))
+                    .flatMap(Stream::of) // for modifiers
+                    .map((op) -> op);
+        } else {
+            return Stream.empty();
+        }
+
     }
 
     private static BlockState getBlockStateFromMainHand(Player player, BlockHitResult hitResult) {

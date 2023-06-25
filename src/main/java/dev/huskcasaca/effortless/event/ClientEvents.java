@@ -107,7 +107,7 @@ public class ClientEvents {
             return InteractionResult.PASS;
         }
 
-        if (minecraft.missTime > 0 || player.isHandsBusy()) {
+        if (player.isHandsBusy()) {
             return InteractionResult.FAIL;
         }
 

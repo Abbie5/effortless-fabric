@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -23,7 +24,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-public final class BlockStatePlaceOperation extends BlockStateOperation {
+public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     private final Level level;
     private final Player player;
     private final ItemStorage storage;
@@ -31,7 +32,7 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
     private final BlockPos blockPos;
     private final BlockState blockState;
 
-    public BlockStatePlaceOperation(
+    public SingleBlockPlaceOperation(
             Level level, Player player,
             ItemStorage storage,
             BuildContext context,
@@ -45,6 +46,114 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
         this.context = context;
         this.blockPos = blockPos;
         this.blockState = blockState;
+    }
+
+    private static InteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext) {
+
+        if (!blockItem.getBlock().isEnabled(blockStatePlaceContext.getLevel().enabledFeatures())) {
+            return InteractionResult.FAIL;
+        }
+        if (!blockStatePlaceContext.canPlace()) {
+            return InteractionResult.FAIL;
+        }
+//        var blockStatePlaceContext = blockItem.updatePlacementContext(blockPlaceContext);
+
+        var blockState = blockStatePlaceContext.getPlaceState();
+        if (blockState == null) {
+            return InteractionResult.FAIL;
+        }
+        if (!blockItem.placeBlock(blockStatePlaceContext, blockState)) {
+            return InteractionResult.FAIL;
+        }
+
+        var blockPos = blockStatePlaceContext.getClickedPos();
+        var level = blockStatePlaceContext.getLevel();
+        var player = blockStatePlaceContext.getPlayer();
+        var itemStack = blockStatePlaceContext.getItemInHand();
+        var blockState2 = level.getBlockState(blockPos);
+        if (blockState2.is(blockState.getBlock())) {
+            blockState2 = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
+            blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
+            blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
+            if (player instanceof ServerPlayer) {
+                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
+            }
+        }
+        var soundType = blockState2.getSoundType();
+        level.playSound(player, blockPos, blockItem.getPlaceSound(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+        level.gameEvent(GameEvent.BLOCK_PLACE, blockPos, GameEvent.Context.of(player, blockState2));
+        if (player == null || !player.getAbilities().instabuild) {
+            itemStack.shrink(1);
+        }
+
+        return InteractionResult.sidedSuccess(level.isClientSide());
+    }
+
+    private static boolean testPlace(BuildContext context, Level level, Player player, BlockPos blockPos) {
+        if (!canInteract(level, player, blockPos)) {
+            return false;
+        }
+        if (context.replaceMode().isReplace()) {
+            if (player.isCreative()) return true;
+            return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE); // fluid
+        }
+        return level.getBlockState(blockPos).canBeReplaced(); // fluid
+    }
+
+    @Override
+    public Result perform() {
+        if (storage != null) {
+            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
+        } else {
+            var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
+
+            swapper.swapSelected();
+            var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
+            swapper.restoreSelected();
+
+            return new Result(this, result, ItemStack.EMPTY, ItemStack.EMPTY);
+        }
+    }
+
+    @Override
+    public ItemStack requiredItemStack() {
+        return new ItemStack(blockState.getBlock().asItem());
+    }
+
+    // block placement
+    @Override
+    public BlockPos getPosition() {
+        return blockPos;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.WORLD_PLACE_OP;
+    }
+
+    @Override
+    public DefaultRenderer getRenderer() {
+        return DefaultRenderer.getInstance();
+    }
+
+    @Override
+    public Level level() {
+        return level;
+    }
+
+    @Override
+    public Player player() {
+        return player;
+    }
+
+    @Override
+    public ItemStorage storage() {
+        return storage;
+    }
+
+    @Override
+    public BuildContext context() {
+        return context;
     }
 
     public static InteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
@@ -145,103 +254,6 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
         return interactionResult;
     }
 
-    private static InteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext) {
-
-        if (!blockItem.getBlock().isEnabled(blockStatePlaceContext.getLevel().enabledFeatures())) {
-            return InteractionResult.FAIL;
-        }
-        if (!blockStatePlaceContext.canPlace()) {
-            return InteractionResult.FAIL;
-        }
-//        var blockStatePlaceContext = blockItem.updatePlacementContext(blockPlaceContext);
-
-        var blockState = blockStatePlaceContext.getPlaceState();
-        if (blockState == null) {
-            return InteractionResult.FAIL;
-        }
-        if (!blockItem.placeBlock(blockStatePlaceContext, blockState)) {
-            return InteractionResult.FAIL;
-        }
-
-        var blockPos = blockStatePlaceContext.getClickedPos();
-        var level = blockStatePlaceContext.getLevel();
-        var player = blockStatePlaceContext.getPlayer();
-        var itemStack = blockStatePlaceContext.getItemInHand();
-        var blockState2 = level.getBlockState(blockPos);
-        if (blockState2.is(blockState.getBlock())) {
-            blockState2 = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
-            blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
-            blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
-            if (player instanceof ServerPlayer) {
-                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
-            }
-        }
-        var soundType = blockState2.getSoundType();
-        level.playSound(player, blockPos, blockItem.getPlaceSound(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-        level.gameEvent(GameEvent.BLOCK_PLACE, blockPos, GameEvent.Context.of(player, blockState2));
-        if (player == null || !player.getAbilities().instabuild) {
-            itemStack.shrink(1);
-        }
-
-        return InteractionResult.sidedSuccess(level.isClientSide);
-    }
-
-    @Override
-    public Result perform() {
-        if (storage != null) {
-            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
-        } else {
-            var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
-
-            swapper.swapSelected();
-            var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
-            swapper.restoreSelected();
-
-            return new Result(this, result, ItemStack.EMPTY, ItemStack.EMPTY);
-        }
-    }
-
-    @Override
-    public ItemStack requiredItemStack() {
-        return new ItemStack(blockState.getBlock().asItem());
-    }
-
-    // block placement
-    @Override
-    public BlockPos getPosition() {
-        return blockPos;
-    }
-
-    @Override
-    public Type getType() {
-        return Type.WORLD_PLACE_OP;
-    }
-
-    @Override
-    public DefaultRenderer getRenderer() {
-        return DefaultRenderer.getInstance();
-    }
-
-    @Override
-    public Level level() {
-        return level;
-    }
-
-    @Override
-    public Player player() {
-        return player;
-    }
-
-    @Override
-    public ItemStorage storage() {
-        return storage;
-    }
-
-    @Override
-    public BuildContext context() {
-        return context;
-    }
-
     @Override
     public BlockPos blockPos() {
         return blockPos;
@@ -251,7 +263,5 @@ public final class BlockStatePlaceOperation extends BlockStateOperation {
     public BlockState blockState() {
         return blockState;
     }
-
-
 
 }
