@@ -4,23 +4,23 @@ import java.util.Collections;
 import java.util.List;
 
 public record PatternSettings(
-		List<Pattern> patterns
+        List<Pattern> patterns
 ) {
 
-	public PatternSettings() {
-		this(Collections.emptyList());
-	}
+    public PatternSettings() {
+        this(Collections.emptyList());
+    }
 
-	public static PatternSettings getDefault() {
-		return new PatternSettings(Collections.emptyList());
-	}
+    public static PatternSettings getDefault() {
+        return new PatternSettings(Collections.emptyList());
+    }
 
-	public static PatternSettings getSamples() {
+    public static PatternSettings getSamples() {
 
-		return new PatternSettings(
-				List.of(
-				)
-		);
-	}
+        return new PatternSettings(
+                List.of(
+                )
+        );
+    }
 
 }

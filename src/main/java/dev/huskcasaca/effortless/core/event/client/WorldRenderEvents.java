@@ -30,7 +30,8 @@ public class WorldRenderEvents {
         }
     };
 
-    private WorldRenderEvents() { }
+    private WorldRenderEvents() {
+    }
 
     @FunctionalInterface
     public interface AfterEntities {

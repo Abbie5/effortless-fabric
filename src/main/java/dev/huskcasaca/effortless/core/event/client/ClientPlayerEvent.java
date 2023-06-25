@@ -31,7 +31,7 @@ public class ClientPlayerEvent {
         for (var callback : callbacks) {
             if (!callback.onContinueAttack(player)) {
                 return false;
-            };
+            }
         }
         return true;
     });

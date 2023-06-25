@@ -26,6 +26,8 @@ public class NumberField extends AbstractContainerWidget {
     private final EditBox textField;
     private final Button minusButton;
     private final Button plusButton;
+    List<Component> tooltip = new ArrayList<>();
+
     public NumberField(int x, int y, int width, int height) {
         super(x, y, width, height, Component.literal(""));
 
@@ -46,8 +48,6 @@ public class NumberField extends AbstractContainerWidget {
         }, Button.DEFAULT_NARRATION);
 
     }
-
-    List<Component> tooltip = new ArrayList<>();
 
     public EditBox getTextField() {
         return textField;

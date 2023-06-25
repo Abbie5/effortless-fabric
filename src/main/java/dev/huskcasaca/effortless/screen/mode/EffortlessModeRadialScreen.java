@@ -29,6 +29,7 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
     private static final RadialButton<UndoRedo> REDO_OPTION = RadialButton.option(UndoRedo.REDO);
     private static final RadialButton<SettingType> SETTING_OPTION = RadialButton.option(SettingType.MODE_SETTINGS);
     private static final RadialButton<ReplaceMode> REPLACE_OPTION = RadialButton.option(ReplaceMode.DISABLED);
+
     public EffortlessModeRadialScreen() {
         super(Component.translatable(String.join(".", Effortless.MOD_ID, "screen", "build_mode_radial")));
     }

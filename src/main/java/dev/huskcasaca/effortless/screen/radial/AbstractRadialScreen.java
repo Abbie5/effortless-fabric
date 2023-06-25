@@ -39,18 +39,18 @@ public class AbstractRadialScreen extends Screen {
     }
 
     protected static void fillGradient2(Matrix4f matrix4f, BufferBuilder bufferBuilder, int i, int j, int k, int l, int m, int n, int o) {
-        float f = (float)(n >> 24 & 255) / 255.0F;
-        float g = (float)(n >> 16 & 255) / 255.0F;
-        float h = (float)(n >> 8 & 255) / 255.0F;
-        float p = (float)(n & 255) / 255.0F;
-        float q = (float)(o >> 24 & 255) / 255.0F;
-        float r = (float)(o >> 16 & 255) / 255.0F;
-        float s = (float)(o >> 8 & 255) / 255.0F;
-        float t = (float)(o & 255) / 255.0F;
-        bufferBuilder.vertex(matrix4f, (float)k, (float)j, (float)m).color(r, s, t, q).endVertex();
-        bufferBuilder.vertex(matrix4f, (float)i, (float)j, (float)m).color(g, h, p, f).endVertex();
-        bufferBuilder.vertex(matrix4f, (float)i, (float)l, (float)m).color(g, h, p, f).endVertex();
-        bufferBuilder.vertex(matrix4f, (float)k, (float)l, (float)m).color(r, s, t, q).endVertex();
+        float f = (float) (n >> 24 & 255) / 255.0F;
+        float g = (float) (n >> 16 & 255) / 255.0F;
+        float h = (float) (n >> 8 & 255) / 255.0F;
+        float p = (float) (n & 255) / 255.0F;
+        float q = (float) (o >> 24 & 255) / 255.0F;
+        float r = (float) (o >> 16 & 255) / 255.0F;
+        float s = (float) (o >> 8 & 255) / 255.0F;
+        float t = (float) (o & 255) / 255.0F;
+        bufferBuilder.vertex(matrix4f, (float) k, (float) j, (float) m).color(r, s, t, q).endVertex();
+        bufferBuilder.vertex(matrix4f, (float) i, (float) j, (float) m).color(g, h, p, f).endVertex();
+        bufferBuilder.vertex(matrix4f, (float) i, (float) l, (float) m).color(g, h, p, f).endVertex();
+        bufferBuilder.vertex(matrix4f, (float) k, (float) l, (float) m).color(r, s, t, q).endVertex();
     }
 
     @Override

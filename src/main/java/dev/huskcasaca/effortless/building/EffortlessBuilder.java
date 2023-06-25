@@ -22,6 +22,7 @@ public class EffortlessBuilder {
 
     private static final EffortlessBuilder INSTANCE = new EffortlessBuilder();
     private final BuildingContextProvider provider = new BuildingContextProvider();
+    private Operation.Result<?> lastResult;
 
     public static EffortlessBuilder getInstance() {
         return INSTANCE;
@@ -30,8 +31,6 @@ public class EffortlessBuilder {
     public Context getContext(Player player) {
         return provider.get(player);
     }
-
-    private Operation.Result<?> lastResult;
 
     public Operation.Result<?> getLastResult() {
         return lastResult;
@@ -669,7 +668,6 @@ public class EffortlessBuilder {
 //        //TODO 1.14 check if correct
 //        return level.clip(new ClipContext(start, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
 //    }
-
 
 
 }

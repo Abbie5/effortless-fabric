@@ -15,18 +15,22 @@ public interface RadialSlot<T> {
             public Component getNameComponent() {
                 return name;
             }
+
             @Override
             public ResourceLocation getIcon() {
                 return icon;
             }
+
             @Override
             public Color getTintColor() {
                 return tintColor;
             }
+
             @Override
             public T getSlot() {
                 return slot;
             }
+
             @Override
             public int hashCode() {
                 int result = name != null ? name.hashCode() : 0;
@@ -34,6 +38,7 @@ public interface RadialSlot<T> {
                 result = 31 * result + (tintColor != null ? tintColor.hashCode() : 0);
                 return result;
             }
+
             @Override
             public boolean equals(Object obj) {
                 if (this == obj) {
@@ -49,17 +54,10 @@ public interface RadialSlot<T> {
                 if (getIcon() != null ? !getIcon().equals(other.getIcon()) : other.getIcon() != null) {
                     return false;
                 }
-                if (getTintColor() != null ? !getTintColor().equals(other.getTintColor()) : other.getTintColor() != null) {
-                    return false;
-                }
-                return true;
+                return getTintColor() != null ? getTintColor().equals(other.getTintColor()) : other.getTintColor() == null;
             }
         };
     }
-
-    ResourceLocation getIcon();
-
-    Color getTintColor();
 
     static <T extends BuildMode> RadialSlot<T> mode(T mode) {
         return of(
@@ -69,6 +67,10 @@ public interface RadialSlot<T> {
                 mode
         );
     }
+
+    ResourceLocation getIcon();
+
+    Color getTintColor();
 
     Component getNameComponent();
 

@@ -13,18 +13,22 @@ public interface RadialButton<T> {
             public Component getNameComponent() {
                 return name;
             }
+
             @Override
             public Component getCategoryComponent() {
                 return category;
             }
+
             @Override
             public ResourceLocation getIcon() {
                 return icon;
             }
+
             @Override
             public T getOption() {
                 return option;
             }
+
             @Override
             public int hashCode() {
                 int result = name != null ? name.hashCode() : 0;
@@ -32,6 +36,7 @@ public interface RadialButton<T> {
                 result = 31 * result + (icon != null ? icon.hashCode() : 0);
                 return result;
             }
+
             @Override
             public boolean equals(Object obj) {
                 if (this == obj) {
@@ -47,10 +52,7 @@ public interface RadialButton<T> {
                 if (getCategoryComponent() != null ? !getCategoryComponent().equals(other.getCategoryComponent()) : other.getCategoryComponent() != null) {
                     return false;
                 }
-                if (getIcon() != null ? !getIcon().equals(other.getIcon()) : other.getIcon() != null) {
-                    return false;
-                }
-                return true;
+                return getIcon() != null ? getIcon().equals(other.getIcon()) : other.getIcon() == null;
             }
         };
     }

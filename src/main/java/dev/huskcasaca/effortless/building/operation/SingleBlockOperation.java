@@ -15,12 +15,22 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public abstract class SingleBlockOperation implements Operation<SingleBlockOperation.Result> {
 
+    protected static boolean canInteract(Level level, Player player, BlockPos blockPos) {
+        var gameMode = level.isClientSide() ? Minecraft.getInstance().gameMode.getPlayerMode() : ((ServerPlayer) player).gameMode.getGameModeForPlayer();
+        return !player.blockActionRestricted(level, blockPos, gameMode);
+    }
+
     public abstract Level level();
+
     public abstract Player player();
+
     public abstract Storage storage();
+
     public abstract Context context();
+
     // for preview
     public abstract BlockPos blockPos();
+
     public abstract BlockState blockState();
 
     public abstract ItemStack requiredItemStack();
@@ -54,11 +64,6 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 //            renderBlockDissolveShader(poseStack, multiBufferSource, dispatcher, blockPos, blockState, dissolve, firstPos, secondPos, red);
 
         }
-    }
-
-    protected static boolean canInteract(Level level, Player player, BlockPos blockPos) {
-        var gameMode = level.isClientSide() ? Minecraft.getInstance().gameMode.getPlayerMode() : ((ServerPlayer) player).gameMode.getGameModeForPlayer();
-        return !player.blockActionRestricted(level, blockPos, gameMode);
     }
 
     public record Result(

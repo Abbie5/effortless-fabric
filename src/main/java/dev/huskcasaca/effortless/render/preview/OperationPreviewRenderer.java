@@ -15,7 +15,7 @@ public class OperationPreviewRenderer {
     private final Minecraft minecraft;
 
     private List<Operation.Result<?>> currentOpResults = new ArrayList<>();
-    private List<Operation.Result<?>> historyOpResults = new ArrayList<>();
+    private final List<Operation.Result<?>> historyOpResults = new ArrayList<>();
 
     public OperationPreviewRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;

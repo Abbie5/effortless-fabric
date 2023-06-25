@@ -28,10 +28,6 @@ import java.util.List;
 
 public abstract class StructureOperation implements Operation<StructureOperation.Result> {
 
-    public abstract Level level();
-    public abstract Player player();
-    public abstract Context context();
-
     private static void sortOnDistanceToPlayer(List<SingleBlockOperation> blockPosStates, Player player) {
         blockPosStates.sort((lpl, rpl) -> {
             // -1 - less than, 1 - greater than, 0 - equal
@@ -41,12 +37,6 @@ public abstract class StructureOperation implements Operation<StructureOperation
         });
 
     }
-
-    public DefaultRenderer getRenderer() {
-        return DefaultRenderer.getInstance();
-    }
-
-    // for preview
 
     private static void renderStructureShader(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, StructureOperation.Result preview) {
         if (preview.isEmpty()) return;
@@ -84,6 +74,18 @@ public abstract class StructureOperation implements Operation<StructureOperation
 //        }
     }
 
+    public abstract Level level();
+
+    public abstract Player player();
+
+    public abstract Context context();
+
+    // for preview
+
+    public DefaultRenderer getRenderer() {
+        return DefaultRenderer.getInstance();
+    }
+
     public final static class DefaultRenderer implements Renderer<Result> {
 
         private static final Color PLACING_COLOR = new Color(0.92f, 0.92f, 0.92f, 1f);
@@ -94,6 +96,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
         public static DefaultRenderer getInstance() {
             return INSTANCE;
         }
+
         public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, StructureOperation.Result result) {
             if (!result.type().isSuccess()) return;
 
@@ -113,7 +116,8 @@ public abstract class StructureOperation implements Operation<StructureOperation
                     .stroke(1 / 64f)
                     .colored(context.isBreaking() ? BREAKING_COLOR : PLACING_COLOR)
                     .disableNormals();
-        };
+        }
+
     }
 
     public record Result(

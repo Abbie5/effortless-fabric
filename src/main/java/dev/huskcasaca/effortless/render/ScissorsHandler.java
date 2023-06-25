@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public final class ScissorsHandler  {
+public final class ScissorsHandler {
 
     private static final List<Rectangle> scissorsAreas = Lists.newArrayList();
 
@@ -41,8 +41,8 @@ public final class ScissorsHandler  {
         if (!scissorsAreas.isEmpty()) {
             var rectangle = (Rectangle) scissorsAreas.get(0).clone();
 
-            for(int i = 1; i < scissorsAreas.size(); ++i) {
-                Rectangle r1 = (Rectangle)scissorsAreas.get(i);
+            for (int i = 1; i < scissorsAreas.size(); ++i) {
+                Rectangle r1 = scissorsAreas.get(i);
                 if (!rectangle.intersects(r1)) {
                     applyScissorInternal(new Rectangle());
                     return;
@@ -66,7 +66,7 @@ public final class ScissorsHandler  {
             } else {
                 Window window = Minecraft.getInstance().getWindow();
                 double scaleFactor = window.getGuiScale();
-                GlStateManager._scissorBox((int)((double)r.x * scaleFactor), (int)((double)(window.getGuiScaledHeight() - r.height - r.y) * scaleFactor), (int)((double)r.width * scaleFactor), (int)((double)r.height * scaleFactor));
+                GlStateManager._scissorBox((int) ((double) r.x * scaleFactor), (int) ((double) (window.getGuiScaledHeight() - r.height - r.y) * scaleFactor), (int) ((double) r.width * scaleFactor), (int) ((double) r.height * scaleFactor));
             }
         } else {
             GlStateManager._disableScissorTest();

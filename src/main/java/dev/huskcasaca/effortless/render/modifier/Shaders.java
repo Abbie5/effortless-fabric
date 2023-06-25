@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class Shaders {
     // logger instance
-     private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public static void registerShaders(ResourceProvider provider, ClientShaderEvent.ShaderRegister.ShadersSink sink) {
         try {

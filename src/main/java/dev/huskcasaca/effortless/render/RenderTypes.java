@@ -14,138 +14,132 @@ public class RenderTypes extends RenderStateShard {
 //	public static final ShaderStateShard GLOWING_SHADER = new ShaderStateShard(() -> Shaders.glowingShader);
 
 
-	public static final ResourceLocation BLANK_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/blank.png");
-	public static final ResourceLocation CHECKERED_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard.png");
-	public static final ResourceLocation CHECKERED_HIGHLIGHT_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_highlight.png");
+    public static final ResourceLocation BLANK_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/blank.png");
+    public static final ResourceLocation CHECKERED_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard.png");
+    public static final ResourceLocation CHECKERED_HIGHLIGHT_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_highlight.png");
 
-	public static final ResourceLocation CHECKERED_THIN_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_thin.png");
-	public static final ResourceLocation CHECKERED_CUTOUT_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_cutout.png");
-	public static final ResourceLocation SELECTION_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/selection.png");
-	public static final ResourceLocation GLUE_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/glue.png");
+    public static final ResourceLocation CHECKERED_THIN_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_thin.png");
+    public static final ResourceLocation CHECKERED_CUTOUT_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_cutout.png");
+    public static final ResourceLocation SELECTION_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/selection.png");
+    public static final ResourceLocation GLUE_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/glue.png");
 
-	private static final RenderType OUTLINE_SOLID =
-		RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
-			false, RenderType.CompositeState.builder()
-				.setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
-				.setTextureState(new TextureStateShard(BLANK_TEXTURE_LOCATION, false, false))
-				.setCullState(CULL)
-				.setLightmapState(LIGHTMAP)
-				.setOverlayState(OVERLAY)
-				.createCompositeState(false));
+    private static final RenderType OUTLINE_SOLID =
+            RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
+                    false, RenderType.CompositeState.builder()
+                            .setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
+                            .setTextureState(new TextureStateShard(BLANK_TEXTURE_LOCATION, false, false))
+                            .setCullState(CULL)
+                            .setLightmapState(LIGHTMAP)
+                            .setOverlayState(OVERLAY)
+                            .createCompositeState(false));
+    private static final RenderType GLOWING_SOLID_DEFAULT = getGlowingSolid(InventoryMenu.BLOCK_ATLAS);
+    private static final RenderType ADDITIVE = RenderType.create(createLayerName("additive"), DefaultVertexFormat.BLOCK,
+            VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
+                    .setShaderState(BLOCK_SHADER)
+                    .setTextureState(new TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
+                    .setTransparencyState(ADDITIVE_TRANSPARENCY)
+                    .setCullState(NO_CULL)
+                    .setLightmapState(LIGHTMAP)
+                    .setOverlayState(OVERLAY)
+                    .createCompositeState(true));
+    private static final RenderType GLOWING_TRANSLUCENT_DEFAULT = getGlowingTranslucent(InventoryMenu.BLOCK_ATLAS);
+    private static final RenderType ITEM_PARTIAL_SOLID =
+            RenderType.create(createLayerName("item_partial_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
+                    false, RenderType.CompositeState.builder()
+                            .setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
+                            .setTextureState(BLOCK_SHEET)
+                            .setCullState(CULL)
+                            .setLightmapState(LIGHTMAP)
+                            .setOverlayState(OVERLAY)
+                            .createCompositeState(true));
+    private static final RenderType ITEM_PARTIAL_TRANSLUCENT = RenderType.create(createLayerName("item_partial_translucent"),
+            DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER)
+                    .setTextureState(BLOCK_SHEET)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setLightmapState(LIGHTMAP)
+                    .setOverlayState(OVERLAY)
+                    .createCompositeState(true));
+    private static final RenderType FLUID = RenderType.create(createLayerName("fluid"),
+            DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER)
+                    .setTextureState(BLOCK_SHEET_MIPPED)
+                    .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                    .setLightmapState(LIGHTMAP)
+                    .setOverlayState(OVERLAY)
+                    .createCompositeState(true));
 
-	public static RenderType getOutlineSolid() {
-		return OUTLINE_SOLID;
-	}
+    // Mmm gimme those protected fields
+    private RenderTypes() {
+        super(null, null, null);
+    }
 
-	public static RenderType getOutlineTranslucent(ResourceLocation texture, boolean cull) {
-		return RenderType.create(createLayerName("outline_translucent" + (cull ? "_cull" : "")),
-			DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
-				.setShaderState(cull ? RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER : RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
-				.setTextureState(new TextureStateShard(texture, false, false))
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setCullState(cull ? CULL : NO_CULL)
-				.setLightmapState(LIGHTMAP)
-				.setOverlayState(OVERLAY)
-				.setWriteMaskState(COLOR_WRITE)
-				.createCompositeState(false));
-	}
+    public static RenderType getOutlineSolid() {
+        return OUTLINE_SOLID;
+    }
 
-	public static RenderType getGlowingSolid(ResourceLocation texture) {
-		return RenderType.create(createLayerName("glowing_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
-			true, false, RenderType.CompositeState.builder()
+    public static RenderType getOutlineTranslucent(ResourceLocation texture, boolean cull) {
+        return RenderType.create(createLayerName("outline_translucent" + (cull ? "_cull" : "")),
+                DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
+                        .setShaderState(cull ? RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER : RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
+                        .setTextureState(new TextureStateShard(texture, false, false))
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setCullState(cull ? CULL : NO_CULL)
+                        .setLightmapState(LIGHTMAP)
+                        .setOverlayState(OVERLAY)
+                        .setWriteMaskState(COLOR_WRITE)
+                        .createCompositeState(false));
+    }
+
+    public static RenderType getGlowingSolid(ResourceLocation texture) {
+        return RenderType.create(createLayerName("glowing_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
+                true, false, RenderType.CompositeState.builder()
 //				.setShaderState(GLOWING_SHADER)
-				.setTextureState(new TextureStateShard(texture, false, false))
-				.setCullState(CULL)
-				.setLightmapState(LIGHTMAP)
-				.setOverlayState(OVERLAY)
-				.createCompositeState(true));
-	}
+                        .setTextureState(new TextureStateShard(texture, false, false))
+                        .setCullState(CULL)
+                        .setLightmapState(LIGHTMAP)
+                        .setOverlayState(OVERLAY)
+                        .createCompositeState(true));
+    }
 
-	private static final RenderType GLOWING_SOLID_DEFAULT = getGlowingSolid(InventoryMenu.BLOCK_ATLAS);
+    public static RenderType getGlowingSolid() {
+        return GLOWING_SOLID_DEFAULT;
+    }
 
-	public static RenderType getGlowingSolid() {
-		return GLOWING_SOLID_DEFAULT;
-	}
-
-	public static RenderType getGlowingTranslucent(ResourceLocation texture) {
-		return RenderType.create(createLayerName("glowing_translucent"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
-			256, true, true, RenderType.CompositeState.builder()
+    public static RenderType getGlowingTranslucent(ResourceLocation texture) {
+        return RenderType.create(createLayerName("glowing_translucent"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
+                256, true, true, RenderType.CompositeState.builder()
 //				.setShaderState(GLOWING_SHADER)
-				.setTextureState(new TextureStateShard(texture, false, false))
-				.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-				.setLightmapState(LIGHTMAP)
-				.setOverlayState(OVERLAY)
-				.createCompositeState(true));
-	}
+                        .setTextureState(new TextureStateShard(texture, false, false))
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setLightmapState(LIGHTMAP)
+                        .setOverlayState(OVERLAY)
+                        .createCompositeState(true));
+    }
 
-	private static final RenderType ADDITIVE = RenderType.create(createLayerName("additive"), DefaultVertexFormat.BLOCK,
-		VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
-			.setShaderState(BLOCK_SHADER)
-			.setTextureState(new TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
-			.setTransparencyState(ADDITIVE_TRANSPARENCY)
-			.setCullState(NO_CULL)
-			.setLightmapState(LIGHTMAP)
-			.setOverlayState(OVERLAY)
-			.createCompositeState(true));
+    public static RenderType getAdditive() {
+        return ADDITIVE;
+    }
 
-	public static RenderType getAdditive() {
-		return ADDITIVE;
-	}
+    public static RenderType getGlowingTranslucent() {
+        return GLOWING_TRANSLUCENT_DEFAULT;
+    }
 
-	private static final RenderType GLOWING_TRANSLUCENT_DEFAULT = getGlowingTranslucent(InventoryMenu.BLOCK_ATLAS);
+    public static RenderType getItemPartialSolid() {
+        return ITEM_PARTIAL_SOLID;
+    }
 
-	public static RenderType getGlowingTranslucent() {
-		return GLOWING_TRANSLUCENT_DEFAULT;
-	}
+    public static RenderType getItemPartialTranslucent() {
+        return ITEM_PARTIAL_TRANSLUCENT;
+    }
 
-	private static final RenderType ITEM_PARTIAL_SOLID =
-		RenderType.create(createLayerName("item_partial_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
-			false, RenderType.CompositeState.builder()
-				.setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
-				.setTextureState(BLOCK_SHEET)
-				.setCullState(CULL)
-				.setLightmapState(LIGHTMAP)
-				.setOverlayState(OVERLAY)
-				.createCompositeState(true));
+    public static RenderType getFluid() {
+        return FLUID;
+    }
 
-	public static RenderType getItemPartialSolid() {
-		return ITEM_PARTIAL_SOLID;
-	}
-
-	private static final RenderType ITEM_PARTIAL_TRANSLUCENT = RenderType.create(createLayerName("item_partial_translucent"),
-		DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
-			.setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER)
-			.setTextureState(BLOCK_SHEET)
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setLightmapState(LIGHTMAP)
-			.setOverlayState(OVERLAY)
-			.createCompositeState(true));
-
-	public static RenderType getItemPartialTranslucent() {
-		return ITEM_PARTIAL_TRANSLUCENT;
-	}
-
-	private static final RenderType FLUID = RenderType.create(createLayerName("fluid"),
-		DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
-			.setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER)
-			.setTextureState(BLOCK_SHEET_MIPPED)
-			.setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-			.setLightmapState(LIGHTMAP)
-			.setOverlayState(OVERLAY)
-			.createCompositeState(true));
-
-	public static RenderType getFluid() {
-		return FLUID;
-	}
-
-	private static String createLayerName(String name) {
-		return Effortless.MOD_ID + ":" + name;
-	}
-
-	// Mmm gimme those protected fields
-	private RenderTypes() {
-		super(null, null, null);
-	}
+    private static String createLayerName(String name) {
+        return Effortless.MOD_ID + ":" + name;
+    }
 
 //	@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 //	private static class Shaders {

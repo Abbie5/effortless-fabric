@@ -14,81 +14,79 @@ import java.util.SortedMap;
 
 public class SuperRenderTypeBuffer implements MultiBufferSource {
 
-	private static final SuperRenderTypeBuffer INSTANCE = new SuperRenderTypeBuffer();
+    private static final SuperRenderTypeBuffer INSTANCE = new SuperRenderTypeBuffer();
+    private final SuperRenderTypeBufferPhase earlyBuffer;
+    private final SuperRenderTypeBufferPhase defaultBuffer;
+    private final SuperRenderTypeBufferPhase lateBuffer;
+    public SuperRenderTypeBuffer() {
+        earlyBuffer = new SuperRenderTypeBufferPhase();
+        defaultBuffer = new SuperRenderTypeBufferPhase();
+        lateBuffer = new SuperRenderTypeBufferPhase();
+    }
 
-	public static SuperRenderTypeBuffer getInstance() {
-		return INSTANCE;
-	}
+    public static SuperRenderTypeBuffer getInstance() {
+        return INSTANCE;
+    }
 
-	private SuperRenderTypeBufferPhase earlyBuffer;
-	private SuperRenderTypeBufferPhase defaultBuffer;
-	private SuperRenderTypeBufferPhase lateBuffer;
+    public VertexConsumer getEarlyBuffer(RenderType type) {
+        return earlyBuffer.bufferSource.getBuffer(type);
+    }
 
-	public SuperRenderTypeBuffer() {
-		earlyBuffer = new SuperRenderTypeBufferPhase();
-		defaultBuffer = new SuperRenderTypeBufferPhase();
-		lateBuffer = new SuperRenderTypeBufferPhase();
-	}
+    @Override
+    public VertexConsumer getBuffer(RenderType type) {
+        return defaultBuffer.bufferSource.getBuffer(type);
+    }
 
-	public VertexConsumer getEarlyBuffer(RenderType type) {
-		return earlyBuffer.bufferSource.getBuffer(type);
-	}
+    public VertexConsumer getLateBuffer(RenderType type) {
+        return lateBuffer.bufferSource.getBuffer(type);
+    }
 
-	@Override
-	public VertexConsumer getBuffer(RenderType type) {
-		return defaultBuffer.bufferSource.getBuffer(type);
-	}
+    public void draw() {
+        earlyBuffer.bufferSource.endBatch();
+        defaultBuffer.bufferSource.endBatch();
+        lateBuffer.bufferSource.endBatch();
+    }
 
-	public VertexConsumer getLateBuffer(RenderType type) {
-		return lateBuffer.bufferSource.getBuffer(type);
-	}
+    public void draw(RenderType type) {
+        earlyBuffer.bufferSource.endBatch(type);
+        defaultBuffer.bufferSource.endBatch(type);
+        lateBuffer.bufferSource.endBatch(type);
+    }
 
-	public void draw() {
-		earlyBuffer.bufferSource.endBatch();
-		defaultBuffer.bufferSource.endBatch();
-		lateBuffer.bufferSource.endBatch();
-	}
+    private static class SuperRenderTypeBufferPhase {
 
-	public void draw(RenderType type) {
-		earlyBuffer.bufferSource.endBatch(type);
-		defaultBuffer.bufferSource.endBatch(type);
-		lateBuffer.bufferSource.endBatch(type);
-	}
+        // Visible clones from RenderBuffers
+        private final ChunkBufferBuilderPack fixedBufferPack = new ChunkBufferBuilderPack();
+        private final SortedMap<RenderType, BufferBuilder> fixedBuffers = Util.make(new Object2ObjectLinkedOpenHashMap<>(), map -> {
+            map.put(Sheets.solidBlockSheet(), fixedBufferPack.builder(RenderType.solid()));
+            map.put(Sheets.cutoutBlockSheet(), fixedBufferPack.builder(RenderType.cutout()));
+            map.put(Sheets.bannerSheet(), fixedBufferPack.builder(RenderType.cutoutMipped()));
+            map.put(Sheets.translucentCullBlockSheet(), fixedBufferPack.builder(RenderType.translucent()));
+            put(map, Sheets.shieldSheet());
+            put(map, Sheets.bedSheet());
+            put(map, Sheets.shulkerBoxSheet());
+            put(map, Sheets.signSheet());
+            put(map, Sheets.chestSheet());
+            put(map, RenderType.translucentNoCrumbling());
+            put(map, RenderType.armorGlint());
+            put(map, RenderType.armorEntityGlint());
+            put(map, RenderType.glint());
+            put(map, RenderType.glintDirect());
+            put(map, RenderType.glintTranslucent());
+            put(map, RenderType.entityGlint());
+            put(map, RenderType.entityGlintDirect());
+            put(map, RenderType.waterMask());
+            put(map, RenderTypes.getOutlineSolid());
+            ModelBakery.DESTROY_TYPES.forEach((p_173062_) -> {
+                put(map, p_173062_);
+            });
+        });
+        private final BufferSource bufferSource = MultiBufferSource.immediateWithBuffers(fixedBuffers, new BufferBuilder(256));
 
-	private static class SuperRenderTypeBufferPhase {
+        private static void put(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> map, RenderType type) {
+            map.put(type, new BufferBuilder(type.bufferSize()));
+        }
 
-		// Visible clones from RenderBuffers
-		private final ChunkBufferBuilderPack fixedBufferPack = new ChunkBufferBuilderPack();
-		private final SortedMap<RenderType, BufferBuilder> fixedBuffers = Util.make(new Object2ObjectLinkedOpenHashMap<>(), map -> {
-				map.put(Sheets.solidBlockSheet(), fixedBufferPack.builder(RenderType.solid()));
-				map.put(Sheets.cutoutBlockSheet(), fixedBufferPack.builder(RenderType.cutout()));
-				map.put(Sheets.bannerSheet(), fixedBufferPack.builder(RenderType.cutoutMipped()));
-				map.put(Sheets.translucentCullBlockSheet(), fixedBufferPack.builder(RenderType.translucent()));
-				put(map, Sheets.shieldSheet());
-				put(map, Sheets.bedSheet());
-				put(map, Sheets.shulkerBoxSheet());
-				put(map, Sheets.signSheet());
-				put(map, Sheets.chestSheet());
-				put(map, RenderType.translucentNoCrumbling());
-				put(map, RenderType.armorGlint());
-				put(map, RenderType.armorEntityGlint());
-				put(map, RenderType.glint());
-				put(map, RenderType.glintDirect());
-				put(map, RenderType.glintTranslucent());
-				put(map, RenderType.entityGlint());
-				put(map, RenderType.entityGlintDirect());
-				put(map, RenderType.waterMask());
-				put(map, RenderTypes.getOutlineSolid());
-				ModelBakery.DESTROY_TYPES.forEach((p_173062_) -> {
-					put(map, p_173062_);
-				});
-			});
-		private final BufferSource bufferSource = MultiBufferSource.immediateWithBuffers(fixedBuffers, new BufferBuilder(256));
-
-		private static void put(Object2ObjectLinkedOpenHashMap<RenderType, BufferBuilder> map, RenderType type) {
-			map.put(type, new BufferBuilder(type.bufferSize()));
-		}
-
-	}
+    }
 
 }

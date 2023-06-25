@@ -38,32 +38,22 @@ public class RadialSection extends AbstractWidget {
             new Color(0.42f, 0.42f, 0.42f, 0.64f)
     );
     private static final ColorState RADIAL_BUTTON_COLOR_STATE = RADIAL_SLOT_COLOR_STATE;
-    private final EffortlessBuilder builder;
-
     private static final int WHITE_TEXT_COLOR = 0xffffffff;
     private static final int OPTION_TEXT_COLOR = 0xeeeeeeff;
-
     private static final double RING_INNER_EDGE = 32;
     private static final double RING_OUTER_EDGE = 67;
     private static final double CATEGORY_LINE_OUTER_EDGE = 36;
-
     private static final double TEXT_DISTANCE = 84;
-
     private static final double SECTION_OFFSET_X = 112;
     private static final double SECTION_OFFSET_Y = 0;
-
     private static final int BUTTON_WIDTH = 22;
     private static final int BUTTON_HEIGHT = 22;
-
     private static final double BUTTON_OFFSET_X = 26;
     private static final double BUTTON_OFFSET_Y = 26;
-
     private static final double TITLE_HEIGHT = 10;
-
     private static final int MIN_RADIAL_SIZE = 8;
-
     private static final float MOUSE_SCROLL_THRESHOLD = 1;
-
+    private final EffortlessBuilder builder;
     private final Minecraft minecraft;
     private Consumer<RadialSlot<?>> radialSelectResponder;
     private Consumer<RadialSlot<?>> radialSwipeResponder;
@@ -76,14 +66,20 @@ public class RadialSection extends AbstractWidget {
     private RadialSlot<?>[] radialSlots = new RadialSlot[0];
     private RadialButtonSet[] leftButtons = new RadialButtonSet[0];
     private RadialButtonSet[] rightButtons = new RadialButtonSet[0];
+    // TODO: 20/2/23 rename
+    private float visibility = 0;
+
     public RadialSection(int i, int j, int k, int l, Component component) {
         super(i, j, k, l, component);
         this.minecraft = Minecraft.getInstance();
         this.builder = EffortlessBuilder.getInstance();
     }
 
-    // TODO: 20/2/23 rename
-    private float visibility = 0;
+    private static void playRadialMenuSound() {
+        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
+        soundManager.reload();
+        soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+    }
 
     @Override
     public void render(PoseStack poseStack, int i, int j, float f) {
@@ -102,12 +98,6 @@ public class RadialSection extends AbstractWidget {
         renderRadialButtonBackgrounds(poseStack, i, j, east);
 
 //        drawRadialSlotTexts(poseStack, minecraft.font, i, j, );
-    }
-
-    private static void playRadialMenuSound() {
-        SoundManager soundManager = Minecraft.getInstance().getSoundManager();
-        soundManager.reload();
-        soundManager.play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     @Override
@@ -380,20 +370,21 @@ public class RadialSection extends AbstractWidget {
         screen.renderComponentTooltip(poseStack, tooltip, mouseX, mouseY);
     }
 
-    record ColorState(
-            Color disabledColor,
-            Color defaultColor,
-            Color hoveredColor,
-            Color activedColor,
-            Color activedHoveredColor
-    ){}
-
     private boolean inTriangle(double x1, double y1, double x2, double y2,
                                double x3, double y3, double x, double y) {
         var ab = (x1 - x) * (y2 - y) - (x2 - x) * (y1 - y);
         var bc = (x2 - x) * (y3 - y) - (x3 - x) * (y2 - y);
         var ca = (x3 - x) * (y1 - y) - (x1 - x) * (y3 - y);
         return Mth.sign(ab) == Mth.sign(bc) && Mth.sign(bc) == Mth.sign(ca);
+    }
+
+    record ColorState(
+            Color disabledColor,
+            Color defaultColor,
+            Color hoveredColor,
+            Color activedColor,
+            Color activedHoveredColor
+    ) {
     }
 
     private record Section(RadialButtonSet option, AxisDirection direction) {
@@ -404,9 +395,11 @@ public class RadialSection extends AbstractWidget {
 
     }
 
-    private record Region(RadialSlot<?> slot) { }
+    private record Region(RadialSlot<?> slot) {
+    }
 
-    private record Button(RadialButton<?> entry) { }
+    private record Button(RadialButton<?> entry) {
+    }
 
 
 //    private void drawRadialSlotTexts(PoseStack poseStack, Font font, double middleX, double middleY, ArrayList<Region> modes) {

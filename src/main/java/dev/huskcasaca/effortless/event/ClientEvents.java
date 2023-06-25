@@ -134,8 +134,8 @@ public class ClientEvents {
 
     public static boolean onPlayerContinueAttack(Player player) {
         var context = EffortlessBuilder.getInstance().getContext(player);
-        if (context.isDisabled()) return false; // pass
-        return true; // consumed
+        return !context.isDisabled(); // pass
+// consumed
     }
 
     public static void register() {

@@ -17,7 +17,7 @@ public abstract class TwoClickBuilder extends MultipleClickBuilder {
 
     protected Stream<BlockPos> collectFirstBlocks(Context context) {
         return Stream.of(context.firstPos());
-    };
+    }
 
     protected Stream<BlockPos> collectFinalBlocks(Context context) {
         return Stream.empty();

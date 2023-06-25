@@ -100,62 +100,6 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         return level.getBlockState(blockPos).canBeReplaced(); // fluid
     }
 
-    @Override
-    public Result perform() {
-        if (storage != null) {
-            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
-        } else {
-            var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
-
-            swapper.swapSelected();
-            var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
-            swapper.restoreSelected();
-
-            return new Result(this, result, ItemStack.EMPTY, ItemStack.EMPTY);
-        }
-    }
-
-    @Override
-    public ItemStack requiredItemStack() {
-        return new ItemStack(blockState.getBlock().asItem());
-    }
-
-    // block placement
-    @Override
-    public BlockPos getPosition() {
-        return blockPos;
-    }
-
-    @Override
-    public Type getType() {
-        return Type.WORLD_PLACE_OP;
-    }
-
-    @Override
-    public DefaultRenderer getRenderer() {
-        return DefaultRenderer.getInstance();
-    }
-
-    @Override
-    public Level level() {
-        return level;
-    }
-
-    @Override
-    public Player player() {
-        return player;
-    }
-
-    @Override
-    public Storage storage() {
-        return storage;
-    }
-
-    @Override
-    public Context context() {
-        return context;
-    }
-
     public static InteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
         if (!(player.getMainHandItem().getItem() instanceof BlockItem)) {
             return InteractionResult.FAIL;
@@ -252,6 +196,62 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         }
 
         return interactionResult;
+    }
+
+    @Override
+    public Result perform() {
+        if (storage != null) {
+            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
+        } else {
+            var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
+
+            swapper.swapSelected();
+            var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
+            swapper.restoreSelected();
+
+            return new Result(this, result, ItemStack.EMPTY, ItemStack.EMPTY);
+        }
+    }
+
+    @Override
+    public ItemStack requiredItemStack() {
+        return new ItemStack(blockState.getBlock().asItem());
+    }
+
+    // block placement
+    @Override
+    public BlockPos getPosition() {
+        return blockPos;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.WORLD_PLACE_OP;
+    }
+
+    @Override
+    public DefaultRenderer getRenderer() {
+        return DefaultRenderer.getInstance();
+    }
+
+    @Override
+    public Level level() {
+        return level;
+    }
+
+    @Override
+    public Player player() {
+        return player;
+    }
+
+    @Override
+    public Storage storage() {
+        return storage;
+    }
+
+    @Override
+    public Context context() {
+        return context;
     }
 
     @Override

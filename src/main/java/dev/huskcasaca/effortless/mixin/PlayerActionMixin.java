@@ -15,7 +15,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Minecraft.class)
 public abstract class PlayerActionMixin {
 
-    @Shadow @Nullable public LocalPlayer player;
+    @Shadow
+    @Nullable
+    public LocalPlayer player;
 
     // TODO: 15/9/22 extract to EffortlessClient class
     // startAttack

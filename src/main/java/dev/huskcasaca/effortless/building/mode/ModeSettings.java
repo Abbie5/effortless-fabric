@@ -4,23 +4,23 @@ import java.util.Collections;
 import java.util.List;
 
 public record ModeSettings(
-		List<BuildMode> modes
+        List<BuildMode> modes
 ) {
 
-	public ModeSettings() {
-		this(Collections.emptyList());
-	}
+    public ModeSettings() {
+        this(Collections.emptyList());
+    }
 
-	public static ModeSettings getDefault() {
-		return new ModeSettings(Collections.emptyList());
-	}
+    public static ModeSettings getDefault() {
+        return new ModeSettings(Collections.emptyList());
+    }
 
-	public static ModeSettings getSamples() {
+    public static ModeSettings getSamples() {
 
-		return new ModeSettings(
-				List.of(
-				)
-		);
-	}
+        return new ModeSettings(
+                List.of(
+                )
+        );
+    }
 
 }

@@ -73,7 +73,8 @@ public class InputEvents {
     public static void openItemRandomizerSettings() {
         Minecraft.getInstance().setScreen(new EffortlessRandomizerSettingsScreen(
                 Minecraft.getInstance().screen,
-                (settings) -> {},
+                (settings) -> {
+                },
                 RandomizerSettings.getSamples()
         ));
     }

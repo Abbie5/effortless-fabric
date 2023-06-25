@@ -1,6 +1,7 @@
 package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
 import dev.huskcasaca.effortless.building.Context;
+import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
@@ -12,6 +13,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Cube extends ThreeClickBuilder {
@@ -26,9 +28,10 @@ public class Cube extends ThreeClickBuilder {
         var y2 = context.secondPos().getY();
         var z2 = context.secondPos().getZ();
 
-        switch (context.cubeFilling()) {
-            case CUBE_SKELETON -> Floor.addHollowFloorBlocks(list, x1, x2, y1, z1, z2);
-            default -> Floor.addFloorBlocks(list, x1, x2, y1, z1, z2);
+        if (Objects.requireNonNull(context.cubeFilling()) == BuildFeature.CubeFilling.CUBE_SKELETON) {
+            Floor.addHollowFloorBlocks(list, x1, x2, y1, z1, z2);
+        } else {
+            Floor.addFloorBlocks(list, x1, x2, y1, z1, z2);
         }
 
         return list.stream();

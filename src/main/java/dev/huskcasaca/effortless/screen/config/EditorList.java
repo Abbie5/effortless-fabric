@@ -83,13 +83,13 @@ public abstract class EditorList<T> extends ObjectSelectionList<EditorList<T>.En
         return new Entry(item);
     }
 
-    protected void renderEntry(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry){
+    protected void renderEntry(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry) {
 
-    };
+    }
 
     protected Component getNarration(T item) {
         return null;
-    };
+    }
 
     // old: add
     public int insertSelected(T item) {

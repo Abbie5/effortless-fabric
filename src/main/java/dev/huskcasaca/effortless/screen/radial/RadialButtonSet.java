@@ -11,6 +11,7 @@ public interface RadialButtonSet {
             public Component getComponentName() {
                 return null;
             }
+
             @Override
             public RadialButton<?>[] getEntries() {
                 return entries;

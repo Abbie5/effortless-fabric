@@ -31,6 +31,7 @@ public class BuildInfoOverlay extends GuiComponent {
     private static final int ITEM_SPACING_Y = 18;
     private static int lastBuildInfoTextHeight = 0;
     private final Minecraft minecraft;
+    private boolean hasLastMessage = false; // prevent clearing vanilla message
 
     public BuildInfoOverlay(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -47,8 +48,6 @@ public class BuildInfoOverlay extends GuiComponent {
             return 0;
         }
     }
-
-    private boolean hasLastMessage = false; // prevent clearing vanilla message
 
     private void renderBuildMode(PoseStack poseStack) {
         lastBuildInfoTextHeight = 0;
@@ -208,7 +207,7 @@ public class BuildInfoOverlay extends GuiComponent {
         dimensions = dimensions.substring(0, dimensions.length() - 1);
         if (dimensions.length() > 1) dimensions += ")";
 
-        var blockCounter = "" + ChatFormatting.WHITE + result.usages().sufficientCount() + ChatFormatting.RESET + (result.usages().isFilled() ? " " : " + " + ChatFormatting.RED + result.usages().insufficientCount() + ChatFormatting.RESET + " ") + (result.usages().totalCount() == 1 ? "block" : "blocks");
+        var blockCounter = String.valueOf(ChatFormatting.WHITE) + result.usages().sufficientCount() + ChatFormatting.RESET + (result.usages().isFilled() ? " " : " + " + ChatFormatting.RED + result.usages().insufficientCount() + ChatFormatting.RESET + " ") + (result.usages().totalCount() == 1 ? "block" : "blocks");
 
         var buildingText = switch (context.state()) {
             case IDLE -> "idle";

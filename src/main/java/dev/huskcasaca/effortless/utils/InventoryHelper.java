@@ -18,7 +18,7 @@ public class InventoryHelper {
         return total;
     }
 
-//    @Deprecated
+    //    @Deprecated
     public static ItemStack findItemStackInInventory(Player player, Block block) {
         for (ItemStack invStack : player.getInventory().items) {
             if (!invStack.isEmpty() && invStack.getItem() instanceof BlockItem &&
@@ -29,7 +29,7 @@ public class InventoryHelper {
         return ItemStack.EMPTY;
     }
 
-//    @Deprecated
+    //    @Deprecated
     public static int findTotalBlocksInInventory(Player player, Block block) {
         int total = 0;
         for (ItemStack invStack : player.getInventory().items) {

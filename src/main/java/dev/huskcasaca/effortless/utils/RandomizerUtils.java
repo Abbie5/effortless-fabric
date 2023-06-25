@@ -18,7 +18,7 @@ public class RandomizerUtils {
                 Component.empty()
         );
         components.add(
-                Component.literal(ChatFormatting.GRAY + "Total Probability: " +  ChatFormatting.GOLD + percentage + ChatFormatting.DARK_GRAY + " (" + holder.count() + "/" + totalCount + ")" + ChatFormatting.RESET)
+                Component.literal(ChatFormatting.GRAY + "Total Probability: " + ChatFormatting.GOLD + percentage + ChatFormatting.DARK_GRAY + " (" + holder.count() + "/" + totalCount + ")" + ChatFormatting.RESET)
         );
         return components;
     }

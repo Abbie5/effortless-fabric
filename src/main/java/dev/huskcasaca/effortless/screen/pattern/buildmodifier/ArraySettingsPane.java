@@ -2,9 +2,8 @@ package dev.huskcasaca.effortless.screen.pattern.buildmodifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.huskcasaca.effortless.Effortless;
-import dev.huskcasaca.effortless.building.EffortlessBuilder;
-import dev.huskcasaca.effortless.building.reach.ReachHelper;
 import dev.huskcasaca.effortless.building.pattern.modifier.array.Array;
+import dev.huskcasaca.effortless.building.reach.ReachHelper;
 import dev.huskcasaca.effortless.screen.widget.Checkbox;
 import dev.huskcasaca.effortless.screen.widget.ExpandableScrollEntry;
 import dev.huskcasaca.effortless.screen.widget.NumberField;

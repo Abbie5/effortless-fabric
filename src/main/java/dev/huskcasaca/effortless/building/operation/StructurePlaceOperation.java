@@ -33,6 +33,23 @@ public final class StructurePlaceOperation extends StructureOperation {
         this.storage = storage;
     }
 
+    private static BlockState getBlockStateFromMainHand(Player player, BlockHitResult hitResult) {
+        return getBlockStateFromItem(player, InteractionHand.MAIN_HAND, hitResult);
+    }
+
+    private static BlockState getBlockStateFromItem(Player player, InteractionHand hand, BlockHitResult hitResult) {
+        var itemStack = player.getItemInHand(hand);
+        var blockPlaceContext = new BlockPlaceContext(player, hand, itemStack, hitResult);
+        var item = itemStack.getItem();
+
+        if (item instanceof BlockItem blockItem) {
+            var state = blockItem.getPlacementState(blockPlaceContext);
+            return state != null ? state : Blocks.AIR.defaultBlockState();
+        } else {
+            return Block.byItem(item).getStateForPlacement(blockPlaceContext);
+        }
+    }
+
     public Stream<SingleBlockOperation> stream() {
         var state = context.state();
 
@@ -52,23 +69,6 @@ public final class StructurePlaceOperation extends StructureOperation {
             return Stream.empty();
         }
 
-    }
-
-    private static BlockState getBlockStateFromMainHand(Player player, BlockHitResult hitResult) {
-        return getBlockStateFromItem(player, InteractionHand.MAIN_HAND, hitResult);
-    }
-
-    private static BlockState getBlockStateFromItem(Player player, InteractionHand hand, BlockHitResult hitResult) {
-        var itemStack = player.getItemInHand(hand);
-        var blockPlaceContext = new BlockPlaceContext(player, hand, itemStack, hitResult);
-        var item = itemStack.getItem();
-
-        if (item instanceof BlockItem blockItem) {
-            var state = blockItem.getPlacementState(blockPlaceContext);
-            return state != null ? state : Blocks.AIR.defaultBlockState();
-        } else {
-            return Block.byItem(item).getStateForPlacement(blockPlaceContext);
-        }
     }
 
     public Result perform() {

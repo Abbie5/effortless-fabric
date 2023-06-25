@@ -12,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Cylinder extends ThreeClickBuilder {
@@ -29,37 +30,34 @@ public class Cylinder extends ThreeClickBuilder {
         var y3 = context.thirdPos().getY();
         var z3 = context.thirdPos().getZ();
 
-        switch (context.planeFacing()) {
-            case HORIZONTAL -> {
-                var circleBlocks = Circle.collectFloorCircleBlocks(context).toList();
-                int lowest = Math.min(y1, y3);
-                int highest = Math.max(y1, y3);
+        if (Objects.requireNonNull(context.planeFacing()) == BuildFeature.PlaneFacing.HORIZONTAL) {
+            var circleBlocks = Circle.collectFloorCircleBlocks(context).toList();
+            int lowest = Math.min(y1, y3);
+            int highest = Math.max(y1, y3);
 
-                for (int y = lowest; y <= highest; y++) {
-                    for (BlockPos blockPos : circleBlocks) {
-                        list.add(new BlockPos(blockPos.getX(), y, blockPos.getZ()));
-                    }
+            for (int y = lowest; y <= highest; y++) {
+                for (BlockPos blockPos : circleBlocks) {
+                    list.add(new BlockPos(blockPos.getX(), y, blockPos.getZ()));
                 }
             }
-            default -> {
-                var circleBlocks = Circle.collectWallCircleBlocks(context).toList();
-                if (x1 != x2) {
-                    int lowest = Math.min(z1, z3);
-                    int highest = Math.max(z1, z3);
+        } else {
+            var circleBlocks = Circle.collectWallCircleBlocks(context).toList();
+            if (x1 != x2) {
+                int lowest = Math.min(z1, z3);
+                int highest = Math.max(z1, z3);
 
-                    for (int z = lowest; z <= highest; z++) {
-                        for (BlockPos blockPos : circleBlocks) {
-                            list.add(new BlockPos(blockPos.getX(), blockPos.getY(), z));
-                        }
+                for (int z = lowest; z <= highest; z++) {
+                    for (BlockPos blockPos : circleBlocks) {
+                        list.add(new BlockPos(blockPos.getX(), blockPos.getY(), z));
                     }
-                } else {
-                    int lowest = Math.min(x1, x3);
-                    int highest = Math.max(x1, x3);
+                }
+            } else {
+                int lowest = Math.min(x1, x3);
+                int highest = Math.max(x1, x3);
 
-                    for (int x = lowest; x <= highest; x++) {
-                        for (BlockPos blockPos : circleBlocks) {
-                            list.add(new BlockPos(x, blockPos.getY(), blockPos.getZ()));
-                        }
+                for (int x = lowest; x <= highest; x++) {
+                    for (BlockPos blockPos : circleBlocks) {
+                        list.add(new BlockPos(x, blockPos.getY(), blockPos.getZ()));
                     }
                 }
             }
