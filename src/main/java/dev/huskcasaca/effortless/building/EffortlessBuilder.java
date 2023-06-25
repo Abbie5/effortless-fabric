@@ -16,12 +16,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 public class EffortlessBuilder {
 
     private static final EffortlessBuilder INSTANCE = new EffortlessBuilder();
-    private final BuildingContextProvider provider = new BuildingContextProvider();
+    private final ContextProvider provider = new ContextProvider();
     private Operation.Result<?> lastResult;
 
     public static EffortlessBuilder getInstance() {
@@ -47,7 +50,7 @@ public class EffortlessBuilder {
         if (getContext(player).isDisabled()) return;
 
         var context = getContext(player).withPlacingState().withNextHit(player, true);
-        var storage = new TempItemStorage(player.getInventory().items);
+        var storage = Storage.createTemp(player.getInventory().items);
         var operation = context.getStructure(player.getLevel(), player, storage);
         var result = operation.perform();
         lastResult = result;
@@ -670,4 +673,30 @@ public class EffortlessBuilder {
 //    }
 
 
+    public static class ContextProvider {
+
+        private final Map<UUID, Context> contexts = new HashMap<>();
+
+        public static Context defaultContext() {
+            return Context.defaultSet();
+        }
+
+        public Context get(Player player) {
+            return contexts.computeIfAbsent(player.getUUID(), (uuid) -> defaultContext());
+        }
+
+        public void set(Player player, Context context) {
+            contexts.put(player.getUUID(), context);
+            Effortless.log("setContext: " + player.getUUID() + " to " + context);
+        }
+
+        public void remove(Player player) {
+            contexts.remove(player.getUUID());
+        }
+
+        public void tick() {
+
+        }
+
+    }
 }

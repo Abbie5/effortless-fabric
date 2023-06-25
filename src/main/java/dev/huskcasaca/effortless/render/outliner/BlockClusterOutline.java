@@ -28,6 +28,7 @@ public class BlockClusterOutline extends Outline {
     static Vec3 xYZ = new Vec3(-.5, .5, .5);
     static Vec3 XYZ = new Vec3(.5, .5, .5);
     private final Cluster cluster;
+
     public BlockClusterOutline(Iterable<BlockPos> selection) {
         cluster = new Cluster();
         selection.forEach(cluster::include);

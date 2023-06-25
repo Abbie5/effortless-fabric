@@ -18,6 +18,7 @@ public class SuperRenderTypeBuffer implements MultiBufferSource {
     private final SuperRenderTypeBufferPhase earlyBuffer;
     private final SuperRenderTypeBufferPhase defaultBuffer;
     private final SuperRenderTypeBufferPhase lateBuffer;
+
     public SuperRenderTypeBuffer() {
         earlyBuffer = new SuperRenderTypeBufferPhase();
         defaultBuffer = new SuperRenderTypeBufferPhase();

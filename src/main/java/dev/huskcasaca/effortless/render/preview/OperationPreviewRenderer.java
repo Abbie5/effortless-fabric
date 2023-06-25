@@ -13,9 +13,8 @@ public class OperationPreviewRenderer {
 
     private static final OperationPreviewRenderer INSTANCE = new OperationPreviewRenderer(Minecraft.getInstance());
     private final Minecraft minecraft;
-
-    private List<Operation.Result<?>> currentOpResults = new ArrayList<>();
     private final List<Operation.Result<?>> historyOpResults = new ArrayList<>();
+    private List<Operation.Result<?>> currentOpResults = new ArrayList<>();
 
     public OperationPreviewRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
