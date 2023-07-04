@@ -1,6 +1,5 @@
 package dev.huskcasaca.effortless.building;
 
-import dev.huskcasaca.effortless.Effortless;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
 import dev.huskcasaca.effortless.building.mode.BuildFeature.*;
 import dev.huskcasaca.effortless.building.mode.BuildMode;
@@ -339,11 +338,11 @@ public record Context(
     // for build mode only
     public BlockHitResult trace(Player player, boolean preview) {
         var result = buildMode().getInstance().trace(player, this);
-        if (!preview) {
-            Effortless.log("traceBuildMode: " + result);
-        } else {
-            if (result != null) Effortless.log("traceIt", result.getType(), result.getBlockPos());
-        }
+//        if (!preview) {
+//            Effortless.log("traceBuildMode: " + result);
+//        } else {
+//            if (result != null) Effortless.log("traceIt", result.getType(), result.getBlockPos());
+//        }
         return result;
     }
 

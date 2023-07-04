@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.stream.Stream;
 
-public abstract class TwoClickBuilder extends MultipleClickBuilder {
+public abstract class DoubleClickBuilder extends AbstractClickBuilder {
 
     protected abstract BlockHitResult traceFirstHit(Player player, Context context);
 

@@ -4,12 +4,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
-public abstract class MultipleClickBuilder implements Builder {
+public abstract class AbstractClickBuilder implements Builder {
 
     public abstract static class AxisCriteria {
         protected static final double LOOK_VEC_TOLERANCE = 0.001;
@@ -116,17 +114,14 @@ public abstract class MultipleClickBuilder implements Builder {
         }
 
         protected static boolean isCriteriaValid(Vec3 start, Vec3 look, int reach, Entity entity, boolean skipRaytrace, Vec3 lineBound, Vec3 planeBound, double distToPlayerSq) {
-            boolean intersects = false;
-            if (!skipRaytrace) {
-                //collision within a 1 block radius to selected is fine
-                var rayTraceContext = new ClipContext(start, lineBound, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, entity);
-                var rayTraceResult = entity.level.clip(rayTraceContext);
-                intersects = rayTraceResult != null && rayTraceResult.getType() == HitResult.Type.BLOCK && planeBound.subtract(rayTraceResult.getLocation()).lengthSqr() > 4;
-            }
-
-            return planeBound.subtract(start).dot(look) > 0 &&
-                    distToPlayerSq > 2 && distToPlayerSq < reach * reach &&
-                    !intersects;
+//            boolean intersects = false;
+//            if (!skipRaytrace) {
+//                //collision within a 1 block radius to selected is fine
+//                var rayTraceContext = new ClipContext(start, lineBound, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, entity);
+//                var rayTraceResult = entity.getLevel().clip(rayTraceContext);
+//                intersects = rayTraceResult != null && rayTraceResult.getType() == HitResult.Type.BLOCK && planeBound.subtract(rayTraceResult.getLocation()).lengthSqr() > 4;
+//            }
+            return planeBound.subtract(start).dot(look) > 0 && distToPlayerSq > 2 && distToPlayerSq < reach * reach; // !intersects;
         }
 
         public Vec3 startVec() {

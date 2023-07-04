@@ -6,9 +6,8 @@ import dev.huskcasaca.effortless.building.mode.builder.oneclick.Disable;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.threeclick.*;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Circle;
-import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Line;
-import dev.huskcasaca.effortless.building.mode.builder.twoclick.Wall;
+import dev.huskcasaca.effortless.building.mode.builder.twoclick.Square;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -19,8 +18,9 @@ public enum BuildMode {
     SINGLE("single", new Single(), Category.BASIC /*, BuildOption.BUILD_SPEED*/),
 
     LINE("line", new Line(), Category.SQUARE /*, OptionEnum.THICKNESS*/),
-    WALL("wall", new Wall(), Category.SQUARE, BuildFeature.PLANE_FILLING),
-    FLOOR("floor", new Floor(), Category.SQUARE, BuildFeature.PLANE_FILLING),
+    SQUARE("square", new Square(), Category.SQUARE, BuildFeature.PLANE_FILLING, BuildFeature.PLANE_FACING),
+//    WALL("wall", new Wall(), Category.SQUARE, BuildFeature.PLANE_FILLING),
+//    FLOOR("floor", new Floor(), Category.SQUARE, BuildFeature.PLANE_FILLING),
     CUBE("cube", new Cube(), Category.SQUARE, BuildFeature.CUBE_FILLING),
 
     DIAGONAL_LINE("diagonal_line", new DiagonalLine(), Category.DIAGONAL),

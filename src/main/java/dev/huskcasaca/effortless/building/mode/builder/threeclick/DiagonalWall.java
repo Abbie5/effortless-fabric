@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
 import dev.huskcasaca.effortless.building.Context;
-import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
+import dev.huskcasaca.effortless.building.mode.builder.TripleClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
 import net.minecraft.core.BlockPos;
@@ -11,7 +11,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class DiagonalWall extends ThreeClickBuilder {
+public class DiagonalWall extends TripleClickBuilder {
 
     //Add diagonal wall from first to second
     public static Stream<BlockPos> collectDiagonalWallBlocks(Context context) {
@@ -28,7 +28,7 @@ public class DiagonalWall extends ThreeClickBuilder {
         var z3 = context.thirdPos().getZ();
 
         //Get diagonal line blocks
-        var diagonalLineBlocks = DiagonalLine.collectDiagonalLineBlocks(context, 1).toList();
+        var diagonalLineBlocks = DiagonalLine.collectPlaneDiagonalLineBlocks(context, 1).toList();
 
         int lowest = Math.min(y1, y3);
         int highest = Math.max(y1, y3);
@@ -65,7 +65,7 @@ public class DiagonalWall extends ThreeClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectInterBlocks(Context context) {
-        return DiagonalLine.collectDiagonalLineBlocks(context, 1);
+        return DiagonalLine.collectPlaneDiagonalLineBlocks(context, 1);
     }
 
     @Override

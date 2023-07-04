@@ -12,7 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-public abstract class ThreeClickBuilder extends MultipleClickBuilder {
+public abstract class TripleClickBuilder extends AbstractClickBuilder {
 
     private static BlockHitResult traceLineByAxis(Player player, Context context, Axis axis) {
         var center = context.secondPos().getCenter();
@@ -43,7 +43,7 @@ public abstract class ThreeClickBuilder extends MultipleClickBuilder {
         return traceLineByAxis(player, context, Axis.Z);
     }
 
-    private static BlockHitResult tracePlaneByAxis(Player player, Context context, Axis axis) {
+    protected static BlockHitResult tracePlaneByAxis(Player player, Context context, Axis axis) {
         var center = context.secondPos().getCenter();
         var reach = context.maxReachDistance();
         var skipRaytrace = context.skipRaytrace();

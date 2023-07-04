@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.mode.builder.twoclick;
 
 import dev.huskcasaca.effortless.building.Context;
-import dev.huskcasaca.effortless.building.mode.builder.TwoClickBuilder;
+import dev.huskcasaca.effortless.building.mode.builder.DoubleClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,11 +11,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Line extends TwoClickBuilder {
+public class Line extends DoubleClickBuilder {
 
     public static BlockHitResult traceLine(Player player, Context context) {
         var center = context.firstPos().getCenter();
@@ -28,26 +27,17 @@ public class Line extends TwoClickBuilder {
                         new NearestLineCriteria(Direction.Axis.Z, player, center, reach, skipRaytrace)
                 )
                 .filter(AxisCriteria::isInRange)
-                .min(Comparator.comparing(NearestLineCriteria::distanceToLineSqr))
+                .reduce((nearest, criteria) -> {
+                    if (criteria.distanceToLineSqr() < 2.0 && nearest.distanceToLineSqr() < 2.0) {
+                        if (criteria.distanceToEyeSqr() < nearest.distanceToEyeSqr()) return criteria;
+                    } else {
+                        if (criteria.distanceToLineSqr() < nearest.distanceToLineSqr()) return criteria;
+                    }
+                    return nearest;
+                })
+//                .min(Comparator.comparing(NearestLineCriteria::distanceToLineSqr))
                 .map(AxisCriteria::traceLine)
                 .orElse(null);
-
-//        if (criteriaList.size() > 1) {
-//            //Select the one that is closest (from wall position to its line counterpart)
-//            for (int i = 1; i < criteriaList.size(); i++) {
-//                NearestLineCriteria criteria = criteriaList.get(i);
-//                if (criteria.distanceToLineSqr() < 2.0 && selected.distanceToLineSqr() < 2.0) {
-//                    //Both very close to line, choose closest to player
-//                    if (criteria.distanceToEyeSqr() < selected.distanceToEyeSqr())
-//                        selected = criteria;
-//                } else {
-//                    //Pick closest to line
-//                    if (criteria.distanceToLineSqr() < selected.distanceToLineSqr())
-//                        selected = criteria;
-//                }
-//            }
-//        }
-
     }
 
     public static Stream<BlockPos> collectLineBlocks(Context context) {
@@ -129,6 +119,11 @@ public class Line extends TwoClickBuilder {
                 return new Vec3(pos.getX(), pos.getY(), bound.getZ());
             }
             return null;
+        }
+
+        @Override
+        public double distanceToLineSqr() {
+            return planeVec().subtract(lineVec()).lengthSqr() * (axis == Direction.Axis.Y ? 2 : 1);
         }
     }
 }

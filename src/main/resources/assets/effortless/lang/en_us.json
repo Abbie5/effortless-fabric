@@ -62,6 +62,7 @@
   "effortless.mode.vanilla": "Vanilla",
   "effortless.mode.single": "Single",
   "effortless.mode.line": "Line",
+  "effortless.mode.square": "Square",
   "effortless.mode.wall": "Wall",
   "effortless.mode.floor": "Floor",
   "effortless.mode.diagonal_line": "Diagonal Line",
@@ -107,6 +108,7 @@
   "effortless.action.circle_start_corner": "Corner",
   "effortless.action.face_horizontal": "Horizontal",
   "effortless.action.face_vertical": "Vertical",
+  "effortless.action.face_both": "Both",
 
   "effortless.action.replace_disabled": "Off",
   "effortless.action.normal_replace": "Normal",

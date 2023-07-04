@@ -20,7 +20,7 @@ public class Effortless implements ModInitializer {
     }
 
     public static void log(Object... elses) {
-        logger.info(Arrays.stream(elses).map(Object::toString).reduce((a, b) -> a + " " + b).orElse("null"));
+        logger.info(Arrays.stream(elses).map((o) -> o == null ? " " : o).map(Object::toString).reduce((a, b) -> a + " " + b).orElse("null"));
     }
 
     public static void log(Player player, String msg) {

@@ -2,7 +2,7 @@ package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
 import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
-import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
+import dev.huskcasaca.effortless.building.mode.builder.TripleClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
 import net.minecraft.core.BlockPos;
@@ -12,7 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class SlopeFloor extends ThreeClickBuilder {
+public class SlopeFloor extends TripleClickBuilder {
 
     //Add slope floor from first to second
     public static Stream<BlockPos> collectSlopeFloorBlocks(Context context) {
@@ -50,7 +50,7 @@ public class SlopeFloor extends ThreeClickBuilder {
             //Along X goes up
 
             //Get diagonal line blocks
-            var diagonalLineBlocks = DiagonalLine.collectDiagonalLineBlocks(context.withFirstPos(x1, y1, z1).withSecondPos(x2, y3, z1), 1f).toList();
+            var diagonalLineBlocks = DiagonalLine.collectPlaneDiagonalLineBlocks(context.withFirstPos(x1, y1, z1).withSecondPos(x2, y3, z1), 1f).toList();
 
             //Limit amount of blocks we can place
             int lowest = Math.min(z1, z2);
@@ -69,7 +69,7 @@ public class SlopeFloor extends ThreeClickBuilder {
             //Along Z goes up
 
             //Get diagonal line blocks
-            var diagonalLineBlocks = DiagonalLine.collectDiagonalLineBlocks(context.withFirstPos(x1, y1, z1).withSecondPos(x1, y3, z2), 1f).toList();
+            var diagonalLineBlocks = DiagonalLine.collectPlaneDiagonalLineBlocks(context.withFirstPos(x1, y1, z1).withSecondPos(x1, y3, z2), 1f).toList();
 
             //Limit amount of blocks we can place
             int lowest = Math.min(x1, x2);

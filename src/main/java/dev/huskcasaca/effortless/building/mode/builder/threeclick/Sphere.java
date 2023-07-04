@@ -2,7 +2,7 @@ package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
 import dev.huskcasaca.effortless.building.Context;
 import dev.huskcasaca.effortless.building.mode.BuildFeature;
-import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
+import dev.huskcasaca.effortless.building.mode.builder.TripleClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Circle;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class Sphere extends ThreeClickBuilder {
+public class Sphere extends TripleClickBuilder {
 
     public static Stream<BlockPos> collectSphereBlocks(Context context) {
         var list = new ArrayList<BlockPos>();
@@ -175,11 +175,7 @@ public class Sphere extends ThreeClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectInterBlocks(Context context) {
-        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
-            return Circle.collectFloorCircleBlocks(context);
-        } else {
-            return Circle.collectWallCircleBlocks(context);
-        }
+         return Circle.collectCircleBlocks(context);
     }
 
     @Override

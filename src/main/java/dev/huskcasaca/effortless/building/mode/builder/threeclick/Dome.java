@@ -1,7 +1,7 @@
 package dev.huskcasaca.effortless.building.mode.builder.threeclick;
 
 import dev.huskcasaca.effortless.building.Context;
-import dev.huskcasaca.effortless.building.mode.builder.ThreeClickBuilder;
+import dev.huskcasaca.effortless.building.mode.builder.TripleClickBuilder;
 import dev.huskcasaca.effortless.building.mode.builder.oneclick.Single;
 import dev.huskcasaca.effortless.building.mode.builder.twoclick.Floor;
 import net.minecraft.core.BlockPos;
@@ -10,7 +10,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.stream.Stream;
 
-public class Dome extends ThreeClickBuilder {
+public class Dome extends TripleClickBuilder {
 
     @Override
     protected BlockHitResult traceFirstHit(Player player, Context context) {

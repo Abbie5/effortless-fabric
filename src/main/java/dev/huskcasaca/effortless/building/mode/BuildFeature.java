@@ -92,7 +92,8 @@ public enum BuildFeature {
 
     public enum PlaneFacing implements Entry {
         HORIZONTAL("face_horizontal"),
-        VERTICAL("face_vertical");
+        VERTICAL("face_vertical"),
+        BOTH("face_both");
 
         private final String name;
 

@@ -7,7 +7,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.stream.Stream;
 
-public abstract class SingleClickBuilder implements Builder {
+public abstract class SingleClickBuilder extends AbstractClickBuilder {
 
     protected abstract BlockHitResult traceFirstHit(Player player, Context context);
 
