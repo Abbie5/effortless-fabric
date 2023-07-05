@@ -1,4 +1,4 @@
-package dev.effortless.mixin;
+package dev.effortless.core.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.core.event.client.ClientGuiEvent;

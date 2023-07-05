@@ -1,4 +1,4 @@
-package dev.effortless.mixin;
+package dev.effortless.core.mixin;
 
 import dev.effortless.core.event.client.ClientScreenEvent;
 import net.minecraft.client.Minecraft;

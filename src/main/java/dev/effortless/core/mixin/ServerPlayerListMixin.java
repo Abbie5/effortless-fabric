@@ -1,5 +1,4 @@
-package dev.effortless.mixin;
-
+package dev.effortless.core.mixin;
 
 import dev.effortless.core.event.common.ServerPlayerListEvent;
 import net.minecraft.network.Connection;
@@ -12,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerList.class)
-public abstract class PlayerEventMixin {
+public abstract class ServerPlayerListMixin {
 
     @Inject(method = "placeNewPlayer", at = @At("RETURN"))
     private void onPlayerLogin(Connection connection, ServerPlayer serverPlayer, CallbackInfo ci) {

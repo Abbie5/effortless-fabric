@@ -1,4 +1,4 @@
-package dev.effortless.mixin;
+package dev.effortless.core.mixin;
 
 import dev.effortless.core.event.client.ClientPlayerEvent;
 import net.minecraft.client.Minecraft;
@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Minecraft.class)
-public abstract class PlayerActionMixin {
+public abstract class ClientActionMixin {
 
     @Shadow
     @Nullable

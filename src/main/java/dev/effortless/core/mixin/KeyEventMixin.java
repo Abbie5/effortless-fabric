@@ -1,8 +1,6 @@
-package dev.effortless.mixin;
+package dev.effortless.core.mixin;
 
 import dev.effortless.core.event.client.ClientScreenInputEvent;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.KeyboardHandler;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Final;
@@ -13,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(KeyboardHandler.class)
-@Environment(EnvType.CLIENT)
 public abstract class KeyEventMixin {
 
     @Shadow

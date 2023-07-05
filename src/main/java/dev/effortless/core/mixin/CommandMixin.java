@@ -1,4 +1,4 @@
-package dev.effortless.mixin;
+package dev.effortless.core.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
 import dev.effortless.core.event.client.ClientCommandEvent;

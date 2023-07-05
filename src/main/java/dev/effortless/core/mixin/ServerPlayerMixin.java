@@ -1,4 +1,4 @@
-package dev.effortless.mixin;
+package dev.effortless.core.mixin;
 
 import dev.effortless.core.event.common.ServerPlayerEvent;
 import net.minecraft.server.level.ServerLevel;
@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerPlayer.class)
-public abstract class ServerPlayerEventMixin {
+public abstract class ServerPlayerMixin {
 
     @Inject(method = "changeDimension", at = @At("RETURN"))
     private void onPlayerChangeDimension(ServerLevel serverLevel, CallbackInfoReturnable<Entity> cir) {
