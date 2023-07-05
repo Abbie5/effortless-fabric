@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "dev.huskcasaca.effortless.mixin",
+  "package": "dev.effortless.mixin",
   "compatibilityLevel": "JAVA_17",
   "injectors": {
     "defaultRequire": 1

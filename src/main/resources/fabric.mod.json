@@ -18,13 +18,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.huskcasaca.effortless.Effortless"
+      "dev.effortless.Effortless"
     ],
     "client": [
-      "dev.huskcasaca.effortless.EffortlessClient"
+      "dev.effortless.EffortlessClient"
     ],
     "modmenu": [
-      "dev.huskcasaca.effortless.EffortlessModMenu"
+      "dev.effortless.EffortlessModMenu"
     ]
   },
   "mixins": [

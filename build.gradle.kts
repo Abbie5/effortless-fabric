@@ -8,7 +8,7 @@ plugins {
 }
 
 version = "1.6.2"
-group = "dev.huskcasaca"
+group = "dev.effortless"
 
 base {
     archivesName.set("effortless-fabric")
