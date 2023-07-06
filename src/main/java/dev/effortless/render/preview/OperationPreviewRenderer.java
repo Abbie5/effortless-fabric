@@ -2,109 +2,75 @@ package dev.effortless.render.preview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.operation.Operation;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.world.entity.player.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class OperationPreviewRenderer {
 
-    private static final OperationPreviewRenderer INSTANCE = new OperationPreviewRenderer(Minecraft.getInstance());
-    private final Minecraft minecraft;
-    private final List<Operation.Result<?>> historyOpResults = new ArrayList<>();
-    private List<Operation.Result<?>> currentOpResults = new ArrayList<>();
-
-    public OperationPreviewRenderer(Minecraft minecraft) {
-        this.minecraft = minecraft;
-    }
+    private static final OperationPreviewRenderer INSTANCE = new OperationPreviewRenderer();
+    private final Map<Object, Entry> results = Collections.synchronizedMap(new HashMap<>());
+    //    private int soundTime = 0;
 
     public static OperationPreviewRenderer getInstance() {
         return INSTANCE;
     }
 
-    public void putOpResult(Operation.Result<?> preview) {
-        currentOpResults.add(preview);
+    public OperationPreviewRenderer() {
     }
 
-    public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource) {
-        var player = minecraft.player;
-//        if (!shouldRenderBlockPreviews(player)) {
-//            currentPreview = null;
-//            return;
-//        }
-        renderStructurePreview(poseStack, multiBufferSource, player);
-        renderStructurePreviewHistory(poseStack, multiBufferSource, player);
+    public void showResult(Object id, Operation.Result result) {
+        var entry = new Entry(result);
+        results.put(id, entry);
     }
 
-    private void renderStructurePreview(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Player player) {
-
-        currentOpResults.forEach(preview -> preview.render(poseStack, multiBufferSource));
-        currentOpResults = new ArrayList<>();
-
-//        if (context.isBuilding()) {
-//            showMessage(player, context, result);
-//        } else {
-//            clearMessage(player);
-//        }
-
+    public void renderOperationResults(PoseStack poseStack, MultiBufferSource multiBufferSource, float pt) {
+        results.forEach((key, entry) -> {
+            entry.getResult().render(poseStack, multiBufferSource);
+        });
     }
 
-    private void renderStructurePreviewHistory(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, Player player) {
-//        if (!shouldRenderBlockPreviews(player)) {
-//            history.clear();
-//            return;
-//        }
-
-        // TODO: 26/5/23
-//        history.forEach(preview -> renderStructureShader(poseStack, multiBufferSource, preview));
-        // expire
-        // TODO: 26/5/23
-//        history.removeIf(preview -> preview.time() + preview.dissolveSize() * PreviewConfig.shaderDissolveTimeMultiplier() < getGameTime());
+    public void tick() {
+        var iterator = results.values().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            entry.tick();
+            if (!entry.isAlive()) {
+                iterator.remove();
+            }
+        }
     }
 
+    public static class Entry {
 
-//    private final List<StructureOperation.Result> history = new ArrayList<>();
-//    private final EffortlessBuilder builder = EffortlessBuilder.getInstance();
-//    private int soundTime = 0;
+        private static final int FADE_TICKS = 0;
 
-//    private final ConfigManager configManager = ConfigManager.getInstance();
-//    private StructureOperation.Result currentPreview;
+        private final Operation.Result result;
+        private int ticksTillRemoval;
 
-//    private boolean shouldRenderBlockPreviews(Player player) {
-//        return configManager.getConfig().getPreviewConfig().isAlwaysShowBlockPreview();
-//    }
-//
-//    public void saveCurrentPreview() {
-//        saveCurrentPreview(currentPreview);
-//    }
-//
-//    public void saveCurrentPreview(StructureOperation.Result preview) {
-//        if (shouldRenderBlockPreviews(minecraft.player) && !preview.isEmpty()) {
-////            history.add(preview);
-//        }
-//    }
-//
-//    public void saveCurrentBreakPreview() {
-//        saveCurrentBreakPreview(currentPreview);
-//    }
-//
-//    public void saveCurrentBreakPreview(StructureOperation.Result preview) {
-//        if (shouldRenderBlockPreviews(minecraft.player) && !preview.isEmpty()) {
-////            history.add(preview);
-//        }
-//    }
-//
-//    @Deprecated
-//    public void saveCurrentPreview(List<BlockPos> coordinates, List<BlockState> blockStates, BlockPos firstPos, BlockPos secondPos) {
-//        // no-op
-//    }
-//
-//    @Deprecated
-//    public void saveCurrentBreakPreview(List<BlockPos> coordinates, List<BlockState> blockStates, BlockPos firstPos, BlockPos secondPos) {
-//        // no-op
-//    }
+        public Entry(Operation.Result outline) {
+            this.result = outline;
+            ticksTillRemoval = 1;
+        }
 
+        public void tick() {
+            ticksTillRemoval--;
+        }
+
+        public boolean isAlive() {
+            return ticksTillRemoval >= -FADE_TICKS;
+        }
+
+        public boolean isFading() {
+            return ticksTillRemoval < 0;
+        }
+
+        public Operation.Result getResult() {
+            return result;
+        }
+
+    }
 
 }

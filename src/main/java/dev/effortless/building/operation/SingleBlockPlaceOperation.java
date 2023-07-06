@@ -25,6 +25,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+
 public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     private final Level level;
     private final Player player;
@@ -202,7 +204,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     @Override
     public Result perform() {
         if (storage != null) {
-            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
+            return new Result(this, InteractionResult.SUCCESS, Collections.emptyList(), Collections.emptyList());
         } else {
             var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
 
@@ -210,13 +212,18 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
             var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
             swapper.restoreSelected();
 
-            return new Result(this, result, ItemStack.EMPTY, ItemStack.EMPTY);
+            return new Result(this, result, Collections.emptyList(), Collections.emptyList());
         }
     }
 
     @Override
-    public ItemStack requiredItemStack() {
+    public ItemStack inputItemStack() {
         return new ItemStack(blockState.getBlock().asItem());
+    }
+
+    @Override
+    public ItemStack outputItemStack() {
+        return ItemStack.EMPTY;
     }
 
     // block placement

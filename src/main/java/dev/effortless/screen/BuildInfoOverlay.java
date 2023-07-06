@@ -180,7 +180,7 @@ public class BuildInfoOverlay extends GuiComponent {
 
     }
 
-    public void render(PoseStack poseStack) {
+    public void renderGuiOverlay(PoseStack poseStack) {
         renderBuildMode(poseStack);
         renderActionBarMessage();
     }

@@ -1,6 +1,5 @@
 package dev.effortless.building.mode.builder.oneclick;
 
-import dev.effortless.Effortless;
 import dev.effortless.building.Context;
 import dev.effortless.building.mode.builder.SingleClickBuilder;
 import net.minecraft.core.BlockPos;
@@ -55,8 +54,6 @@ public class Single extends SingleClickBuilder {
         var replaceable = player.getLevel().getBlockState(startPos).canBeReplaced();
 
         var becomesDoubleSlab = checkDoubleSlab(player, startPos, hitResult.getDirection());
-
-        Effortless.log("tracingRelative", skipTracing, replaceable, becomesDoubleSlab);
 
         var tracingRelative = !skipTracing && !replaceable && !becomesDoubleSlab;
 

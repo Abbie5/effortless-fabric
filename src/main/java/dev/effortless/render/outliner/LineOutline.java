@@ -17,8 +17,8 @@ public class LineOutline extends Outline {
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource buffer, float pt) {
-        renderCuboidLine(poseStack, buffer, start, end);
+    public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, float pt) {
+        renderCuboidLine(poseStack, multiBufferSource, start, end);
     }
 
     public static class EndChasingLineOutline extends LineOutline {
@@ -49,16 +49,16 @@ public class LineOutline extends Outline {
         }
 
         @Override
-        public void render(PoseStack poseStack, MultiBufferSource buffer, float pt) {
+        public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, float pt) {
             float distanceToTarget = Mth.lerp(pt, prevProgress, progress);
-            if (!lockStart)
+            if (!lockStart) {
                 distanceToTarget = 1 - distanceToTarget;
-            Vec3 start = lockStart ? this.end : this.start;
-            Vec3 end = lockStart ? this.start : this.end;
+            }
+            var start = lockStart ? this.end : this.start;
+            var end = lockStart ? this.start : this.end;
 
-            start = end.add(this.start.subtract(end)
-                    .scale(distanceToTarget));
-            renderCuboidLine(poseStack, buffer, start, end);
+            start = end.add(this.start.subtract(end).scale(distanceToTarget));
+            renderCuboidLine(poseStack, multiBufferSource, start, end);
         }
 
     }

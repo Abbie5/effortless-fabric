@@ -20,16 +20,15 @@ public interface Operation<R extends Operation.Result<R>> {
         WORLD_PERFORM_OP,
     }
 
-    @FunctionalInterface
     interface Renderer<R extends Result<R>> {
-        void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, R result);
+        void render(PoseStack poseStack, MultiBufferSource multiBufferSource, R result);
     }
 
     interface Result<O extends Result<O>> {
 
         Operation<O> operation();
 
-        default void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource) {
+        default void render(PoseStack poseStack, MultiBufferSource multiBufferSource) {
             operation().getRenderer().render(poseStack, multiBufferSource, (O) this);
         }
 

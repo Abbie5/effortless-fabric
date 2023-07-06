@@ -56,7 +56,7 @@ public class EffortlessBuilder {
         var operation = context.getStructure(player.getLevel(), player, storage);
         var result = operation.perform();
         lastResult = result;
-        OperationPreviewRenderer.getInstance().putOpResult(result);
+        OperationPreviewRenderer.getInstance().showResult(player, result);
     }
 
     // from settings screen

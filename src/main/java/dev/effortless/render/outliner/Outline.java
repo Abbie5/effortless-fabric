@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
@@ -31,7 +30,7 @@ public abstract class Outline {
         minecraft = Minecraft.getInstance();
     }
 
-    public abstract void render(PoseStack poseStack, MultiBufferSource buffer, float pt);
+    public abstract void render(PoseStack poseStack, MultiBufferSource multiBufferSource, float pt);
 
     public void tick() {
     }
@@ -40,59 +39,59 @@ public abstract class Outline {
         return params;
     }
 
-    public void renderCuboidLine(PoseStack poseStack, MultiBufferSource buffer, Vec3 start, Vec3 end) {
-        Vec3 diff = end.subtract(start);
-        float hAngle = AngleHelper.deg(Mth.atan2(diff.x, diff.z));
-        float hDistance = (float) diff.multiply(1, 0, 1)
+    public void renderCuboidLine(PoseStack poseStack, MultiBufferSource multiBufferSource, Vec3 start, Vec3 end) {
+        var diff = end.subtract(start);
+        var hAngle = AngleHelper.deg(Mth.atan2(diff.x, diff.z));
+        var hDistance = (float) diff.multiply(1, 0, 1)
                 .length();
-        float vAngle = AngleHelper.deg(Mth.atan2(hDistance, diff.y)) - 90;
+        var vAngle = AngleHelper.deg(Mth.atan2(hDistance, diff.y)) - 90;
         poseStack.pushPose();
         // TODO: 27/1/23
         poseStack.translate(start.x(), start.y(), start.z());
 //			.rotateY(hAngle).rotateX(vAngle);
-        renderAACuboidLine(poseStack, buffer, Vec3.ZERO, new Vec3(0, 0, diff.length()));
+        renderAACuboidLine(poseStack, multiBufferSource, Vec3.ZERO, new Vec3(0, 0, diff.length()));
         poseStack.popPose();
     }
 
-    public void renderAACuboidLine(PoseStack poseStack, MultiBufferSource buffer, Vec3 start, Vec3 end) {
+    public void renderAACuboidLine(PoseStack poseStack, MultiBufferSource multiBufferSource, Vec3 start, Vec3 end) {
         var camera = minecraft.gameRenderer.getMainCamera().getPosition();
         start = start.subtract(camera);
         end = end.subtract(camera);
-        float lineWidth = params.getLineWidth();
+        var lineWidth = params.getLineWidth();
         if (lineWidth == 0)
             return;
 
-        VertexConsumer builder = buffer.getBuffer(RenderTypes.getOutlineSolid());
+        var builder = multiBufferSource.getBuffer(RenderTypes.getOutlineSolid());
 
-        Vec3 diff = end.subtract(start);
+        var diff = end.subtract(start);
         if (diff.x + diff.y + diff.z < 0) {
-            Vec3 temp = start;
+            var temp = start;
             start = end;
             end = temp;
             diff = diff.scale(-1);
         }
 
-        Vec3 extension = diff.normalize()
+        var extension = diff.normalize()
                 .scale(lineWidth / 2);
-        Vec3 plane = VecHelper.axisAlingedPlaneOf(diff);
-        Direction face = Direction.getNearest(diff.x, diff.y, diff.z);
-        Axis axis = face.getAxis();
+        var plane = VecHelper.axisAlingedPlaneOf(diff);
+        var face = Direction.getNearest(diff.x, diff.y, diff.z);
+        var axis = face.getAxis();
 
         start = start.subtract(extension);
         end = end.add(extension);
         plane = plane.scale(lineWidth / 2);
 
-        Vec3 a1 = plane.add(start);
-        Vec3 b1 = plane.add(end);
+        var a1 = plane.add(start);
+        var b1 = plane.add(end);
         plane = VecHelper.rotate(plane, -90, axis);
-        Vec3 a2 = plane.add(start);
-        Vec3 b2 = plane.add(end);
+        var a2 = plane.add(start);
+        var b2 = plane.add(end);
         plane = VecHelper.rotate(plane, -90, axis);
-        Vec3 a3 = plane.add(start);
-        Vec3 b3 = plane.add(end);
+        var a3 = plane.add(start);
+        var b3 = plane.add(end);
         plane = VecHelper.rotate(plane, -90, axis);
-        Vec3 a4 = plane.add(start);
-        Vec3 b4 = plane.add(end);
+        var a4 = plane.add(start);
+        var b4 = plane.add(end);
 
         if (params.disableNormals) {
             face = Direction.UP;
@@ -107,7 +106,7 @@ public abstract class Outline {
 
         putQuad(poseStack, builder, b4, b3, b2, b1, face);
         putQuad(poseStack, builder, a1, a2, a3, a4, face.getOpposite());
-        Vec3 vec = a1.subtract(a4);
+        var vec = a1.subtract(a4);
         face = Direction.getNearest(vec.x, vec.y, vec.z);
         putQuad(poseStack, builder, a1, b1, b2, a2, face);
         vec = VecHelper.rotate(vec, -90, axis);
@@ -139,13 +138,14 @@ public abstract class Outline {
     }
 
     protected void putVertex(PoseStack.Pose pose, VertexConsumer builder, float x, float y, float z, float u, float v, Direction normal) {
-        Color rgb = params.rgb;
-        if (transformNormals == null)
+        var rgb = params.rgb;
+        if (transformNormals == null) {
             transformNormals = pose.normal();
+        }
 
-        int xOffset = 0;
-        int yOffset = 0;
-        int zOffset = 0;
+        var xOffset = 0;
+        var yOffset = 0;
+        var zOffset = 0;
 
         if (normal != null) {
             xOffset = normal.getStepX();

@@ -34,8 +34,8 @@ public class ChasingAABBOutline extends AABBOutline {
     }
 
     @Override
-    public void render(PoseStack poseStack, MultiBufferSource buffer, float pt) {
-        renderBB(poseStack, buffer, interpolateBBs(prevBB, bb, pt));
+    public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, float pt) {
+        renderBB(poseStack, multiBufferSource, interpolateBBs(prevBB, bb, pt));
     }
 
 }

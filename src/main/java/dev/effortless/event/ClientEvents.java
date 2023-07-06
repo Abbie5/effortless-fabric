@@ -15,7 +15,6 @@ import dev.effortless.render.outliner.OutlineRenderer;
 import dev.effortless.render.preview.OperationPreviewRenderer;
 import dev.effortless.screen.BuildInfoOverlay;
 import dev.effortless.utils.AnimationTicker;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
@@ -34,6 +33,7 @@ public class ClientEvents {
 
     public static void onStartTick(Minecraft minecraft) {
         EffortlessBuilder.getInstance().tick();
+        OperationPreviewRenderer.getInstance().tick();
         OutlineRenderer.getInstance().tick();
         AnimationTicker.tick();
     }
@@ -49,41 +49,27 @@ public class ClientEvents {
     }
 
     public static void onRenderGui(PoseStack poseStack) {
-        BuildInfoOverlay.getInstance().render(poseStack);
+        BuildInfoOverlay.getInstance().renderGuiOverlay(poseStack);
     }
 
-
     public static void onRenderAfterEntities(WorldRenderContext context) {
-        renderBlockPreview(context.poseStack(), context.camera());
     }
 
     public static void onRenderEnd(WorldRenderContext context) {
-        renderModifierSettings(context.poseStack(), context.camera());
-        renderBlockOutlines(context.poseStack(), context.camera());
-    }
 
-
-    public static void renderBlockPreview(PoseStack poseStack, Camera camera) {
-        var bufferBuilder = Tesselator.getInstance().getBuilder();
-        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-
-        OperationPreviewRenderer.getInstance().render(poseStack, bufferSource);
-    }
-
-    public static void renderModifierSettings(PoseStack poseStack, Camera camera) {
-        var bufferBuilder = Tesselator.getInstance().getBuilder();
-        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-
-        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
-    }
-
-    public static void renderBlockOutlines(PoseStack poseStack, Camera camera) {
+        var poseStack = context.poseStack();
         var partialTicks = AnimationTicker.getPartialTicks();
-        poseStack.pushPose();
         var buffer = SuperRenderTypeBuffer.getInstance();
+        var camera = context.camera();
+
+        // modifier
+        var bufferBuilder = Tesselator.getInstance().getBuilder();
+        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
+        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
+
+        OperationPreviewRenderer.getInstance().renderOperationResults(poseStack, buffer, partialTicks);
         OutlineRenderer.getInstance().renderOutlines(poseStack, buffer, partialTicks);
         buffer.draw();
-        poseStack.popPose();
     }
 
     public static void onRegisterShader(ResourceProvider provider, ClientShaderEvent.ShaderRegister.ShadersSink sink) throws IOException {

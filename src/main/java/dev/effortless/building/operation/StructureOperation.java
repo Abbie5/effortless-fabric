@@ -3,14 +3,11 @@ package dev.effortless.building.operation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.Context;
 import dev.effortless.building.TracingResult;
-import dev.effortless.config.PreviewConfig;
 import dev.effortless.render.RenderTypes;
 import dev.effortless.render.outliner.OutlineRenderer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -19,7 +16,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,48 +26,12 @@ public abstract class StructureOperation implements Operation<StructureOperation
 
     private static void sortOnDistanceToPlayer(List<SingleBlockOperation> blockPosStates, Player player) {
         blockPosStates.sort((lpl, rpl) -> {
-            // -1 - less than, 1 - greater than, 0 - equal
+            // -1 for less than, 1 for greater than, 0 for equal
             double lhsDistanceToPlayer = Vec3.atLowerCornerOf(lpl.blockPos()).subtract(player.getEyePosition(1f)).lengthSqr();
             double rhsDistanceToPlayer = Vec3.atLowerCornerOf(rpl.blockPos()).subtract(player.getEyePosition(1f)).lengthSqr();
             return (int) Math.signum(lhsDistanceToPlayer - rhsDistanceToPlayer);
         });
 
-    }
-
-    private static void renderStructureShader(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, StructureOperation.Result preview) {
-        if (preview.isEmpty()) return;
-        var dispatcher = Minecraft.getInstance().getBlockRenderer();
-
-        double totalTime = preview.dissolveSize() * PreviewConfig.shaderDissolveTimeMultiplier();
-//        float dissolve = (getGameTime() - preview.time()) / (float) totalTime;
-
-        float dissolve = 1;
-
-        var firstPos = preview.firstPos();
-        var secondPos = preview.secondPos();
-
-//        var states =  preview.operations().stream().map((op) -> {
-//            return op.getFirst().ge
-//        }).collect(Collectors.toList());
-//
-//        for (var blockPosState :) {
-//            var level = blockPosState.level();
-//            var blockPos = blockPosState.blockPos();
-//            var blockState = blockPosState.blockState();
-//            var item = blockState.getBlock().asItem();
-//            var itemStack = inventory.findItemStackByItem(item);
-//
-//            if (item instanceof BlockItem blockItem && itemStack.is(item)) {
-//                blockState = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState);
-//            }
-//            var red = breaking || (!skip && itemStack.isEmpty());
-//
-//            renderBlockDissolveShader(poseStack, multiBufferSource, dispatcher, blockPos, blockState, dissolve, firstPos, secondPos, red);
-//            if (skip || breaking) {
-//                continue;
-//            }
-//            itemStack.shrink(1);
-//        }
     }
 
     public abstract Level level();
@@ -86,31 +46,23 @@ public abstract class StructureOperation implements Operation<StructureOperation
         return DefaultRenderer.getInstance();
     }
 
-    public final static class DefaultRenderer implements Renderer<Result> {
+    public static final class DefaultRenderer implements Renderer<Result> {
 
         private static final Color PLACING_COLOR = new Color(0.92f, 0.92f, 0.92f, 1f);
         private static final Color BREAKING_COLOR = new Color(0.95f, 0f, 0f, 1f);
 
-        private final static DefaultRenderer INSTANCE = new DefaultRenderer();
+        private static final DefaultRenderer INSTANCE = new DefaultRenderer();
 
         public static DefaultRenderer getInstance() {
             return INSTANCE;
         }
 
-        public void render(PoseStack poseStack, MultiBufferSource.BufferSource multiBufferSource, StructureOperation.Result result) {
+        public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, StructureOperation.Result result) {
             if (!result.type().isSuccess()) return;
-
             var context = result.operation().context();
-//            if (!preview.isEmpty() && soundTime < getGameTime() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {
-//                soundTime = getGameTime();
-//                var soundType = preview.blockPosStates().get(0).blockState().getSoundType();
-//                player.getLevel().playSound(player, player.blockPosition(), context.isBreaking() ? soundType.getBreakSound() : soundType.getPlaceSound(), SoundSource.BLOCKS, 0.3f, 0.8f);
-//            }
-//                switch (ConfigManager.getGlobalPreviewConfig().getBlockPreviewMode()) {
-//                    case OUTLINES -> renderBlockOutlines(poseStack, multiBufferSource, preview, 0);
-//                    case DISSOLVE_SHADER -> renderStructureShader(poseStack, multiBufferSource, preview, 0);
-//                }
-            renderStructureShader(poseStack, multiBufferSource, result);
+
+            result.result().forEach((result1) -> result1.render(poseStack, multiBufferSource));
+
             var cluster = OutlineRenderer.getInstance().showCluster(context.uuid(), result.blockPoses())
                     .texture(RenderTypes.CHECKERED_THIN_TEXTURE_LOCATION)
                     .stroke(1 / 64f)
@@ -119,13 +71,15 @@ public abstract class StructureOperation implements Operation<StructureOperation
             switch (context.state()) {
                 case IDLE -> {
                 }
-                case PLACING -> {
-                    cluster.colored(PLACING_COLOR);
-                }
-                case BREAKING -> {
-                    cluster.colored(BREAKING_COLOR);
-                }
+                case PLACING -> cluster.colored(PLACING_COLOR);
+                case BREAKING -> cluster.colored(BREAKING_COLOR);
             }
+
+//            if (!preview.isEmpty() && soundTime < getGameTime() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {
+//                soundTime = getGameTime();
+//                var soundType = preview.blockPosStates().get(0).blockState().getSoundType();
+//                player.getLevel().playSound(player, player.blockPosition(), context.isBreaking() ? soundType.getBreakSound() : soundType.getPlaceSound(), SoundSource.BLOCKS, 0.3f, 0.8f);
+//            }
         }
 
     }
@@ -143,7 +97,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
 
             for (var operation : result) {
 
-                var required = operation.operation().requiredItemStack();
+                var required = operation.operation().inputItemStack();
                 switch (operation.operation().getType()) {
                     case WORLD_PLACE_OP -> {
                         var items = (operation.result() == InteractionResult.SUCCESS ? sufficientItems : insufficientItems);
@@ -185,20 +139,6 @@ public abstract class StructureOperation implements Operation<StructureOperation
             });
 
             return new ItemUsage(sufficientItemStacks, insufficientItemStacks);
-        }
-
-        @Nullable
-        public BlockPos firstPos() {
-            return isEmpty() ? null : result.get(0).operation().getPosition();
-        }
-
-        @Nullable
-        public BlockPos secondPos() {
-            return isEmpty() ? null : result.get(result.size() - 1).operation().getPosition();
-        }
-
-        public double dissolveSize() {
-            return (isEmpty()) ? 0 : Mth.clampedLerp(30, 60, firstPos().distSqr(secondPos()) / 100.0);
         }
 
         public boolean isEmpty() {

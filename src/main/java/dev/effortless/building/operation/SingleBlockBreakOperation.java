@@ -13,6 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.util.Collections;
+
 public final class SingleBlockBreakOperation extends SingleBlockOperation {
     private final Level level;
     private final Player player;
@@ -111,16 +113,21 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     @Override
     public Result perform() {
         if (storage != null) {
-            return new Result(this, InteractionResult.SUCCESS, ItemStack.EMPTY, ItemStack.EMPTY);
+            return new Result(this, InteractionResult.SUCCESS, Collections.emptyList(), Collections.emptyList());
         } else {
             var result = breakBlock(level, player, blockPos);
             // TODO: 25/6/23 InteractionResult
-            return new Result(this, result ? InteractionResult.SUCCESS : InteractionResult.PASS, ItemStack.EMPTY, ItemStack.EMPTY);
+            return new Result(this, result ? InteractionResult.SUCCESS : InteractionResult.PASS, Collections.emptyList(), Collections.emptyList());
         }
     }
 
     @Override
-    public ItemStack requiredItemStack() {
+    public ItemStack inputItemStack() {
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack outputItemStack() {
         return new ItemStack(level.getBlockState(blockPos).getBlock().asItem());
     }
 
@@ -167,7 +174,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
 
     @Override
     public BlockState blockState() {
-        return null;
+        return level.getBlockState(blockPos);
     }
 
 }
