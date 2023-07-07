@@ -202,9 +202,12 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     }
 
     @Override
-    public Result perform() {
+    public SingleBlockOperationResult perform() {
+        var inputs = Collections.singletonList(blockState.getBlock().asItem().getDefaultInstance());
+        var outputs = Collections.<ItemStack>emptyList();
+
         if (storage != null) {
-            return new Result(this, InteractionResult.SUCCESS, Collections.emptyList(), Collections.emptyList());
+            return new SingleBlockOperationResult(this, InteractionResult.SUCCESS, inputs, outputs);
         } else {
             var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
 
@@ -212,7 +215,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
             var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
             swapper.restoreSelected();
 
-            return new Result(this, result, Collections.emptyList(), Collections.emptyList());
+            return new SingleBlockOperationResult(this, result, inputs, outputs);
         }
     }
 

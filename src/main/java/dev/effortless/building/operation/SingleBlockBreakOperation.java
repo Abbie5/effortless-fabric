@@ -111,13 +111,17 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     }
 
     @Override
-    public Result perform() {
+    public SingleBlockOperationResult perform() {
+        var inputs = Collections.<ItemStack>emptyList();
+        var outputs = Collections.singletonList(level.getBlockState(blockPos).getBlock().asItem().getDefaultInstance());
+//        var outputs = level.getBlockState(blockPos).getDrops(level);
+
         if (storage != null) {
-            return new Result(this, InteractionResult.SUCCESS, Collections.emptyList(), Collections.emptyList());
+            return new SingleBlockOperationResult(this, InteractionResult.SUCCESS, inputs, outputs);
         } else {
             var result = breakBlock(level, player, blockPos);
             // TODO: 25/6/23 InteractionResult
-            return new Result(this, result ? InteractionResult.SUCCESS : InteractionResult.PASS, Collections.emptyList(), Collections.emptyList());
+            return new SingleBlockOperationResult(this, result ? InteractionResult.SUCCESS : InteractionResult.PASS, inputs, outputs);
         }
     }
 

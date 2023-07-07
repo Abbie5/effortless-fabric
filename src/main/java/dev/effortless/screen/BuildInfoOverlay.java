@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.Effortless;
 import dev.effortless.building.Context;
 import dev.effortless.building.EffortlessBuilder;
-import dev.effortless.building.operation.StructureOperation;
+import dev.effortless.building.operation.StructureOperationResult;
 import dev.effortless.config.ConfigManager;
 import dev.effortless.screen.mode.EffortlessModeRadialScreen;
 import dev.effortless.screen.radial.RadialButton;
@@ -50,32 +50,6 @@ public class BuildInfoOverlay extends GuiComponent {
     }
 
     private void renderBuildMode(PoseStack poseStack) {
-        lastBuildInfoTextHeight = 0;
-        var contentSide = ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis();
-        if (contentSide == null) {
-            return;
-        }
-        if (contentSide == Direction.AxisDirection.POSITIVE
-                && (minecraft.options.showAutosaveIndicator().get()
-                && (minecraft.gui.autosaveIndicatorValue > 0.0F
-                || minecraft.gui.lastAutosaveIndicatorValue > 0.0F))
-                && Mth.floor(255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), minecraft.gui.lastAutosaveIndicatorValue, minecraft.gui.autosaveIndicatorValue), 0.0F, 1.0F)) > 8 || EffortlessModeRadialScreen.getInstance().isVisible()) {
-            return;
-        }
-        var player = minecraft.player;
-        var context = EffortlessBuilder.getInstance().getContext(player);
-
-        if (context.buildMode().isDisabled()) {
-            return;
-        }
-
-        var items = (List<ItemStack>) new ArrayList<ItemStack>();
-        var result = EffortlessBuilder.getInstance().getLastResult();
-        if (result instanceof StructureOperation.Result) {
-            items = ((StructureOperation.Result) result).usages().sufficientItems();
-        }
-
-        var texts = new ArrayList<Component>();
 //
 //        var modifier = EffortlessBuilder.getInstance().getModifierSettings(player);
 //
@@ -103,6 +77,33 @@ public class BuildInfoOverlay extends GuiComponent {
 //            ));
 //        }
 //
+
+        lastBuildInfoTextHeight = 0;
+        var contentSide = ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis();
+        if (contentSide == null) {
+            return;
+        }
+        if (contentSide == Direction.AxisDirection.POSITIVE
+                && (minecraft.options.showAutosaveIndicator().get()
+                && (minecraft.gui.autosaveIndicatorValue > 0.0F
+                || minecraft.gui.lastAutosaveIndicatorValue > 0.0F))
+                && Mth.floor(255.0F * Mth.clamp(Mth.lerp(this.minecraft.getFrameTime(), minecraft.gui.lastAutosaveIndicatorValue, minecraft.gui.autosaveIndicatorValue), 0.0F, 1.0F)) > 8 || EffortlessModeRadialScreen.getInstance().isVisible()) {
+            return;
+        }
+        var player = minecraft.player;
+        var context = EffortlessBuilder.getInstance().getContext(player);
+
+        if (context.buildMode().isDisabled()) {
+            return;
+        }
+
+        var items = (List<ItemStack>) new ArrayList<ItemStack>();
+        var result = EffortlessBuilder.getInstance().getLastResult();
+        if (result instanceof StructureOperationResult result1) {
+            items = result1.inputSuccess();
+        }
+
+        var texts = new ArrayList<Component>();
 
         texts.add(Component.literal(context.state().toString()));
 
@@ -189,7 +190,7 @@ public class BuildInfoOverlay extends GuiComponent {
 
     }
 
-    private void showMessage(Player player, Context context, StructureOperation.Result result) {
+    private void showMessage(Player player, Context context, StructureOperationResult result) {
         if (result.type().isSuccess()) {
             showBlockPlaceMessage(player, context, result);
         } else {
@@ -197,7 +198,7 @@ public class BuildInfoOverlay extends GuiComponent {
         }
     }
 
-    private void showBlockPlaceMessage(Player player, Context context, StructureOperation.Result result) {
+    private void showBlockPlaceMessage(Player player, Context context, StructureOperationResult result) {
         var volume = result.size();
 
         var dimensions = "(";
@@ -207,7 +208,7 @@ public class BuildInfoOverlay extends GuiComponent {
         dimensions = dimensions.substring(0, dimensions.length() - 1);
         if (dimensions.length() > 1) dimensions += ")";
 
-        var blockCounter = String.valueOf(ChatFormatting.WHITE) + result.usages().sufficientCount() + ChatFormatting.RESET + (result.usages().isFilled() ? " " : " + " + ChatFormatting.RED + result.usages().insufficientCount() + ChatFormatting.RESET + " ") + (result.usages().totalCount() == 1 ? "block" : "blocks");
+//        var blockCounter = String.valueOf(ChatFormatting.WHITE) + result.usages().sufficientCount() + ChatFormatting.RESET + (result.usages().isFilled() ? " " : " + " + ChatFormatting.RED + result.usages().insufficientCount() + ChatFormatting.RESET + " ") + (result.usages().totalCount() == 1 ? "block" : "blocks");
 
         var buildingText = switch (context.state()) {
             case IDLE -> "idle";
@@ -215,7 +216,7 @@ public class BuildInfoOverlay extends GuiComponent {
             case BREAKING -> "breaking";
         };
 
-        displayMessage(player, "%s%s%s of %s %s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, buildingText, blockCounter, dimensions));
+//        displayMessage(player, "%s%s%s of %s %s %s".formatted(ChatFormatting.GOLD, context.getTranslatedModeOptionName(), ChatFormatting.RESET, buildingText, blockCounter, dimensions));
     }
 
 

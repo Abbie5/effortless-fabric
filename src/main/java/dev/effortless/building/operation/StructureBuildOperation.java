@@ -82,8 +82,8 @@ public final class StructureBuildOperation extends StructureOperation {
         return Stream.empty();
     }
 
-    public Result perform() {
-        return new Result(this, context.collect().type(), stream().map(Operation::perform).toList());
+    public StructureOperationResult perform() {
+        return new StructureOperationResult(this, context.collect().type(), stream().map(Operation::perform).toList());
     }
 
     @Override

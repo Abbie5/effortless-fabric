@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 
-public interface Operation<R extends Operation.Result<R>> {
+public interface Operation<R extends OperationResult<R>> {
 
     R perform();
 
@@ -20,18 +20,8 @@ public interface Operation<R extends Operation.Result<R>> {
         WORLD_PERFORM_OP,
     }
 
-    interface Renderer<R extends Result<R>> {
+    interface Renderer<R extends OperationResult<R>> {
         void render(PoseStack poseStack, MultiBufferSource multiBufferSource, R result);
     }
 
-    interface Result<O extends Result<O>> {
-
-        Operation<O> operation();
-
-        default void render(PoseStack poseStack, MultiBufferSource multiBufferSource) {
-            operation().getRenderer().render(poseStack, multiBufferSource, (O) this);
-        }
-
-
-    }
 }

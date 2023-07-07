@@ -3,7 +3,7 @@ package dev.effortless.building;
 import dev.effortless.Effortless;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
-import dev.effortless.building.operation.Operation;
+import dev.effortless.building.operation.OperationResult;
 import dev.effortless.network.Packets;
 import dev.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
 import dev.effortless.render.preview.OperationPreviewRenderer;
@@ -25,7 +25,7 @@ public class EffortlessBuilder {
 
     private static final EffortlessBuilder INSTANCE = new EffortlessBuilder();
     private final ContextProvider provider = new ContextProvider();
-    private Operation.Result<?> lastResult;
+    private OperationResult<?> lastResult;
 
     public static EffortlessBuilder getInstance() {
         return INSTANCE;
@@ -35,7 +35,7 @@ public class EffortlessBuilder {
         return provider.get(player);
     }
 
-    public Operation.Result<?> getLastResult() {
+    public OperationResult<?> getLastResult() {
         return lastResult;
     }
 

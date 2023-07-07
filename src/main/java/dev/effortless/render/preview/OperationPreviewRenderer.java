@@ -1,7 +1,7 @@
 package dev.effortless.render.preview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.effortless.building.operation.Operation;
+import dev.effortless.building.operation.OperationResult;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 import java.util.Collections;
@@ -21,7 +21,7 @@ public class OperationPreviewRenderer {
     public OperationPreviewRenderer() {
     }
 
-    public void showResult(Object id, Operation.Result result) {
+    public void showResult(Object id, OperationResult result) {
         var entry = new Entry(result);
         results.put(id, entry);
     }
@@ -47,10 +47,10 @@ public class OperationPreviewRenderer {
 
         private static final int FADE_TICKS = 0;
 
-        private final Operation.Result result;
+        private final OperationResult result;
         private int ticksTillRemoval;
 
-        public Entry(Operation.Result outline) {
+        public Entry(OperationResult outline) {
             this.result = outline;
             ticksTillRemoval = 1;
         }
@@ -60,14 +60,14 @@ public class OperationPreviewRenderer {
         }
 
         public boolean isAlive() {
-            return ticksTillRemoval >= -FADE_TICKS;
+            return ticksTillRemoval >= FADE_TICKS;
         }
 
         public boolean isFading() {
             return ticksTillRemoval < 0;
         }
 
-        public Operation.Result getResult() {
+        public OperationResult getResult() {
             return result;
         }
 

@@ -10,15 +10,12 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.List;
-
-public abstract class SingleBlockOperation implements Operation<SingleBlockOperation.Result> {
+public abstract class SingleBlockOperation implements Operation<SingleBlockOperationResult> {
 
     protected static boolean canInteract(Level level, Player player, BlockPos blockPos) {
         var gameMode = level.isClientSide() ? Minecraft.getInstance().gameMode.getPlayerMode() : ((ServerPlayer) player).gameMode.getGameModeForPlayer();
@@ -42,7 +39,7 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 
     public abstract ItemStack outputItemStack();
 
-    public static final class DefaultRenderer implements Renderer<Result> {
+    public static final class DefaultRenderer implements Renderer<SingleBlockOperationResult> {
 
         public static final float SCALE = 1 / 128f;
         private static final DefaultRenderer INSTANCE = new DefaultRenderer();
@@ -53,7 +50,7 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
         }
 
         @Override
-        public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, Result result) {
+        public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, SingleBlockOperationResult result) {
 
             var dispatcher = Minecraft.getInstance().getBlockRenderer();
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -83,10 +80,4 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
         }
     }
 
-    public record Result(
-            SingleBlockOperation operation,
-            InteractionResult result,
-            List<ItemStack> inputs, // player consumed
-            List<ItemStack> outputs // level dropped
-    ) implements Operation.Result<Result> { }
 }
