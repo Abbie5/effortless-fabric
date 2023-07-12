@@ -345,7 +345,7 @@ public record Context(
             return TracingResult.fail();
         }
 
-        var hitResults = buildMode().getInstance().collect(this).map((blockPos) -> firstBlockHitResult().withPosition(blockPos)).toList();
+        var hitResults = buildMode().getInstance().collect(this).map((blockPos) -> firstBlockHitResult().withPosition(blockPos));
 
         if (isFulfilled()) {
             return TracingResult.success(hitResults);

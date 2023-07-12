@@ -60,7 +60,6 @@ public final class StructureBuildOperation extends StructureOperation {
             case PLACE_BLOCK -> {
                 return context.collect()
                         .result()
-                        .stream()
                         .map((hitResult) -> new SingleBlockPlaceOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos(),
@@ -71,7 +70,6 @@ public final class StructureBuildOperation extends StructureOperation {
             case BREAK_BLOCK -> {
                 return context.collect()
                         .result()
-                        .stream()
                         .map((hitResult) -> new SingleBlockBreakOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos()))
