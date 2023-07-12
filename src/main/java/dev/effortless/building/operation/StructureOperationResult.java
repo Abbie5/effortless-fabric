@@ -16,8 +16,8 @@ import java.util.stream.Stream;
 
 public record StructureOperationResult(
         StructureOperation operation,
-        TracingResult.Type type,
-        List<SingleBlockOperationResult> result
+        TracingResult result,
+        List<SingleBlockOperationResult> children
 ) implements OperationResult<StructureOperationResult> {
 
     private static List<ItemStack> reduceItemStacks(List<ItemStack> stacks) {
@@ -48,16 +48,16 @@ public record StructureOperationResult(
     public ItemStackSummary summary() {
         return new ItemStackSummary(operation().context(),
                 Map.of(
-                        ItemStackType.SUCCESS, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList()),
-                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList())),
+                        ItemStackType.SUCCESS, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList()),
+                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList())),
                 Map.of(
-                        ItemStackType.SUCCESS, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList()),
-                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList())),
+                        ItemStackType.SUCCESS, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList()),
+                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList())),
                 Map.of(
-                        ItemStackType.SUCCESS, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList()),
-                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList())),
+                        ItemStackType.SUCCESS, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList()),
+                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> !r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList())),
                 Map.of(
-                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
+                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
 //                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
     }
 
@@ -88,7 +88,7 @@ public record StructureOperationResult(
     }
 
     public Iterable<BlockPos> blockPoses() {
-        return result().stream().map((p) -> p.operation().getPosition()).toList();
+        return children().stream().map((p) -> p.operation().getPosition()).toList();
     }
 
 }

@@ -337,20 +337,26 @@ public record Context(
     }
 
     // for build mode only
-    public TracingResult collect() {
+    public Stream<BlockHitResult> collect() {
+        if (tracingResult().isSuccess()) {
+            return buildMode().getInstance().collect(this).map((blockPos) -> firstBlockHitResult().withPosition(blockPos));
+        } else {
+            return Stream.empty();
+        }
+
+    }
+    public TracingResult tracingResult() {
         if (isIdle()) {
-            return TracingResult.pass();
+            return TracingResult.NOT_BUILDING;
         }
         if (isMissingHit()) {
-            return TracingResult.fail();
+            return TracingResult.MISSING_HIT;
         }
 
-        var hitResults = buildMode().getInstance().collect(this).map((blockPos) -> firstBlockHitResult().withPosition(blockPos));
-
         if (isFulfilled()) {
-            return TracingResult.success(hitResults);
+            return TracingResult.SUCCESS_FULFILLED;
         } else {
-            return TracingResult.partial(hitResults);
+            return TracingResult.SUCCESS_PARTIAL;
         }
     }
 

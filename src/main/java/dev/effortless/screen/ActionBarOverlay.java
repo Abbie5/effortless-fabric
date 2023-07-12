@@ -62,7 +62,7 @@ public class ActionBarOverlay extends GuiComponent {
     }
 
     private void showMessage(Player player, Context context, StructureOperationResult result) {
-        if (result.type().isSuccess()) {
+        if (result.result().isSuccess()) {
             showBlockPlaceMessage(player, context, result);
         } else {
             showTracingFailedMessage(player, context);

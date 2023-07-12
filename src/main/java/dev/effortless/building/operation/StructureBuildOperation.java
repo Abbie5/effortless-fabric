@@ -51,15 +51,12 @@ public final class StructureBuildOperation extends StructureOperation {
     }
 
     public Stream<SingleBlockOperation> stream() {
-        var state = context.state();
-
         switch (context.state()) {
             case IDLE -> {
                 return Stream.empty();
             }
             case PLACE_BLOCK -> {
                 return context.collect()
-                        .result()
                         .map((hitResult) -> new SingleBlockPlaceOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos(),
@@ -69,7 +66,6 @@ public final class StructureBuildOperation extends StructureOperation {
             }
             case BREAK_BLOCK -> {
                 return context.collect()
-                        .result()
                         .map((hitResult) -> new SingleBlockBreakOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos()))
@@ -81,7 +77,7 @@ public final class StructureBuildOperation extends StructureOperation {
     }
 
     public StructureOperationResult perform() {
-        return new StructureOperationResult(this, context.collect().type(), stream().map(Operation::perform).toList());
+        return new StructureOperationResult(this, context.tracingResult(), stream().map(Operation::perform).toList());
     }
 
     @Override
