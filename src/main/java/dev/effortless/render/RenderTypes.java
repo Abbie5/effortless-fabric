@@ -14,14 +14,14 @@ public class RenderTypes extends RenderStateShard {
 //	public static final ShaderStateShard GLOWING_SHADER = new ShaderStateShard(() -> Shaders.glowingShader);
 
 
-    public static final ResourceLocation BLANK_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/blank.png");
-    public static final ResourceLocation CHECKERED_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard.png");
-    public static final ResourceLocation CHECKERED_HIGHLIGHT_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_highlight.png");
+    public static final ResourceLocation BLANK_TEXTURE_LOCATION = Effortless.asResource("textures/misc/blank.png");
+    public static final ResourceLocation CHECKERED_TEXTURE_LOCATION = Effortless.asResource("textures/misc/checkerboard.png");
+    public static final ResourceLocation CHECKERED_HIGHLIGHT_TEXTURE_LOCATION = Effortless.asResource("textures/misc/checkerboard_highlight.png");
 
-    public static final ResourceLocation CHECKERED_THIN_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_thin.png");
-    public static final ResourceLocation CHECKERED_CUTOUT_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/checkerboard_cutout.png");
-    public static final ResourceLocation SELECTION_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/selection.png");
-    public static final ResourceLocation GLUE_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/misc/glue.png");
+    public static final ResourceLocation CHECKERED_THIN_TEXTURE_LOCATION = Effortless.asResource("textures/misc/checkerboard_thin.png");
+    public static final ResourceLocation CHECKERED_CUTOUT_TEXTURE_LOCATION = Effortless.asResource("textures/misc/checkerboard_cutout.png");
+    public static final ResourceLocation SELECTION_TEXTURE_LOCATION = Effortless.asResource("textures/misc/selection.png");
+    public static final ResourceLocation GLUE_TEXTURE_LOCATION = Effortless.asResource("textures/misc/glue.png");
 
     private static final RenderType OUTLINE_SOLID =
             RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
@@ -138,7 +138,7 @@ public class RenderTypes extends RenderStateShard {
     }
 
     private static String createLayerName(String name) {
-        return Effortless.MOD_ID + ":" + name;
+        return Effortless.asResource(name).toString();
     }
 
 //	@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)

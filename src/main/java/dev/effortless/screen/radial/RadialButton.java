@@ -59,9 +59,9 @@ public interface RadialButton<T> {
 
     static <T extends BuildOption> RadialButton<T> option(T option) {
         return of(
-                Component.translatable(String.join(".", Effortless.MOD_ID, "option", option.getCategory())),
-                Component.translatable(String.join(".", Effortless.MOD_ID, "action", option.getName())),
-                new ResourceLocation(Effortless.MOD_ID, "textures/option/" + option.getName() + ".png"),
+                Component.translatable(Effortless.asKey("option", option.getCategory())),
+                Component.translatable(Effortless.asKey("action", option.getName())),
+                Effortless.asResource("textures/option/" + option.getName() + ".png"),
                 option
         );
     }

@@ -65,7 +65,7 @@ public enum BuildMode {
     }
 
     public String getNameKey() {
-        return Effortless.MOD_ID + ".mode." + name;
+        return Effortless.asKey("mode", name);
     }
 
     public Component getNameComponent() {
@@ -73,7 +73,7 @@ public enum BuildMode {
     }
 
     public ResourceLocation getIcon() {
-        return new ResourceLocation(Effortless.MOD_ID, "textures/mode/" + name + ".png");
+        return Effortless.asResource("textures/mode/" + name + ".png");
     }
 
     public boolean isDisabled() {

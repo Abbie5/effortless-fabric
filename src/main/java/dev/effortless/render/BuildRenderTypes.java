@@ -22,7 +22,7 @@ public class BuildRenderTypes extends RenderType {
     //Between 0 and 7, but dont override vanilla textures
     //Also update dissolve.fsh SamplerX
     private static final int MASK_TEXTURE_INDEX = 2;
-    private static final ResourceLocation SHADER_MASK_TEXTURE_LOCATION = new ResourceLocation(Effortless.MOD_ID, "textures/shader_mask.png");
+    private static final ResourceLocation SHADER_MASK_TEXTURE_LOCATION = Effortless.asResource("textures/shader_mask.png");
     private static ShaderInstance dissolveShaderInstance;
     private static final ShaderStateShard RENDER_TYPE_DISSOLVE_SHADER = new ShaderStateShard(() -> dissolveShaderInstance);
 

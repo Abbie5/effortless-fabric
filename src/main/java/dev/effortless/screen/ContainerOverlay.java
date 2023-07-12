@@ -147,7 +147,7 @@ public class ContainerOverlay {
 
         public String getNameKey() {
             // TODO: 15/9/22 use ResourceLocation
-            return Effortless.MOD_ID + ".position." + name;
+            return Effortless.asKey("position", name);
         }
 
         public Direction.AxisDirection getAxis() {

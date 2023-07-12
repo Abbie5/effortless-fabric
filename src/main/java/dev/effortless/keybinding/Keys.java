@@ -33,7 +33,7 @@ public enum Keys {
     private KeyMapping keyMapping;
 
     Keys(String description, int defaultKey) {
-        this.description = String.join(".", "key", Effortless.MOD_ID, description, "desc");
+        this.description = "key." + Effortless.asKey(description, "desc");
         this.key = defaultKey;
         this.modifiable = !description.isEmpty();
     }

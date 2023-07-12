@@ -23,22 +23,22 @@ public class EffortlessSettingsScreen {
 
     private static final Function<Boolean, Component> yesNoTextSupplier = bool -> {
         if (bool) {
-            return Component.translatable(Effortless.MOD_ID + ".settings.toggle.on").withStyle(ChatFormatting.GREEN);
+            return Component.translatable(Effortless.asKey("settings", "toggle", "on")).withStyle(ChatFormatting.GREEN);
         } else {
-            return Component.translatable(Effortless.MOD_ID + ".settings.toggle.off").withStyle(ChatFormatting.RED);
+            return Component.translatable(Effortless.asKey("settings", "toggle", "off")).withStyle(ChatFormatting.RED);
         }
     };
 
     static String getSettingsNamespace() {
-        return String.join(".", Effortless.MOD_ID, "settings");
+        return Effortless.asKey("settings");
     }
 
     static String getSettingsNamespaceTooltip(String path) {
-        return String.join(".", Effortless.MOD_ID, "settings", path, "tooltip");
+        return Effortless.asKey("settings", path, "tooltip");
     }
 
     static String getSettingsNamespaceTooltip(String path, int ordinal) {
-        return String.join(".", Effortless.MOD_ID, "settings", path, "tooltip" + "_" + ordinal);
+        return Effortless.asKey("settings", path, "tooltip" + "_" + ordinal);
     }
 
     public static Screen createConfigScreen(Screen parentScreen) {
@@ -50,7 +50,7 @@ public class EffortlessSettingsScreen {
 
         final var builder = ConfigBuilder.create()
                 .setParentScreen(parentScreen)
-                .setTitle(Component.translatable(Effortless.MOD_ID + ".settings.title"))
+                .setTitle(Component.translatable(Effortless.asKey("settings", "title")))
                 .transparentBackground()
                 .setDoesConfirmSave(true)
                 .setSavingRunnable(() -> {
@@ -60,11 +60,11 @@ public class EffortlessSettingsScreen {
                 });
 
 
-        final var configCategory = builder.getOrCreateCategory(Component.translatable(String.join(".", Effortless.MOD_ID, "settings", "category", "config", "title")));
+        final var configCategory = builder.getOrCreateCategory(Component.translatable(Effortless.asKey("settings", "category", "config", "title")));
 
         final var entryBuilder = builder.entryBuilder();
 
-        final var previewSubCat = entryBuilder.startSubCategory(Component.translatable(String.join(".", Effortless.MOD_ID, "settings", "category", "config", "preview", "title")));
+        final var previewSubCat = entryBuilder.startSubCategory(Component.translatable(Effortless.asKey("settings", "category", "config", "preview", "title")));
 
         final var alwaysShowBlockPreview = new BooleanEntryData("always_show_block_preview", defaults.getPreviewConfig().isAlwaysShowBlockPreview(), config.getPreviewConfig().isAlwaysShowBlockPreview(), config.getPreviewConfig()::setAlwaysShowBlockPreview);
 //        final var useShaders = new BooleanEntryData("use_shaders", defaults.getPreviewConfig().isUseShaders(), config.getPreviewConfig().isUseShaders(), config.getPreviewConfig()::setUseShaders);

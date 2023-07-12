@@ -31,7 +31,7 @@ public enum ModifierEnums {
     }
 
     public String getNameKey() {
-        return Effortless.MOD_ID + ".modifier." + getName();
+        return Effortless.asKey("modifier", getName());
     }
 
     public Modifier getInstance() {

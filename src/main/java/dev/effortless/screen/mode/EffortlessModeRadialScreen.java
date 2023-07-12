@@ -31,7 +31,7 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
     private static final RadialButton<ReplaceMode> REPLACE_OPTION = RadialButton.option(ReplaceMode.DISABLED);
 
     public EffortlessModeRadialScreen() {
-        super(Component.translatable(String.join(".", Effortless.MOD_ID, "screen", "build_mode_radial")));
+        super(Component.translatable(Effortless.asKey("screen", "build_mode_radial")));
     }
 
     public static EffortlessModeRadialScreen getInstance() {

@@ -11,7 +11,6 @@ import dev.effortless.network.protocol.settings.ClientboundPlayerSettingsPacket;
 import dev.effortless.network.protocol.settings.ServerboundPlayerSettingsPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.loader.impl.launch.FabricLauncherBase;
-import net.minecraft.resources.ResourceLocation;
 
 public class Packets {
 
@@ -24,7 +23,7 @@ public class Packets {
         }
 
         return new FabricNetworkChannel<>(
-                new ResourceLocation(Effortless.MOD_ID, "default_channel"),
+                Effortless.asResource( "default_channel"),
                 ServerEffortlessPacketHandler::new,
                 clientPacketHandlerCreator
         );

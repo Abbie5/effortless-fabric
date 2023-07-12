@@ -1,6 +1,5 @@
 package dev.effortless.building.history;
 
-import dev.effortless.Effortless;
 import dev.effortless.building.reach.ReachHelper;
 import dev.effortless.utils.FixedStack;
 import dev.effortless.utils.InventoryHelper;
@@ -36,8 +35,8 @@ public class UndoRedoProvider {
         //Assert coordinates is as long as previous and new blockstate lists
         if (blockSet.coordinates().size() != blockSet.previousBlockStates().size() ||
                 blockSet.coordinates().size() != blockSet.newBlockStates().size()) {
-            Effortless.logger.error("Coordinates and blockstate lists are not equal length. Coordinates: {}. Previous blockstates: {}. New blockstates: {}.",
-                    blockSet.coordinates().size(), blockSet.previousBlockStates().size(), blockSet.newBlockStates().size());
+//            Effortless..error("Coordinates and blockstate lists are not equal length. Coordinates: {}. Previous blockstates: {}. New blockstates: {}.",
+//                    blockSet.coordinates().size(), blockSet.previousBlockStates().size(), blockSet.newBlockStates().size());
         }
 
         //Warn if previous and new blockstate are equal

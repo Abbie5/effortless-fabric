@@ -49,7 +49,7 @@ public class EffortlessBuilder {
     }
 
     private static Component getStateComponent(BuildingState state) {
-        return Component.translatable(String.join(".", Effortless.MOD_ID, "state", switch (state) {
+        return Component.translatable(Effortless.asKey("state", switch (state) {
                     case IDLE -> "idle";
                     case PLACE_BLOCK -> "place_block";
                     case BREAK_BLOCK -> "break_block";

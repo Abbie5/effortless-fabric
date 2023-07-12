@@ -17,7 +17,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
 
-    protected static final ResourceLocation BUILDING_ICONS = new ResourceLocation(Effortless.MOD_ID, "textures/gui/building_icons.png");
+    protected static final ResourceLocation BUILDING_ICONS = Effortless.asResource("textures/gui/building_icons.png");
 
     protected List<Button> radialMirrorButtonList = new ArrayList<>();
     protected List<IconButton> radialMirrorIconButtonList = new ArrayList<>();
