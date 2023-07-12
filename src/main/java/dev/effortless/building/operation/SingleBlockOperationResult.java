@@ -8,7 +8,9 @@ import java.util.List;
 public record SingleBlockOperationResult(
         SingleBlockOperation operation,
         InteractionResult result,
-        List<ItemStack> inputs, // player consumed
-        List<ItemStack> outputs // level dropped
+        List<ItemStack> inventoryConsumed, // player consumed
+        List<ItemStack> inventoryPicked, // player picked
+        List<ItemStack> levelConsumed, // level placed
+        List<ItemStack> levelDropped // level dropped
 ) implements OperationResult<SingleBlockOperationResult> {
 }

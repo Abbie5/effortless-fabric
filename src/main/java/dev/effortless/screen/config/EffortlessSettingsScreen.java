@@ -4,7 +4,7 @@ import dev.effortless.Effortless;
 import dev.effortless.config.ConfigManager;
 import dev.effortless.config.EffortlessConfig;
 import dev.effortless.config.PreviewConfig;
-import dev.effortless.screen.BuildInfoOverlay;
+import dev.effortless.screen.ContainerOverlay;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -72,19 +72,19 @@ public class EffortlessSettingsScreen {
         final var dissolveTimeMultiplier = new SliderEntryData("shader_dissolve_time_multiplier", defaults.getPreviewConfig().getShaderDissolveTimeMultiplier(), config.getPreviewConfig().getShaderDissolveTimeMultiplier(), PreviewConfig.MIN_SHADER_DISSOLVE_TIME_MULTIPLIER, PreviewConfig.MAX_SHADER_DISSOLVE_TIME_MULTIPLIER, config.getPreviewConfig()::setShaderDissolveTimeMultiplier);
 
         previewSubCat.add(
-                entryBuilder.startEnumSelector(Component.translatable("effortless.settings.show_build_info.title"), BuildInfoOverlay.Position.class, config.getPreviewConfig().getBuildInfoPosition())
+                entryBuilder.startEnumSelector(Component.translatable("effortless.settings.show_build_info.title"), ContainerOverlay.Position.class, config.getPreviewConfig().getBuildInfoPosition())
                         .setTooltip(Component.translatable("effortless.settings.show_build_info.tooltip"))
                         .setDefaultValue(defaults.getPreviewConfig().getBuildInfoPosition())
                         .setSaveConsumer(config.getPreviewConfig()::setBuildInfoPosition)
-                        .setEnumNameProvider(anEnum -> Component.translatable(((BuildInfoOverlay.Position) anEnum).getNameKey()))
+                        .setEnumNameProvider(anEnum -> Component.translatable(((ContainerOverlay.Position) anEnum).getNameKey()))
                         .build()
         );
         previewSubCat.add(
-                entryBuilder.startEnumSelector(Component.translatable("effortless.settings.show_item_usage.title"), BuildInfoOverlay.Position.class, config.getPreviewConfig().getItemUsagePosition())
+                entryBuilder.startEnumSelector(Component.translatable("effortless.settings.show_item_usage.title"), ContainerOverlay.Position.class, config.getPreviewConfig().getItemUsagePosition())
                         .setTooltip(Component.translatable("effortless.settings.show_item_usage.tooltip"))
                         .setDefaultValue(defaults.getPreviewConfig().getItemUsagePosition())
                         .setSaveConsumer(config.getPreviewConfig()::setItemUsagePosition)
-                        .setEnumNameProvider(anEnum -> Component.translatable(((BuildInfoOverlay.Position) anEnum).getNameKey()))
+                        .setEnumNameProvider(anEnum -> Component.translatable(((ContainerOverlay.Position) anEnum).getNameKey()))
                         .build()
         );
         previewSubCat.add(

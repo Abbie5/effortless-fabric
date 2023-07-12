@@ -1,7 +1,6 @@
 package dev.effortless.event;
 
 import dev.effortless.Effortless;
-import dev.effortless.building.EffortlessBuilder;
 import dev.effortless.building.history.UndoRedoProvider;
 import dev.effortless.building.pattern.randomizer.RandomizerSettings;
 import dev.effortless.building.reach.ReachHelper;
@@ -13,6 +12,7 @@ import dev.effortless.screen.mode.PlayerSettingsScreen;
 import dev.effortless.screen.pattern.buildmodifier.EffortlessModifierSettingsScreen;
 import dev.effortless.screen.pattern.randomizer.EffortlessRandomizerSettingsScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 
 public class InputEvents {
 
@@ -47,8 +47,13 @@ public class InputEvents {
             openSettings();
         }
         if (Keys.TOGGLE_REPLACE.getKeyMapping().consumeClick()) {
-            EffortlessBuilder.getInstance().cycleReplaceMode(player);
+            cycleReplaceMode(player);
         }
+    }
+
+    public static void cycleReplaceMode(Player player) {
+        // TODO: 23/5/23
+//        setReplaceMode(player, ReplaceMode.values()[(getReplaceMode(player).ordinal() + 1) % ReplaceMode.values().length]);
     }
 
     public static void showBuildModelMenu() {

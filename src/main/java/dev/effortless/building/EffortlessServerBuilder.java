@@ -1,6 +1,8 @@
 package dev.effortless.building;
 
+import dev.effortless.building.operation.StructureBuildOperation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 public class EffortlessServerBuilder {
 
@@ -10,8 +12,12 @@ public class EffortlessServerBuilder {
         return INSTANCE;
     }
 
+    private static StructureBuildOperation generateStructureFromContext(Level level, Player player, Context context) {
+        return new StructureBuildOperation(level, player, context, null);
+    }
+
     public void perform(Player player, Context context) {
-        context.getStructure(player.getLevel(), player).perform();
+        generateStructureFromContext(player.getCommandSenderWorld(), player, context).perform();
     }
 
 }

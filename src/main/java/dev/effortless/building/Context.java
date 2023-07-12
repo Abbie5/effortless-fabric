@@ -3,14 +3,11 @@ package dev.effortless.building;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
 import dev.effortless.building.mode.BuildOption;
-import dev.effortless.building.operation.StructureBuildOperation;
 import dev.effortless.building.pattern.randomizer.Randomizer;
 import dev.effortless.building.replace.ReplaceMode;
-import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.*;
@@ -102,7 +99,7 @@ public record Context(
     public Context placing() {
         return new Context(
                 UUID.randomUUID(),
-                BuildingState.PLACING,
+                BuildingState.PLACE_BLOCK,
                 Collections.emptyList(),
                 structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
         );
@@ -112,14 +109,14 @@ public record Context(
     public Context breaking() {
         return new Context(
                 UUID.randomUUID(),
-                BuildingState.BREAKING,
+                BuildingState.BREAK_BLOCK,
                 Collections.emptyList(),
                 structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
         );
     }
 
     public Context withNextBreak(BlockHitResult blockHitResult) {
-        if (isBreaking()) {
+        if (isBreakBlock()) {
             return this.withNextHit(blockHitResult);
         } else {
             return this.withBreakingState().withNextHit(blockHitResult);
@@ -127,7 +124,7 @@ public record Context(
     }
 
     public Context withNextPlace(BlockHitResult blockHitResult) {
-        if (isBreaking()) {
+        if (isBreakBlock()) {
             return this.withNextHit(blockHitResult);
         } else {
             return this.withPlacingState().withNextHit(blockHitResult);
@@ -135,11 +132,11 @@ public record Context(
     }
 
     public Context withPlacingState() {
-        return this.withState(BuildingState.PLACING);
+        return this.withState(BuildingState.PLACE_BLOCK);
     }
 
     public Context withBreakingState() {
-        return this.withState(BuildingState.BREAKING);
+        return this.withState(BuildingState.BREAK_BLOCK);
     }
 
     public Context withState(BuildingState state) {
@@ -153,27 +150,27 @@ public record Context(
                     blockHitResults,
                     structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
-            case PLACING -> new Context(
+            case PLACE_BLOCK -> new Context(
                     uuid,
-                    BuildingState.PLACING,
+                    BuildingState.PLACE_BLOCK,
                     blockHitResults,
                     structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
-            case BREAKING -> new Context(
+            case BREAK_BLOCK -> new Context(
                     uuid,
-                    BuildingState.BREAKING,
+                    BuildingState.BREAK_BLOCK,
                     blockHitResults,
                     structureParams, patternParams, randomizerParams, reachParams, skipRaytrace
             );
         };
     }
 
-    public boolean isPlacing() {
-        return state == BuildingState.PLACING;
+    public boolean isPlaceBlock() {
+        return state == BuildingState.PLACE_BLOCK;
     }
 
-    public boolean isBreaking() {
-        return state == BuildingState.BREAKING;
+    public boolean isBreakBlock() {
+        return state == BuildingState.BREAK_BLOCK;
     }
 
     public boolean isIdle() {
@@ -185,7 +182,7 @@ public record Context(
     }
 
     public boolean isSkipTracing() {
-        return state().isBreaking() || structureParams().replaceMode() == ReplaceMode.QUICK;
+        return state() == BuildingState.BREAK_BLOCK || structureParams().replaceMode() == ReplaceMode.QUICK;
     }
 
     public BlockHitResult firstBlockHitResult() {
@@ -272,7 +269,7 @@ public record Context(
         return new Context(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public Context withUUID() {
+    public Context withRandomUUID() {
         return withUUID(UUID.randomUUID());
     }
 
@@ -335,14 +332,8 @@ public record Context(
     }
 
     // for build mode only
-    public BlockHitResult trace(Player player, boolean preview) {
-        var result = buildMode().getInstance().trace(player, this);
-//        if (!preview) {
-//            Effortless.log("traceBuildMode: " + result);
-//        } else {
-//            if (result != null) Effortless.log("traceIt", result.getType(), result.getBlockPos());
-//        }
-        return result;
+    public BlockHitResult trace(Player player, boolean preview) { // TODO: 11/7/23 preview
+        return buildMode().getInstance().trace(player, this);
     }
 
     // for build mode only
@@ -361,26 +352,6 @@ public record Context(
         } else {
             return TracingResult.partial(hitResults);
         }
-    }
-
-    public StructureBuildOperation getStructure(Level level, Player player) {
-        return new StructureBuildOperation(level, player, this, null);
-    }
-
-    public StructureBuildOperation getStructure(Level level, Player player, Storage storage) {
-        return new StructureBuildOperation(level, player, this, storage);
-    }
-
-    public String getTranslatedModeOptionName() {
-
-        var mode = buildMode();
-        var modeName = new StringBuilder();
-        for (var option : buildMode().getSupportedFeatures()) {
-            // TODO: 20/3/23
-//            modeName.append(I18n.get(getOptionSetting(option).getNameKey()));
-            modeName.append(" ");
-        }
-        return modeName + I18n.get(mode.getNameKey());
     }
 
     public record GeneralParams(

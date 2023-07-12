@@ -12,8 +12,8 @@ import dev.effortless.render.SuperRenderTypeBuffer;
 import dev.effortless.render.modifier.ModifierRenderer;
 import dev.effortless.render.modifier.Shaders;
 import dev.effortless.render.outliner.OutlineRenderer;
-import dev.effortless.render.preview.OperationPreviewRenderer;
-import dev.effortless.screen.BuildInfoOverlay;
+import dev.effortless.render.preview.OperationRenderer;
+import dev.effortless.screen.ContainerOverlay;
 import dev.effortless.utils.AnimationTicker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -33,23 +33,21 @@ public class ClientEvents {
 
     public static void onStartTick(Minecraft minecraft) {
         EffortlessBuilder.getInstance().tick();
-        OperationPreviewRenderer.getInstance().tick();
+        OperationRenderer.getInstance().tick();
         OutlineRenderer.getInstance().tick();
-        AnimationTicker.tick();
+        ContainerOverlay.getInstance().tick();
+
+        AnimationTicker.getInstance().tick();
     }
 
     public static void onEndTick(Minecraft minecraft) {
     }
 
     public static void onScreenOpening(@Nullable Screen screen) {
-        var player = Minecraft.getInstance().player;
-        if (player != null) {
-            EffortlessBuilder.getInstance().setIdle(player);
-        }
     }
 
     public static void onRenderGui(PoseStack poseStack) {
-        BuildInfoOverlay.getInstance().renderGuiOverlay(poseStack);
+        ContainerOverlay.getInstance().renderGuiOverlay(poseStack);
     }
 
     public static void onRenderAfterEntities(WorldRenderContext context) {
@@ -58,16 +56,15 @@ public class ClientEvents {
     public static void onRenderEnd(WorldRenderContext context) {
 
         var poseStack = context.poseStack();
-        var partialTicks = AnimationTicker.getPartialTicks();
+        var partialTicks = AnimationTicker.getInstance().getPartialTicks();
         var buffer = SuperRenderTypeBuffer.getInstance();
         var camera = context.camera();
 
-        // modifier
         var bufferBuilder = Tesselator.getInstance().getBuilder();
         var bufferSource = MultiBufferSource.immediate(bufferBuilder);
         ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
 
-        OperationPreviewRenderer.getInstance().renderOperationResults(poseStack, buffer, partialTicks);
+        OperationRenderer.getInstance().renderOperationResults(poseStack, buffer, partialTicks);
         OutlineRenderer.getInstance().renderOutlines(poseStack, buffer, partialTicks);
         buffer.draw();
     }
@@ -121,7 +118,6 @@ public class ClientEvents {
     public static boolean onPlayerContinueAttack(Player player) {
         var context = EffortlessBuilder.getInstance().getContext(player);
         return !context.isDisabled(); // pass
-// consumed
     }
 
     public static void register() {

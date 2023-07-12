@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public record StructureOperationResult(
@@ -44,20 +45,20 @@ public record StructureOperationResult(
         return result;
     }
 
-    public List<ItemStack> inputSuccess() {
-        return reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.inputs().stream() : Stream.empty()).toList());
-    }
-
-    public List<ItemStack> inputFailure() {
-        return reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.inputs().stream() : Stream.empty()).toList());
-    }
-
-    public List<ItemStack> outputSuccess() {
-        return reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.outputs().stream() : Stream.empty()).toList());
-    }
-
-    public List<ItemStack> outputFailure() {
-        return reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.outputs().stream() : Stream.empty()).toList());
+    public ItemStackSummary summary() {
+        return new ItemStackSummary(operation().context(),
+                Map.of(
+                        ItemStackType.SUCCESS, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList()),
+                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList())),
+                Map.of(
+                        ItemStackType.SUCCESS, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList()),
+                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList())),
+                Map.of(
+                        ItemStackType.SUCCESS, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList()),
+                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList())),
+                Map.of(
+                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
+//                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
     }
 
     public Vec3i size() {

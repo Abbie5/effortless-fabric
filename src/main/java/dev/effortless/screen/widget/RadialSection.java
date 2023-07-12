@@ -21,6 +21,7 @@ import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 
 import java.awt.*;
 import java.util.List;
@@ -129,10 +130,10 @@ public class RadialSection extends AbstractWidget {
         }
         lastScrollOffset += f;
         if (lastScrollOffset > MOUSE_SCROLL_THRESHOLD) {
-            builder.cycleBuildMode(minecraft.player, true);
+            cycleBuildMode(minecraft.player, true);
             lastScrollOffset = 0;
         } else if (lastScrollOffset < -MOUSE_SCROLL_THRESHOLD) {
-            builder.cycleBuildMode(minecraft.player, false);
+            cycleBuildMode(minecraft.player, false);
             lastScrollOffset = 0;
         }
         return true;
@@ -399,6 +400,12 @@ public class RadialSection extends AbstractWidget {
     }
 
     private record Button(RadialButton<?> entry) {
+    }
+
+    public void cycleBuildMode(Player player, boolean reverse) {
+        // TODO: 23/5/23
+//        setBuildMode(player, BuildMode.values()[(getBuildMode(player).ordinal() + 1) % BuildMode.values().length]);
+//        Constructor.getInstance().reset(player);
     }
 
 

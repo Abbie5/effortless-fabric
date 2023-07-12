@@ -1,7 +1,7 @@
 package dev.effortless.config;
 
 import com.google.gson.annotations.Expose;
-import dev.effortless.screen.BuildInfoOverlay;
+import dev.effortless.screen.ContainerOverlay;
 
 public class PreviewConfig extends Config {
 
@@ -9,9 +9,9 @@ public class PreviewConfig extends Config {
     public static final int MAX_SHADER_DISSOLVE_TIME_MULTIPLIER = 40;
 
     @Expose
-    private int itemUsagePosition = BuildInfoOverlay.Position.RIGHT.ordinal();
+    private int itemUsagePosition = ContainerOverlay.Position.RIGHT.ordinal();
     @Expose
-    private int buildInfoPosition = BuildInfoOverlay.Position.RIGHT.ordinal();
+    private int buildInfoPosition = ContainerOverlay.Position.RIGHT.ordinal();
     @Expose
     private boolean alwaysShowBlockPreview = false;
     @Expose
@@ -22,26 +22,26 @@ public class PreviewConfig extends Config {
     }
 
     public boolean isShowingBuildInfo() {
-        return buildInfoPosition != BuildInfoOverlay.Position.DISABLED.ordinal();
+        return buildInfoPosition != ContainerOverlay.Position.DISABLED.ordinal();
     }
 
-    public BuildInfoOverlay.Position getBuildInfoPosition() {
-        return BuildInfoOverlay.Position.values()[buildInfoPosition];
+    public ContainerOverlay.Position getBuildInfoPosition() {
+        return ContainerOverlay.Position.values()[buildInfoPosition];
     }
 
-    public void setBuildInfoPosition(BuildInfoOverlay.Position position) {
+    public void setBuildInfoPosition(ContainerOverlay.Position position) {
         this.buildInfoPosition = position.ordinal();
     }
 
     public boolean isShowItemUsage() {
-        return itemUsagePosition != BuildInfoOverlay.Position.DISABLED.ordinal();
+        return itemUsagePosition != ContainerOverlay.Position.DISABLED.ordinal();
     }
 
-    public BuildInfoOverlay.Position getItemUsagePosition() {
-        return BuildInfoOverlay.Position.values()[itemUsagePosition];
+    public ContainerOverlay.Position getItemUsagePosition() {
+        return ContainerOverlay.Position.values()[itemUsagePosition];
     }
 
-    public void setItemUsagePosition(BuildInfoOverlay.Position position) {
+    public void setItemUsagePosition(ContainerOverlay.Position position) {
         this.itemUsagePosition = position.ordinal();
     }
 

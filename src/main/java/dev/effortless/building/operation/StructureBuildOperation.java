@@ -57,7 +57,7 @@ public final class StructureBuildOperation extends StructureOperation {
             case IDLE -> {
                 return Stream.empty();
             }
-            case PLACING -> {
+            case PLACE_BLOCK -> {
                 return context.collect()
                         .result()
                         .stream()
@@ -68,7 +68,7 @@ public final class StructureBuildOperation extends StructureOperation {
                         .flatMap(Stream::of) // for modifiers
                         .map((op) -> op);
             }
-            case BREAKING -> {
+            case BREAK_BLOCK -> {
                 return context.collect()
                         .result()
                         .stream()

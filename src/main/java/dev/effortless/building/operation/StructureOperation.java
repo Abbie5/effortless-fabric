@@ -61,8 +61,8 @@ public abstract class StructureOperation implements Operation<StructureOperation
             switch (context.state()) {
                 case IDLE -> {
                 }
-                case PLACING -> cluster.colored(PLACING_COLOR);
-                case BREAKING -> cluster.colored(BREAKING_COLOR);
+                case PLACE_BLOCK -> cluster.colored(PLACING_COLOR);
+                case BREAK_BLOCK -> cluster.colored(BREAKING_COLOR);
             }
 
 //            if (!preview.isEmpty() && soundTime < getGameTime() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {

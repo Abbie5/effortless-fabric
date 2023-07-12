@@ -8,17 +8,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OperationPreviewRenderer {
+public class OperationRenderer {
 
-    private static final OperationPreviewRenderer INSTANCE = new OperationPreviewRenderer();
+    private static final OperationRenderer INSTANCE = new OperationRenderer();
     private final Map<Object, Entry> results = Collections.synchronizedMap(new HashMap<>());
     //    private int soundTime = 0;
 
-    public static OperationPreviewRenderer getInstance() {
-        return INSTANCE;
+    public OperationRenderer() {
     }
 
-    public OperationPreviewRenderer() {
+    public static OperationRenderer getInstance() {
+        return INSTANCE;
     }
 
     public void showResult(Object id, OperationResult result) {
@@ -52,7 +52,7 @@ public class OperationPreviewRenderer {
 
         public Entry(OperationResult outline) {
             this.result = outline;
-            ticksTillRemoval = 1;
+            ticksTillRemoval = 5;
         }
 
         public void tick() {
