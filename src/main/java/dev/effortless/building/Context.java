@@ -1,5 +1,6 @@
 package dev.effortless.building;
 
+import dev.effortless.Effortless;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
 import dev.effortless.building.mode.BuildOption;
@@ -41,6 +42,7 @@ public record Context(
         friendlyByteBuf.writeEnum(context.replaceMode());
 
         friendlyByteBuf.writeBoolean(context.skipRaytrace());
+        Effortless.log("Wrote context with size: " + friendlyByteBuf.readableBytes());
     }
 
     public static Context decodeBuf(FriendlyByteBuf friendlyByteBuf) {
@@ -201,6 +203,10 @@ public record Context(
         return blockHitResults.size();
     }
 
+    public boolean noClicks() {
+        return blockHitResults.isEmpty();
+    }
+
     public BlockPos firstPos() {
         return firstBlockHitResult().getBlockPos();
     }
@@ -316,19 +322,19 @@ public record Context(
 
     // reach
     public int maxBlockPlacePerAxis() {
-        return 64; // reachParams.maxBlockPlacePerAxis();
+        return 128; // reachParams.maxBlockPlacePerAxis();
     }
 
     public int maxReachDistance() {
-        return 128; // reachParams.maxReachDistance();
+        return 256; // reachParams.maxReachDistance();
     }
 
     public boolean isFulfilled() {
         return isBuilding() && structureParams().buildMode().getInstance().totalClicks(this) == clicks();
     }
 
-    public boolean isMissingHit() {
-        return isBuilding() && blockHitResults.stream().anyMatch((blockHitResult) -> blockHitResult == null || blockHitResult.getType() != BlockHitResult.Type.BLOCK);
+    public boolean isBlockHitMissing() {
+        return isBuilding() && blockHitResults.stream().anyMatch((hitResult) -> hitResult == null || hitResult.getType() != BlockHitResult.Type.BLOCK);
     }
 
     // for build mode only
@@ -347,10 +353,10 @@ public record Context(
     }
     public TracingResult tracingResult() {
         if (isIdle()) {
-            return TracingResult.NOT_BUILDING;
+            return TracingResult.PASS;
         }
-        if (isMissingHit()) {
-            return TracingResult.MISSING_HIT;
+        if (isBlockHitMissing()) {
+            return TracingResult.FAILED;
         }
 
         if (isFulfilled()) {
@@ -358,12 +364,6 @@ public record Context(
         } else {
             return TracingResult.SUCCESS_PARTIAL;
         }
-    }
-
-    public record GeneralParams(
-            List<BlockHitResult> blockHitResults,
-            Boolean skipRaytrace
-    ) {
     }
 
     public record StructureParams(

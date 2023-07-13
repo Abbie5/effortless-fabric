@@ -163,7 +163,7 @@ public class ContainerOverlay {
 
         private static final int FADE_TICKS = 10;
 
-        private int ticksTillRemoval = 100;
+        private int ticksTillRemoval = 20;
 
         public abstract void render(PoseStack poseStack, int i, int j, Direction.AxisDirection contentSide);
 

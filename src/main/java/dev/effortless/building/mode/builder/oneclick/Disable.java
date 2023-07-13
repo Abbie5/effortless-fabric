@@ -18,7 +18,7 @@ public class Disable extends SingleClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectFinalBlocks(Context context) {
-        return Stream.of(context.firstPos());
+        return Stream.empty();
     }
 
 }

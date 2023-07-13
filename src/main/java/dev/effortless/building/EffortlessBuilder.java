@@ -27,25 +27,20 @@ import java.util.function.Function;
 public class EffortlessBuilder {
 
     private static final EffortlessBuilder INSTANCE = new EffortlessBuilder();
+    private static final UUID BUILDING_UUID = UUID.randomUUID();
     private final ContextProvider provider = new ContextProvider();
 
-    public static EffortlessBuilder getInstance() {
-        return INSTANCE;
-    }
-
-    public Context getContext(Player player) {
-        return provider.get(player);
-    }
-
-    private static final UUID BUILDING_UUID = UUID.randomUUID();
-
-    public static StructureBuildOperation generateStructurePreviewFromContext(Player player, Context context) {
+    private static StructureBuildOperation generateStructurePreviewFromContext(Player player, Context context) {
         var storage = Storage.createTemp(player.getInventory().items);
         return new StructureBuildOperation(player.getLevel(), player, context, storage);
     }
 
-    public static StructureBuildOperation generateStructureFromContext(Player player, Context context) {
+    private static StructureBuildOperation generateStructureFromContext(Player player, Context context) {
         return new StructureBuildOperation(player.getLevel(), player, context, null);
+    }
+
+    public static EffortlessBuilder getInstance() {
+        return INSTANCE;
     }
 
     private static Component getStateComponent(BuildingState state) {
@@ -53,6 +48,16 @@ public class EffortlessBuilder {
                     case IDLE -> "idle";
                     case PLACE_BLOCK -> "place_block";
                     case BREAK_BLOCK -> "break_block";
+                })
+        );
+    }
+
+    private static Component getTracingComponent(TracingResult result) {
+        return Component.translatable(Effortless.asKey("tracing", switch (result) {
+                    case SUCCESS_FULFILLED -> "success_fulfilled";
+                    case SUCCESS_PARTIAL -> "success_partial";
+                    case PASS -> "pass";
+                    case FAILED -> "failed";
                 })
         );
     }
@@ -80,37 +85,26 @@ public class EffortlessBuilder {
         }
 
         texts.add(Component.literal(ChatFormatting.WHITE + "State" + " " + ChatFormatting.GOLD + getStateComponent(context.state()).getString()));
+        texts.add(Component.literal(ChatFormatting.WHITE + "Tracing" + " " + ChatFormatting.GOLD + getTracingComponent(context.tracingResult()).getString()));
 
         ContainerOverlay.getInstance().showMessages("info" + uuid, texts, priority);
     }
 
-    public void tick() {
-        provider.tick();
-
-        var player = Minecraft.getInstance().player;
-        if (player == null || getContext(player).isDisabled()) {
-            return;
-        }
-
-        // for preview
-        var context = getContext(player).withNextHit(player, true);
-        if (context.clicks() == 1) {
-            context = context.withPlacingState();
-        }
-        var result = generateStructurePreviewFromContext(player, context).perform();
-
-        showOperationResult(BUILDING_UUID, result);
-        showItemStackSummary(BUILDING_UUID, result.summary(), 0);
-        showContainerContext(BUILDING_UUID, context, 0);
-    }
-
-    // from settings screen
-    public void setBuildMode(Player player, BuildMode buildMode) {
-        updateContext(player, context -> context.withEmptyHits().withBuildMode(buildMode));
-    }
-
-    public void setBuildFeature(Player player, BuildFeature.Entry feature) {
-        updateContext(player, context -> context.withEmptyHits().withBuildFeature(feature));
+    private BuildingResult perform(Player player, BuildingState state, @Nullable BlockHitResult hitResult) {
+        return updateContext(player, context -> {
+            if (hitResult == null) {
+                Effortless.log("updateContext: hitResult is null");
+                return context.reset();
+            }
+            if (hitResult.getType() == HitResult.Type.ENTITY) {
+                Effortless.log("updateContext: hitResult is " + hitResult.getType());
+                return context.reset();
+            }
+            if (context.isBuilding() && context.state() != state) {
+                return context.reset();
+            }
+            return context.withState(state).withNextHit(hitResult);
+        });
     }
 
     private BuildingResult updateContext(Player player, Function<Context, Context> updater) {
@@ -136,29 +130,51 @@ public class EffortlessBuilder {
         }
     }
 
-    private BuildingResult perform(Player player, BuildingState state, @Nullable BlockHitResult hitResult) {
-        return updateContext(player, context -> {
-            if (hitResult == null) {
-                Effortless.log("perform: hitResult is null");
-                return context.reset();
+    private void generateClientPreview() {
+        var player = Minecraft.getInstance().player;
+        if (player == null) return; // necessary
+
+        var context = getContext(player);
+        if (context.noClicks()) {
+            if (player.getMainHandItem().isEmpty()) {
+                context = context.withBreakingState();
+            } else {
+                context = context.withPlacingState();
             }
-            if (hitResult.getType() == HitResult.Type.ENTITY) {
-                Effortless.log("perform: hitResult is " + hitResult.getType());
-                return context.reset();
-            }
-            if (context.isBuilding() && context.state() != state) {
-                return context.reset();
-            }
-            return context.withState(state).withNextHit(hitResult);
-        });
+        }
+        context = context.withNextHit(player, true);
+        var result = generateStructurePreviewFromContext(player, context).perform();
+
+        showOperationResult(BUILDING_UUID, result);
+        showContainerContext(BUILDING_UUID, context, 0);
+        showItemStackSummary(BUILDING_UUID, result.summary(), 1);
     }
 
-    public void setRightClickCooldown(int cooldown) {
-        Minecraft.getInstance().rightClickDelay = cooldown; // for single build speed
+    public Context getContext(Player player) {
+        return provider.get(player);
+    }
+
+    public void tick() {
+        provider.tick();
+        generateClientPreview();
+    }
+
+    // from settings screen
+    public void setBuildMode(Player player, BuildMode buildMode) {
+        updateContext(player, context -> context.withEmptyHits().withBuildMode(buildMode));
+    }
+
+    public void setBuildFeature(Player player, BuildFeature.Entry feature) {
+        updateContext(player, context -> context.withEmptyHits().withBuildFeature(feature));
+    }
+
+    public void setRightClickDelay(int delay) {
+        Minecraft.getInstance().rightClickDelay = delay; // for single build speed
     }
 
     public void handlePlayerBreak(Player player) {
-        var hitResult = getContext(player).withBreakingState().trace(player, false);
+        var context = getContext(player);
+        var hitResult = context.withBreakingState().trace(player, false);
         var perform = perform(player, BuildingState.BREAK_BLOCK, hitResult);
 
         if (perform.isSuccess()) {
@@ -174,14 +190,16 @@ public class EffortlessBuilder {
     }
 
     public void handlePlayerPlace(Player player) {
-        setRightClickCooldown(4); // for single build speed
+        var context = getContext(player);
+        setRightClickDelay(4); // for single build speed
+
         for (var interactionHand : InteractionHand.values()) {
 
             if (player.getItemInHand(interactionHand).isEmpty()) {
                 continue;
             }
 
-            var hitResult = getContext(player).withPlacingState().trace(player, false);
+            var hitResult = context.withPlacingState().trace(player, false);
             var perform = perform(player, BuildingState.PLACE_BLOCK, hitResult);
 
             if (perform.isSuccess()) {
@@ -205,7 +223,7 @@ public class EffortlessBuilder {
 
         public void set(Player player, Context context) {
             contexts.put(player.getUUID(), context);
-            Effortless.log("setContext: " + player.getUUID() + " to " + context);
+//            Effortless.log("setContext: " + player.getUUID() + " to " + context);
         }
 
         public void remove(Player player) {

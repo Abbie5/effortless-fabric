@@ -9,8 +9,30 @@ import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractClickBuilder implements Builder {
 
+    private static final double LOOK_VEC_TOLERANCE = 0.01;
+
+    protected static Vec3 getEntityLookAngleGap(Entity entity) {
+        var look = entity.getLookAngle();
+        var x = look.x;
+        var y = look.y;
+        var z = look.z;
+
+        if (Math.abs(x) < LOOK_VEC_TOLERANCE) x = LOOK_VEC_TOLERANCE;
+        if (Math.abs(x - 1.0) < LOOK_VEC_TOLERANCE) x = 1 - LOOK_VEC_TOLERANCE;
+        if (Math.abs(x + 1.0) < LOOK_VEC_TOLERANCE) x = LOOK_VEC_TOLERANCE - 1;
+
+        if (Math.abs(y) < LOOK_VEC_TOLERANCE) y = LOOK_VEC_TOLERANCE;
+        if (Math.abs(y - 1.0) < LOOK_VEC_TOLERANCE) y = 1 - LOOK_VEC_TOLERANCE;
+        if (Math.abs(y + 1.0) < LOOK_VEC_TOLERANCE) y = LOOK_VEC_TOLERANCE - 1;
+
+        if (Math.abs(z) < LOOK_VEC_TOLERANCE) z = LOOK_VEC_TOLERANCE;
+        if (Math.abs(z - 1.0) < LOOK_VEC_TOLERANCE) z = 1 - LOOK_VEC_TOLERANCE;
+        if (Math.abs(z + 1.0) < LOOK_VEC_TOLERANCE) z = LOOK_VEC_TOLERANCE - 1;
+
+        return new Vec3(x, y, z).normalize();
+    }
+
     public abstract static class AxisCriteria {
-        protected static final double LOOK_VEC_TOLERANCE = 0.001;
         protected final Entity entity;
         protected final Vec3 center;
         protected final Vec3 eye;
@@ -22,34 +44,11 @@ public abstract class AbstractClickBuilder implements Builder {
         public AxisCriteria(Axis axis, Entity entity, Vec3 center, int reach, boolean skipRaytrace) {
             this.axis = axis;
             this.entity = entity;
-            this.look = getPlayerLookVec(entity);
+            this.look = getEntityLookAngleGap(entity);
             this.eye = entity.getEyePosition();
             this.center = center;
             this.reach = reach;
             this.skipRaytrace = skipRaytrace;
-        }
-
-        // FIXME: 25/1/23
-        //Use this instead of player.getLookVec() in any buildmodes code
-        protected static Vec3 getPlayerLookVec(Entity entity) {
-            Vec3 lookVec = entity.getLookAngle();
-            double x = lookVec.x;
-            double y = lookVec.y;
-            double z = lookVec.z;
-
-            if (Math.abs(x) < LOOK_VEC_TOLERANCE) x = LOOK_VEC_TOLERANCE;
-            if (Math.abs(x - 1.0) < LOOK_VEC_TOLERANCE) x = 1 - LOOK_VEC_TOLERANCE;
-            if (Math.abs(x + 1.0) < LOOK_VEC_TOLERANCE) x = LOOK_VEC_TOLERANCE - 1;
-
-            if (Math.abs(y) < LOOK_VEC_TOLERANCE) y = LOOK_VEC_TOLERANCE;
-            if (Math.abs(y - 1.0) < LOOK_VEC_TOLERANCE) y = 1 - LOOK_VEC_TOLERANCE;
-            if (Math.abs(y + 1.0) < LOOK_VEC_TOLERANCE) y = LOOK_VEC_TOLERANCE - 1;
-
-            if (Math.abs(z) < LOOK_VEC_TOLERANCE) z = LOOK_VEC_TOLERANCE;
-            if (Math.abs(z - 1.0) < LOOK_VEC_TOLERANCE) z = 1 - LOOK_VEC_TOLERANCE;
-            if (Math.abs(z + 1.0) < LOOK_VEC_TOLERANCE) z = LOOK_VEC_TOLERANCE - 1;
-
-            return new Vec3(x, y, z).normalize();
         }
 
         protected static Vec3 getBound(Vec3 start, Vec3 eye, Vec3 look) {
@@ -160,7 +159,7 @@ public abstract class AbstractClickBuilder implements Builder {
         }
 
         protected BlockHitResult convert(BlockPos blockPos) {
-            var look = entity.getLookAngle();
+            var look = getEntityLookAngleGap(entity);
             var vec3 = entity.getEyePosition().add(look.scale(0.001));
             return new BlockHitResult(vec3, Direction.getNearest(look.x, look.y, look.z).getOpposite(), blockPos, true);
         }
