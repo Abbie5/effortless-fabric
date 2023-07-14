@@ -61,7 +61,7 @@ public abstract class Outline {
         if (lineWidth == 0)
             return;
 
-        var builder = multiBufferSource.getBuffer(OutlineRenderType.outlineSolid());
+        var builder = multiBufferSource.getBuffer(OutlineRenderType.outlineSolid(true));
 
         var diff = end.subtract(start);
         if (diff.x + diff.y + diff.z < 0) {

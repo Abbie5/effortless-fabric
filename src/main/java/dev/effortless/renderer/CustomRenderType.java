@@ -63,7 +63,7 @@ public class CustomRenderType extends RenderType {
                 .setTexturingState(texture)
                 .setTextureState(RenderStateShard.BLOCK_SHEET_MIPPED)
                 .setLightmapState(RenderStateShard.LIGHTMAP)
-//                .setCullState(RenderStateShard.NO_CULL)
+                .setCullState(RenderStateShard.NO_CULL)
                 .createCompositeState(true);
         return RenderType.create("ef_block_previews_" + name, DefaultVertexFormat.BLOCK, VertexFormat.Mode.QUADS, 2097152, true, false, renderState);
     }

@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
+import static dev.effortless.renderer.ExtendedRenderStateShard.NEVER_DEPTH_TEST;
 import static dev.effortless.renderer.ExtendedRenderStateShard.NOTEQUAL_DEPTH_TEST;
 
 public class OutlineRenderType extends RenderType {
@@ -20,16 +21,14 @@ public class OutlineRenderType extends RenderType {
     public static final ResourceLocation SELECTION_TEXTURE_LOCATION = Effortless.asResource("textures/misc/selection.png");
     public static final ResourceLocation GLUE_TEXTURE_LOCATION = Effortless.asResource("textures/misc/glue.png");
 
-    private static final RenderType OUTLINE_SOLID =
-            RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
-                    false, RenderType.CompositeState.builder()
-                            .setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
-                            .setDepthTestState(NOTEQUAL_DEPTH_TEST)
-                            .setTextureState(new TextureStateShard(BLANK_TEXTURE_LOCATION, false, false))
-                            .setCullState(CULL)
-                            .setLightmapState(LIGHTMAP)
-                            .setOverlayState(OVERLAY)
-                            .createCompositeState(false));
+    private static final RenderType OUTLINE_SOLID = RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
+            false, RenderType.CompositeState.builder()
+                    .setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
+                    .setTextureState(new TextureStateShard(BLANK_TEXTURE_LOCATION, false, false))
+                    .setCullState(CULL)
+                    .setLightmapState(LIGHTMAP)
+                    .setOverlayState(OVERLAY)
+                    .createCompositeState(true));
     private static final RenderType GLOWING_SOLID_DEFAULT = glowingSolid(InventoryMenu.BLOCK_ATLAS);
     private static final RenderType ADDITIVE = RenderType.create(createLayerName("additive"), DefaultVertexFormat.BLOCK,
             VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
@@ -73,6 +72,19 @@ public class OutlineRenderType extends RenderType {
 
     public static RenderType outlineSolid() {
         return OUTLINE_SOLID;
+    }
+
+    public static RenderType outlineSolid(boolean overlap) {
+        return RenderType.create(createLayerName("outline_solid" + (overlap ? "_overlap" : "")), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
+                false, RenderType.CompositeState.builder()
+                        .setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
+                        .setTransparencyState(NO_TRANSPARENCY)
+                        .setDepthTestState(overlap ? NOTEQUAL_DEPTH_TEST : NEVER_DEPTH_TEST)
+                        .setTextureState(new TextureStateShard(BLANK_TEXTURE_LOCATION, false, false))
+                        .setCullState(CULL)
+                        .setLightmapState(LIGHTMAP)
+                        .setOverlayState(OVERLAY)
+                        .createCompositeState(true));
     }
 
     public static RenderType outlineTranslucent(ResourceLocation texture, boolean cull) {
