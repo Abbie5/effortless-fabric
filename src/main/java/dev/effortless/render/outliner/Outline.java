@@ -2,7 +2,7 @@ package dev.effortless.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.effortless.render.RenderTypes;
+import dev.effortless.render.OutlineRenderType;
 import dev.effortless.utils.AngleHelper;
 import dev.effortless.utils.VecHelper;
 import net.minecraft.client.Minecraft;
@@ -61,7 +61,7 @@ public abstract class Outline {
         if (lineWidth == 0)
             return;
 
-        var builder = multiBufferSource.getBuffer(RenderTypes.getOutlineSolid());
+        var builder = multiBufferSource.getBuffer(OutlineRenderType.outlineSolid());
 
         var diff = end.subtract(start);
         if (diff.x + diff.y + diff.z < 0) {

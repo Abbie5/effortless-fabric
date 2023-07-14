@@ -2,8 +2,9 @@ package dev.effortless.building.operation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.Context;
-import dev.effortless.render.RenderTypes;
+import dev.effortless.render.OutlineRenderType;
 import dev.effortless.render.outliner.OutlineRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -38,8 +39,8 @@ public abstract class StructureOperation implements Operation<StructureOperation
 
     public static final class DefaultRenderer implements Renderer<StructureOperationResult> {
 
-        private static final Color PLACING_COLOR = new Color(0.92f, 0.92f, 0.92f, 1f);
-        private static final Color BREAKING_COLOR = new Color(0.95f, 0f, 0f, 1f);
+        private static final Color COLOR_WHITE = new Color(0.82f, 0.82f, 0.82f, 1f);
+        private static final Color COLOR_RED = new Color(0.95f, 0f, 0f, 1f);
 
         private static final DefaultRenderer INSTANCE = new DefaultRenderer();
 
@@ -54,22 +55,18 @@ public abstract class StructureOperation implements Operation<StructureOperation
             result.children().forEach((result1) -> result1.render(poseStack, multiBufferSource));
 
             var cluster = OutlineRenderer.getInstance().showCluster(context.uuid(), result.blockPoses())
-                    .texture(RenderTypes.CHECKERED_THIN_TEXTURE_LOCATION)
-                    .stroke(1 / 64f)
-                    .disableNormals();
+                    .texture(OutlineRenderType.CHECKERED_THIN_TEXTURE_LOCATION)
+                    .lightMap(LightTexture.FULL_BLOCK)
+                    .disableNormals()
+                    .disableCull()
+                    .stroke(1 / 64f);
 
             switch (context.state()) {
                 case IDLE -> {
                 }
-                case PLACE_BLOCK -> cluster.colored(PLACING_COLOR);
-                case BREAK_BLOCK -> cluster.colored(BREAKING_COLOR);
+                case PLACE_BLOCK -> cluster.colored(COLOR_WHITE);
+                case BREAK_BLOCK -> cluster.colored(COLOR_RED);
             }
-
-//            if (!preview.isEmpty() && soundTime < getGameTime() && !BlocksPreview.arePreviewSizeEqual(preview, currentPreview)) {
-//                soundTime = getGameTime();
-//                var soundType = preview.blockPosStates().get(0).blockState().getSoundType();
-//                player.getLevel().playSound(player, player.blockPosition(), context.isBreaking() ? soundType.getBreakSound() : soundType.getPlaceSound(), SoundSource.BLOCKS, 0.3f, 0.8f);
-//            }
         }
 
     }

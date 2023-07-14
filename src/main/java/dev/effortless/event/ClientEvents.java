@@ -62,8 +62,8 @@ public class ClientEvents {
 
         var bufferBuilder = Tesselator.getInstance().getBuilder();
         var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
 
+        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
         OperationRenderer.getInstance().renderOperationResults(poseStack, buffer, partialTicks);
         OutlineRenderer.getInstance().renderOutlines(poseStack, buffer, partialTicks);
         buffer.draw();

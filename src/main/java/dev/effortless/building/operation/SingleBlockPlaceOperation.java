@@ -25,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.Collections;
 
 public final class SingleBlockPlaceOperation extends SingleBlockOperation {
@@ -50,6 +51,13 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         this.blockPos = blockPos;
         this.blockState = blockState;
     }
+
+    private static final DefaultRenderer RENDERER = new DefaultRenderer() {
+        @Override
+        public Color getColor(InteractionResult result) {
+            return super.getColor(result);
+        }
+    };
 
     private static InteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext) {
 
@@ -207,7 +215,11 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         var inputs = Collections.singletonList(blockState.getBlock().asItem().getDefaultInstance());
 
         if (storage != null) {
-            return new SingleBlockOperationResult(this, InteractionResult.SUCCESS, inputs, none, inputs, none);
+            var item = storage.findByItem(blockState.getBlock().asItem());
+            if (!player.isCreative()) {
+                item.ifPresent(stack -> stack.shrink(1));
+            }
+            return new SingleBlockOperationResult(this, item.isPresent() ? InteractionResult.SUCCESS : InteractionResult.FAIL, inputs, none, inputs, none);
         } else {
             var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
 
@@ -242,7 +254,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
 
     @Override
     public DefaultRenderer getRenderer() {
-        return DefaultRenderer.getInstance();
+        return RENDERER;
     }
 
     @Override

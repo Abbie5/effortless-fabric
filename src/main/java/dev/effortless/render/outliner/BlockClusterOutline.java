@@ -2,7 +2,7 @@ package dev.effortless.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.effortless.render.RenderTypes;
+import dev.effortless.render.OutlineRenderType;
 import dev.effortless.render.SuperRenderTypeBuffer;
 import dev.effortless.utils.Iterate;
 import dev.effortless.utils.VecHelper;
@@ -47,7 +47,7 @@ public class BlockClusterOutline extends Outline {
         if (!faceTexture.isPresent())
             return;
 
-        var translucentType = RenderTypes.getOutlineTranslucent(faceTexture.get(), true);
+        var translucentType = OutlineRenderType.outlineTranslucent(faceTexture.get(), true);
         var builder = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(translucentType);
 
         cluster.visibleFaces.forEach((face, axisDirection) -> {

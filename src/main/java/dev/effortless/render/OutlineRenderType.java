@@ -3,16 +3,14 @@ package dev.effortless.render;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.effortless.Effortless;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
 // TODO 1.17: use custom shaders instead of vanilla ones
-public class RenderTypes extends RenderStateShard {
+public class OutlineRenderType extends RenderType {
 
 //	public static final ShaderStateShard GLOWING_SHADER = new ShaderStateShard(() -> Shaders.glowingShader);
-
 
     public static final ResourceLocation BLANK_TEXTURE_LOCATION = Effortless.asResource("textures/misc/blank.png");
     public static final ResourceLocation CHECKERED_TEXTURE_LOCATION = Effortless.asResource("textures/misc/checkerboard.png");
@@ -32,7 +30,7 @@ public class RenderTypes extends RenderStateShard {
                             .setLightmapState(LIGHTMAP)
                             .setOverlayState(OVERLAY)
                             .createCompositeState(false));
-    private static final RenderType GLOWING_SOLID_DEFAULT = getGlowingSolid(InventoryMenu.BLOCK_ATLAS);
+    private static final RenderType GLOWING_SOLID_DEFAULT = glowingSolid(InventoryMenu.BLOCK_ATLAS);
     private static final RenderType ADDITIVE = RenderType.create(createLayerName("additive"), DefaultVertexFormat.BLOCK,
             VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
                     .setShaderState(BLOCK_SHADER)
@@ -42,7 +40,7 @@ public class RenderTypes extends RenderStateShard {
                     .setLightmapState(LIGHTMAP)
                     .setOverlayState(OVERLAY)
                     .createCompositeState(true));
-    private static final RenderType GLOWING_TRANSLUCENT_DEFAULT = getGlowingTranslucent(InventoryMenu.BLOCK_ATLAS);
+    private static final RenderType GLOWING_TRANSLUCENT_DEFAULT = glowingTranslucent(InventoryMenu.BLOCK_ATLAS);
     private static final RenderType ITEM_PARTIAL_SOLID =
             RenderType.create(createLayerName("item_partial_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true,
                     false, RenderType.CompositeState.builder()
@@ -69,16 +67,15 @@ public class RenderTypes extends RenderStateShard {
                     .setOverlayState(OVERLAY)
                     .createCompositeState(true));
 
-    // Mmm gimme those protected fields
-    private RenderTypes() {
-        super(null, null, null);
+    public OutlineRenderType(String string, VertexFormat vertexFormat, VertexFormat.Mode mode, int i, boolean bl, boolean bl2, Runnable runnable, Runnable runnable2) {
+        super(string, vertexFormat, mode, i, bl, bl2, runnable, runnable2);
     }
 
-    public static RenderType getOutlineSolid() {
+    public static RenderType outlineSolid() {
         return OUTLINE_SOLID;
     }
 
-    public static RenderType getOutlineTranslucent(ResourceLocation texture, boolean cull) {
+    public static RenderType outlineTranslucent(ResourceLocation texture, boolean cull) {
         return RenderType.create(createLayerName("outline_translucent" + (cull ? "_cull" : "")),
                 DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false, true, RenderType.CompositeState.builder()
                         .setShaderState(cull ? RENDERTYPE_ENTITY_TRANSLUCENT_CULL_SHADER : RENDERTYPE_ENTITY_TRANSLUCENT_SHADER)
@@ -91,7 +88,7 @@ public class RenderTypes extends RenderStateShard {
                         .createCompositeState(false));
     }
 
-    public static RenderType getGlowingSolid(ResourceLocation texture) {
+    public static RenderType glowingSolid(ResourceLocation texture) {
         return RenderType.create(createLayerName("glowing_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
                 true, false, RenderType.CompositeState.builder()
 //				.setShaderState(GLOWING_SHADER)
@@ -102,11 +99,11 @@ public class RenderTypes extends RenderStateShard {
                         .createCompositeState(true));
     }
 
-    public static RenderType getGlowingSolid() {
+    public static RenderType glowingSolid() {
         return GLOWING_SOLID_DEFAULT;
     }
 
-    public static RenderType getGlowingTranslucent(ResourceLocation texture) {
+    public static RenderType glowingTranslucent(ResourceLocation texture) {
         return RenderType.create(createLayerName("glowing_translucent"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS,
                 256, true, true, RenderType.CompositeState.builder()
 //				.setShaderState(GLOWING_SHADER)
@@ -117,23 +114,23 @@ public class RenderTypes extends RenderStateShard {
                         .createCompositeState(true));
     }
 
-    public static RenderType getAdditive() {
+    public static RenderType additive() {
         return ADDITIVE;
     }
 
-    public static RenderType getGlowingTranslucent() {
+    public static RenderType glowingTranslucent() {
         return GLOWING_TRANSLUCENT_DEFAULT;
     }
 
-    public static RenderType getItemPartialSolid() {
+    public static RenderType itemPartialSolid() {
         return ITEM_PARTIAL_SOLID;
     }
 
-    public static RenderType getItemPartialTranslucent() {
+    public static RenderType itemPartialTranslucent() {
         return ITEM_PARTIAL_TRANSLUCENT;
     }
 
-    public static RenderType getFluid() {
+    public static RenderType fluid() {
         return FLUID;
     }
 
@@ -141,15 +138,5 @@ public class RenderTypes extends RenderStateShard {
         return Effortless.asResource(name).toString();
     }
 
-//	@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
-//	private static class Shaders {
-//		private static ShaderInstance glowingShader;
-//
-//		@SubscribeEvent
-//		public static void onRegisterShaders(RegisterShadersEvent event) throws IOException {
-//			ResourceManager resourceManager = event.getResourceManager();
-//			event.registerShader(new ShaderInstance(resourceManager, Create.asResource("glowing_shader"), DefaultVertexFormat.NEW_ENTITY), shader -> glowingShader = shader);
-//		}
-//	}
 
 }

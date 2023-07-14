@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import java.awt.*;
 import java.util.Collections;
 
 public final class SingleBlockBreakOperation extends SingleBlockOperation {
@@ -35,6 +36,15 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
         this.storage = storage;
         this.blockPos = blockPos;
     }
+
+    private static final DefaultRenderer RENDERER = new DefaultRenderer() {
+        private static final Color COLOR_RED = new Color(16733525);
+        private static final Color COLOR_DARK_RED = new Color(11141120);
+        @Override
+        public Color getColor(InteractionResult result) {
+            return result.consumesAction() ? COLOR_RED : COLOR_DARK_RED;
+        }
+    };
 
     public static boolean breakBlock(Level level, Player player, BlockPos blockPos) {
         if (player.getLevel().isClientSide()) {
@@ -148,7 +158,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
 
     @Override
     public DefaultRenderer getRenderer() {
-        return DefaultRenderer.getInstance();
+        return RENDERER;
     }
 
     @Override
@@ -180,5 +190,6 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     public BlockState blockState() {
         return level.getBlockState(blockPos);
     }
+
 
 }

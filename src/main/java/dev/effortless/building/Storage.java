@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface Storage {
 
@@ -17,28 +18,28 @@ public interface Storage {
             private final Map<Item, ItemStack> cache = new HashMap<>();
 
             @Override
-            public ItemStack findByItem(Item item) {
+            public Optional<ItemStack> findByItem(Item item) {
                 var last = cache.get(item);
                 if (last != null && !last.isEmpty()) {
-                    return last;
+                    return Optional.of(last);
                 }
                 for (var itemStack : itemStacksTemp) {
                     if (itemStack.is(item) && !itemStack.isEmpty()) {
                         cache.put(item, itemStack);
-                        return itemStack;
+                        return Optional.of(itemStack);
                     }
                 }
                 cache.put(item, ItemStack.EMPTY);
-                return ItemStack.EMPTY;
+                return Optional.empty();
             }
 
             @Override
-            public ItemStack findByStack(ItemStack itemStack) {
+            public Optional<ItemStack> findByStack(ItemStack itemStack) {
                 var result = findByItem(itemStack.getItem());
-                if (ItemStack.isSameItemSameTags(result, itemStack)) {
+                if (result.isPresent() && ItemStack.isSameItemSameTags(result.get(), itemStack)) {
                     return result;
                 } else {
-                    return ItemStack.EMPTY;
+                    return Optional.empty();
                 }
             }
 
@@ -48,19 +49,19 @@ public interface Storage {
                 if (found.isEmpty()) {
                     return false;
                 }
-                if (itemStack.getCount() > found.getCount()) {
+                if (itemStack.getCount() > found.get().getCount()) {
                     return false;
                 }
-                found.shrink(itemStack.getCount());
+                found.get().shrink(itemStack.getCount());
                 return true;
             }
         }
                 ;
     }
 
-    ItemStack findByStack(ItemStack stack);
+    Optional<ItemStack> findByStack(ItemStack stack);
 
-    ItemStack findByItem(Item item);
+    Optional<ItemStack> findByItem(Item item);
 
     boolean consume(ItemStack stack);
 

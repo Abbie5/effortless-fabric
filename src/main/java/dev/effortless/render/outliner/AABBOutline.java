@@ -1,7 +1,7 @@
 package dev.effortless.render.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.effortless.render.RenderTypes;
+import dev.effortless.render.OutlineRenderType;
 import dev.effortless.render.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -77,7 +77,7 @@ public class AABBOutline extends Outline {
         params.alpha =
                 (direction == params.getHighlightedFace() && params.hightlightedFaceTexture.isPresent()) ? 1 : 0.5f;
 
-        var translucentType = RenderTypes.getOutlineTranslucent(faceTexture, !noCull);
+        var translucentType = OutlineRenderType.outlineTranslucent(faceTexture, !noCull);
         var builder = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(translucentType);
 
         var axis = direction.getAxis();
