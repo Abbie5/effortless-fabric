@@ -1,7 +1,6 @@
 package dev.effortless.event;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.brigadier.CommandDispatcher;
 import dev.effortless.building.EffortlessBuilder;
 import dev.effortless.command.BuildCommand;
@@ -9,7 +8,6 @@ import dev.effortless.command.SettingsCommand;
 import dev.effortless.core.event.client.*;
 import dev.effortless.core.event.lifecycle.ClientTickEvents;
 import dev.effortless.render.SuperRenderTypeBuffer;
-import dev.effortless.render.modifier.ModifierRenderer;
 import dev.effortless.render.modifier.Shaders;
 import dev.effortless.render.outliner.OutlineRenderer;
 import dev.effortless.render.preview.OperationRenderer;
@@ -18,7 +16,6 @@ import dev.effortless.utils.AnimationTicker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.packs.resources.ResourceProvider;
@@ -58,15 +55,16 @@ public class ClientEvents {
         var poseStack = context.poseStack();
         var partialTicks = AnimationTicker.getInstance().getPartialTicks();
         var buffer = SuperRenderTypeBuffer.getInstance();
-        var camera = context.camera();
 
-        var bufferBuilder = Tesselator.getInstance().getBuilder();
-        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
-
-        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
-        OperationRenderer.getInstance().renderOperationResults(poseStack, buffer, partialTicks);
         OutlineRenderer.getInstance().renderOutlines(poseStack, buffer, partialTicks);
+        OperationRenderer.getInstance().renderOperationResults(poseStack, buffer, partialTicks);
+
         buffer.draw();
+
+//        var bufferBuilder = Tesselator.getInstance().getBuilder();
+//        var bufferSource = MultiBufferSource.immediate(bufferBuilder);
+//        ModifierRenderer.getInstance().render(poseStack, bufferSource, camera);
+
     }
 
     public static void onRegisterShader(ResourceProvider provider, ClientShaderEvent.ShaderRegister.ShadersSink sink) throws IOException {

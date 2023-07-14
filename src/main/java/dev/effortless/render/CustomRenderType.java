@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalDouble;
 
-public class CustomRenderType extends RenderType {
+import static dev.effortless.render.ExtendedRenderStateShard.RENDERTYPE_TINTED_SOLID_SHADER;
 
-    private static final ShaderStateShard RENDERTYPE_TINTED_SOLID_SHADER = new ShaderStateShard(Shaders::getTintedSolidShaderInstance);
+public class CustomRenderType extends RenderType {
 
     private static final RenderType EF_LINES = RenderType.create("ef_lines",
             DefaultVertexFormat.POSITION_COLOR_NORMAL,

@@ -7,10 +7,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
-// TODO 1.17: use custom shaders instead of vanilla ones
-public class OutlineRenderType extends RenderType {
+import static dev.effortless.render.ExtendedRenderStateShard.NOTEQUAL_DEPTH_TEST;
 
-//	public static final ShaderStateShard GLOWING_SHADER = new ShaderStateShard(() -> Shaders.glowingShader);
+public class OutlineRenderType extends RenderType {
 
     public static final ResourceLocation BLANK_TEXTURE_LOCATION = Effortless.asResource("textures/misc/blank.png");
     public static final ResourceLocation CHECKERED_TEXTURE_LOCATION = Effortless.asResource("textures/misc/checkerboard.png");
@@ -25,6 +24,7 @@ public class OutlineRenderType extends RenderType {
             RenderType.create(createLayerName("outline_solid"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, false,
                     false, RenderType.CompositeState.builder()
                             .setShaderState(RENDERTYPE_ENTITY_SOLID_SHADER)
+                            .setDepthTestState(NOTEQUAL_DEPTH_TEST)
                             .setTextureState(new TextureStateShard(BLANK_TEXTURE_LOCATION, false, false))
                             .setCullState(CULL)
                             .setLightmapState(LIGHTMAP)
