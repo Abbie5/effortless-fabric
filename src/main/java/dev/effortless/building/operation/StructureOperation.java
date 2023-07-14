@@ -2,8 +2,8 @@ package dev.effortless.building.operation;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.Context;
-import dev.effortless.render.OutlineRenderType;
-import dev.effortless.render.outliner.OutlineRenderer;
+import dev.effortless.renderer.OutlineRenderType;
+import dev.effortless.renderer.outliner.OutlineRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.player.Player;

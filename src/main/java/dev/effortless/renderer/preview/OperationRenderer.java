@@ -1,4 +1,4 @@
-package dev.effortless.render.preview;
+package dev.effortless.renderer.preview;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.operation.OperationResult;

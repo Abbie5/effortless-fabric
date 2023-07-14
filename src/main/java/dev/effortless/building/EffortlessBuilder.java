@@ -8,7 +8,7 @@ import dev.effortless.building.operation.StructureBuildOperation;
 import dev.effortless.building.operation.StructureOperationResult;
 import dev.effortless.network.Packets;
 import dev.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
-import dev.effortless.render.preview.OperationRenderer;
+import dev.effortless.renderer.preview.OperationRenderer;
 import dev.effortless.screen.ContainerOverlay;
 import dev.effortless.screen.radial.RadialButton;
 import net.minecraft.ChatFormatting;

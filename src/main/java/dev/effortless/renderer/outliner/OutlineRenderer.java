@@ -1,8 +1,8 @@
-package dev.effortless.render.outliner;
+package dev.effortless.renderer.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.effortless.render.outliner.LineOutline.EndChasingLineOutline;
-import dev.effortless.render.outliner.Outline.OutlineParams;
+import dev.effortless.renderer.outliner.LineOutline.EndChasingLineOutline;
+import dev.effortless.renderer.outliner.Outline.OutlineParams;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;

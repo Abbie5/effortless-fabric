@@ -1,8 +1,8 @@
-package dev.effortless.render.modifier;
+package dev.effortless.renderer.modifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.effortless.render.RenderUtils;
+import dev.effortless.renderer.CustomRenderType;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
@@ -114,14 +114,14 @@ public class ModifierRenderer {
     private void renderMirror(MultiBufferSource.BufferSource multiBufferSource, Vec3 pos, Integer radius, List<Direction.Axis> axis, boolean drawPlanes, boolean drawLines) {
         if (drawPlanes) {
             for (Direction.Axis a : axis) {
-                VertexConsumer buffer = RenderUtils.beginPlanes(multiBufferSource);
+                VertexConsumer buffer = ((MultiBufferSource) multiBufferSource).getBuffer(CustomRenderType.planes());
                 drawAxisPlane(buffer, pos, radius, a, COLOR_PLANE);
                 multiBufferSource.endBatch();
             }
         }
         if (drawLines) {
             for (Direction.Axis a : axis) {
-                VertexConsumer buffer = RenderUtils.beginLines(multiBufferSource);
+                VertexConsumer buffer = multiBufferSource.getBuffer(CustomRenderType.lines());
                 for (Direction.Axis a1 : Direction.Axis.values()) {
                     if (a1 != a) {
                         drawAxisLine(buffer, pos, radius, a1, COLOR_LINE);
@@ -146,7 +146,7 @@ public class ModifierRenderer {
                 var posA = new Vec3(pos.x, pos.y - radius, pos.z);
                 var posB = new Vec3(newVec.x, pos.y + radius, newVec.z);
 
-                VertexConsumer buffer = RenderUtils.beginPlanes(multiBufferSource);
+                VertexConsumer buffer = ((MultiBufferSource) multiBufferSource).getBuffer(CustomRenderType.planes());
                 drawVerticalPlane(buffer, posA, posB, COLOR_PLANE);
                 multiBufferSource.endBatch();
             }
@@ -158,11 +158,11 @@ public class ModifierRenderer {
 
                 var posA = new Vec3(pos.x, pos.y - radius, pos.z);
                 var posB = new Vec3(newVec.x, pos.y + radius, newVec.z);
-                VertexConsumer buffer = RenderUtils.beginLines(multiBufferSource);
+                VertexConsumer buffer = multiBufferSource.getBuffer(CustomRenderType.lines());
                 drawLine(buffer, new Vec3(posA.x(), pos.y(), posA.z()), new Vec3(posB.x(), pos.y(), posB.z()), COLOR_LINE);
                 multiBufferSource.endBatch();
             }
-            VertexConsumer buffer = RenderUtils.beginLines(multiBufferSource);
+            VertexConsumer buffer = multiBufferSource.getBuffer(CustomRenderType.lines());
             drawLine(buffer, new Vec3(pos.x(), pos.y() - radius, pos.z()), new Vec3(pos.x(), pos.y() + radius, pos.z()), COLOR_LINE);
             multiBufferSource.endBatch();
         }

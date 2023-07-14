@@ -1,4 +1,4 @@
-package dev.effortless.render;
+package dev.effortless.screen;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;

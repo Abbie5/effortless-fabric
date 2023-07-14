@@ -1,4 +1,4 @@
-package dev.effortless.render.modifier;
+package dev.effortless.renderer.modifier;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.effortless.core.event.client.ClientShaderEvent;

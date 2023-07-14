@@ -2,7 +2,7 @@ package dev.effortless.screen.config;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.effortless.render.ScissorsHandler;
+import dev.effortless.screen.ScissorsHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;

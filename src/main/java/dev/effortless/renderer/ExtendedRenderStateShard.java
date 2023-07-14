@@ -1,6 +1,6 @@
-package dev.effortless.render;
+package dev.effortless.renderer;
 
-import dev.effortless.render.modifier.Shaders;
+import dev.effortless.renderer.modifier.Shaders;
 import net.minecraft.client.renderer.RenderStateShard;
 
 import static org.lwjgl.opengl.GL11.*;

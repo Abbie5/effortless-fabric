@@ -1,9 +1,9 @@
-package dev.effortless.render.outliner;
+package dev.effortless.renderer.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.effortless.render.OutlineRenderType;
-import dev.effortless.render.SuperRenderTypeBuffer;
+import dev.effortless.renderer.OutlineRenderType;
+import dev.effortless.renderer.SuperRenderTypeBuffer;
 import dev.effortless.utils.Iterate;
 import dev.effortless.utils.VecHelper;
 import net.minecraft.client.renderer.MultiBufferSource;

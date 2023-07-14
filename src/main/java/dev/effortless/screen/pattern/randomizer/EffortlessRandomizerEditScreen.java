@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import dev.effortless.building.pattern.randomizer.ItemProbability;
 import dev.effortless.building.pattern.randomizer.Randomizer;
-import dev.effortless.render.ScissorsHandler;
+import dev.effortless.screen.ScissorsHandler;
 import dev.effortless.screen.config.EditorList;
 import dev.effortless.screen.widget.NumberField;
 import dev.effortless.utils.RandomizerUtils;

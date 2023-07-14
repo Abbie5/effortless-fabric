@@ -1,4 +1,4 @@
-package dev.effortless.render;
+package dev.effortless.renderer;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;

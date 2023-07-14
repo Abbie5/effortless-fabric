@@ -1,4 +1,4 @@
-package dev.effortless.render;
+package dev.effortless.renderer;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 
-import static dev.effortless.render.ExtendedRenderStateShard.NOTEQUAL_DEPTH_TEST;
+import static dev.effortless.renderer.ExtendedRenderStateShard.NOTEQUAL_DEPTH_TEST;
 
 public class OutlineRenderType extends RenderType {
 

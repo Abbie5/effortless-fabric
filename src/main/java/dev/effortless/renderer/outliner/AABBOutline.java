@@ -1,8 +1,8 @@
-package dev.effortless.render.outliner;
+package dev.effortless.renderer.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.effortless.render.OutlineRenderType;
-import dev.effortless.render.SuperRenderTypeBuffer;
+import dev.effortless.renderer.OutlineRenderType;
+import dev.effortless.renderer.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Direction;

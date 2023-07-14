@@ -3,7 +3,7 @@ package dev.effortless.building.operation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.Context;
 import dev.effortless.building.Storage;
-import dev.effortless.render.CustomRenderType;
+import dev.effortless.renderer.CustomRenderType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;

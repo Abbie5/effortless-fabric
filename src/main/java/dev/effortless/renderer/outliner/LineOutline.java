@@ -1,4 +1,4 @@
-package dev.effortless.render.outliner;
+package dev.effortless.renderer.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;

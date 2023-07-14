@@ -1,8 +1,8 @@
-package dev.effortless.render;
+package dev.effortless.renderer;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.effortless.render.modifier.Shaders;
+import dev.effortless.renderer.modifier.Shaders;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.OptionalDouble;
 
-import static dev.effortless.render.ExtendedRenderStateShard.RENDERTYPE_TINTED_SOLID_SHADER;
+import static dev.effortless.renderer.ExtendedRenderStateShard.RENDERTYPE_TINTED_SOLID_SHADER;
 
 public class CustomRenderType extends RenderType {
 

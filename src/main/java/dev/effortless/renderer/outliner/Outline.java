@@ -1,8 +1,8 @@
-package dev.effortless.render.outliner;
+package dev.effortless.renderer.outliner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.effortless.render.OutlineRenderType;
+import dev.effortless.renderer.OutlineRenderType;
 import dev.effortless.utils.AngleHelper;
 import dev.effortless.utils.VecHelper;
 import net.minecraft.client.Minecraft;
