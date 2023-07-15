@@ -58,7 +58,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
                     .texture(OutlineRenderType.CHECKERED_THIN_TEXTURE_LOCATION)
                     .lightMap(LightTexture.FULL_BLOCK)
                     .disableNormals()
-                    .stroke(1 / 64f);
+                    .stroke(1 / 128f);
 
             switch (context.state()) {
                 case IDLE -> {

@@ -78,14 +78,14 @@ public class AABBOutline extends Outline {
                 (direction == params.getHighlightedFace() && params.hightlightedFaceTexture.isPresent()) ? 1 : 0.5f;
 
         var translucentType = OutlineRenderType.outlineTranslucent(faceTexture, !noCull);
-        var builder = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(translucentType);
+        var buffer = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(translucentType);
 
         var axis = direction.getAxis();
         var uDiff = p2.subtract(p1);
         var vDiff = p4.subtract(p1);
         var maxU = (float) Math.abs(axis == Axis.X ? uDiff.z : uDiff.x);
         var maxV = (float) Math.abs(axis == Axis.Y ? vDiff.z : vDiff.y);
-        putQuadUV(poseStack, builder, p1, p2, p3, p4, 0, 0, maxU, maxV, Direction.UP);
+        putQuadUV(poseStack, buffer, p1, p2, p3, p4, 0, 0, maxU, maxV, Direction.UP);
         params.alpha = alphaBefore;
     }
 

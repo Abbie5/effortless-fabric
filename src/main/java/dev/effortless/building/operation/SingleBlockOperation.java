@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.Context;
 import dev.effortless.building.Storage;
 import dev.effortless.renderer.CustomRenderType;
+import dev.effortless.renderer.SuperRenderTypeBuffer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -46,7 +47,7 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 
         private static final DefaultRenderer INSTANCE = new DefaultRenderer();
         private static final RandomSource RAND = RandomSource.create();
-        private static final float SCALE = 1 / 128f;
+        private static final float SCALE = 1 / 256f;
         private static final Color COLOR_RED = new Color(16733525);
         private static final Color COLOR_WHITE = new Color(255, 255, 255);
 
@@ -74,7 +75,7 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 //            }
             var renderType = CustomRenderType.solid(getColor(result.result()));
 
-            var buffer = multiBufferSource.getBuffer(renderType);
+            var buffer = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(renderType);
 
             var model = dispatcher.getBlockModel(blockState);
             var seed = blockState.getSeed(blockPos);

@@ -48,14 +48,14 @@ public class BlockClusterOutline extends Outline {
             return;
 
         var translucentType = OutlineRenderType.outlineTranslucent(faceTexture.get(), true);
-        var builder = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(translucentType);
+        var buffer = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(translucentType);
 
         cluster.visibleFaces.forEach((face, axisDirection) -> {
             var direction = Direction.get(axisDirection, face.axis);
             var pos = face.pos;
             if (axisDirection == AxisDirection.POSITIVE)
                 pos = pos.relative(direction.getOpposite());
-            renderBlockFace(poseStack, builder, pos, direction);
+            renderBlockFace(poseStack, buffer, pos, direction);
         });
     }
 
