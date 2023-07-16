@@ -8,9 +8,6 @@ import java.util.Map;
 
 public record ItemStackSummary(
         Context context,
-        Map<ItemStackType, List<ItemStack>> inventoryConsumed, // player consumed
-        Map<ItemStackType, List<ItemStack>> inventoryPicked, // player picked
-        Map<ItemStackType, List<ItemStack>> levelConsumed, // level placed
-        Map<ItemStackType, List<ItemStack>> levelDropped // level dropped
-) {
-}
+        Map<ConsumerGroup, List<ItemStack>> group
+) { }
+

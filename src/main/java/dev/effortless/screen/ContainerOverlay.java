@@ -6,10 +6,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import dev.effortless.Effortless;
-import dev.effortless.building.operation.ItemStackType;
 import dev.effortless.config.ConfigManager;
 import dev.effortless.screen.mode.EffortlessModeRadialScreen;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -23,6 +21,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 
 public class ContainerOverlay {
@@ -56,11 +56,11 @@ public class ContainerOverlay {
         showEntry(id, new ComponentsEntry(components), priority);
     }
 
-    public void showTitledItems(Object id, Component title, Map<ItemStackType, List<ItemStack>> items, int priority) {
-        showEntry(id, new TitledItemsEntry(title, items), priority);
+    public void showTitledItems(Object id, Component title, List<ItemStack> groups, int priority) {
+        showEntry(id, new TitledItemsEntry(title, groups), priority);
     }
 
-    public void showItems(Object id, Map<ItemStackType, List<ItemStack>> items, int priority) {
+    public void showItems(Object id, List<ItemStack> items, int priority) {
         showEntry(id, new ItemsEntry(items), priority);
     }
 
@@ -257,8 +257,8 @@ public class ContainerOverlay {
     private static class TitledItemsEntry extends ItemsEntry {
         private final Component header;
 
-        public TitledItemsEntry(Component header, Map<ItemStackType, List<ItemStack>> result) {
-            super(result);
+        public TitledItemsEntry(Component header, List<ItemStack> items) {
+            super(items);
             this.header = header;
         }
 
@@ -287,12 +287,14 @@ public class ContainerOverlay {
         private static final int MAX_COLUMN = 9;
         private static final int ITEM_SPACING_X = 18;
         private static final int ITEM_SPACING_Y = 18;
-        private final Map<ItemStackType, List<ItemStack>> result;
         private final List<ItemStack> items;
 
-        public ItemsEntry(Map<ItemStackType, List<ItemStack>> result) {
-            this.result = result;
-            this.items = result.values().stream().flatMap(Collection::stream).toList();
+        public ItemsEntry(List<ItemStack> items) {
+            this.items = items;
+        }
+
+        private static Integer getColorTag(ItemStack itemStack) {
+            return itemStack.getTag().getInt("RenderColor");
         }
 
         private void renderGuiItem(int i, int j, ItemStack itemStack, BakedModel bakedModel, boolean red) {
@@ -340,21 +342,19 @@ public class ContainerOverlay {
             var itemCol = 0;
             var itemRow = 0;
 
-            for (var entry : result.entrySet()) {
-                for (var itemStack : entry.getValue()) {
-                    var i1 = i - itemCol * ITEM_SPACING_X * contentSide.getStep();
-                    var j1 = j + itemRow * ITEM_SPACING_Y - ITEM_SPACING_Y * Mth.ceil(1f * items.size() / MAX_COLUMN);
+            for (var item : items) {
+                var i1 = i - itemCol * ITEM_SPACING_X * contentSide.getStep();
+                var j1 = j + itemRow * ITEM_SPACING_Y - ITEM_SPACING_Y * Mth.ceil(1f * items.size() / MAX_COLUMN);
 
-                    renderGuiItem(i1, j1, itemStack, minecraft.getItemRenderer().getModel(itemStack, null, null, 0), entry.getKey().getColor() == ChatFormatting.RED.getColor());
+                renderGuiItem(i1, j1, item, minecraft.getItemRenderer().getModel(item, null, null, 0), getColorTag(item).equals(new Color(255, 85, 85).getRGB()));
 
-                    renderGuiItemDecorations(i1, j1, minecraft.font, Integer.toString(itemStack.getCount()), entry.getKey().getColor());
+                renderGuiItemDecorations(i1, j1, minecraft.font, Integer.toString(item.getCount()), getColorTag(item));
 
-                    if (itemCol < MAX_COLUMN - 1) {
-                        itemCol += 1;
-                    } else {
-                        itemCol = 0;
-                        itemRow += 1;
-                    }
+                if (itemCol < MAX_COLUMN - 1) {
+                    itemCol += 1;
+                } else {
+                    itemCol = 0;
+                    itemRow += 1;
                 }
             }
         }

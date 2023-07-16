@@ -3,6 +3,7 @@ package dev.effortless.building;
 import dev.effortless.Effortless;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
+import dev.effortless.building.operation.ConsumerGroup;
 import dev.effortless.building.operation.ItemStackSummary;
 import dev.effortless.building.operation.StructureBuildOperation;
 import dev.effortless.building.operation.StructureOperationResult;
@@ -67,8 +68,8 @@ public class EffortlessBuilder {
     }
 
     private static void showItemStackSummary(UUID uuid, ItemStackSummary summary, int priority) {
-        ContainerOverlay.getInstance().showTitledItems("placed" + uuid, Component.literal(ChatFormatting.WHITE + "Placed Blocks"), summary.inventoryConsumed(), priority);
-        ContainerOverlay.getInstance().showTitledItems("destroyed" + uuid, Component.literal(ChatFormatting.RED + "Destroyed Blocks"), summary.levelDropped(), priority);
+        ContainerOverlay.getInstance().showTitledItems("placed" + uuid, Component.literal(ChatFormatting.WHITE + "Placed Blocks"), summary.group().getOrDefault(ConsumerGroup.PLAYER_USED, Collections.emptyList()), priority);
+        ContainerOverlay.getInstance().showTitledItems("destroyed" + uuid, Component.literal(ChatFormatting.RED + "Destroyed Blocks"), summary.group().getOrDefault(ConsumerGroup.LEVEL_DROPPED, Collections.emptyList()), priority);
     }
 
     private static void showContainerContext(UUID uuid, Context context, int priority) {

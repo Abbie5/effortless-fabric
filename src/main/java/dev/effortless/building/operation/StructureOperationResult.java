@@ -5,14 +5,14 @@ import dev.effortless.building.TracingResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 public record StructureOperationResult(
         StructureOperation operation,
@@ -45,20 +45,48 @@ public record StructureOperationResult(
         return result;
     }
 
+    public static ItemStack putColorTag(ItemStack itemStack, Integer color) {
+        itemStack.addTagElement("RenderColor", IntTag.valueOf(color));
+        return itemStack;
+    }
+
     public ItemStackSummary summary() {
-        return new ItemStackSummary(operation().context(),
-                Map.of(
-                        ItemStackType.SUCCESS, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList()),
-                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryConsumed().stream() : Stream.empty()).toList())),
-                Map.of(
-                        ItemStackType.SUCCESS, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList()),
-                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> !r.result().consumesAction() ? r.inventoryPicked().stream() : Stream.empty()).toList())),
-                Map.of(
-                        ItemStackType.SUCCESS, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList()),
-                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> !r.result().consumesAction() ? r.levelConsumed().stream() : Stream.empty()).toList())),
-                Map.of(
-                        ItemStackType.FAILURE, reduceItemStacks(children.stream().flatMap(r -> r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
-//                        ItemStackType.FAILURE, reduceItemStacks(result.stream().flatMap(r -> !r.result().consumesAction() ? r.levelDropped().stream() : Stream.empty()).toList())));
+        var map = new HashMap<ConsumerGroup, List<ItemStack>>();
+        for (var value : ConsumerGroup.values()) {
+            map.put(value, new ArrayList<>());
+        }
+        for (var result : children) {
+            for (var value : ConsumerGroup.values()) {
+                map.get(value).addAll(getItemStackGroups(value, result));
+            }
+        }
+
+        map.replaceAll((key, value) -> reduceItemStacks(value));
+        return new ItemStackSummary(operation.context(), map);
+    }
+
+    private List<ItemStack> getItemStackGroups(ConsumerGroup group, SingleBlockOperationResult result) {
+        switch (group) {
+            case PLAYER_USED -> {
+                if (result.operation() instanceof SingleBlockPlaceOperation) {
+                    var color = result.operation().getRenderer().getColor(result.result());
+                    if (color != null) {
+                        return result.inputs().stream().map((stack) -> putColorTag(stack, color.getRGB())).toList();
+                    }
+                    return Collections.emptyList();
+                }
+            }
+            case LEVEL_DROPPED -> {
+                if (result.operation() instanceof SingleBlockBreakOperation && result.result().success()) {
+                    var color = result.operation().getRenderer().getColor(result.result());
+                    if (color != null) {
+                        return result.outputs().stream().map((stack) -> putColorTag(stack, color.getRGB())).toList();
+                    }
+                    return Collections.emptyList();
+                }
+            }
+        }
+        return Collections.emptyList();
     }
 
     public Vec3i size() {

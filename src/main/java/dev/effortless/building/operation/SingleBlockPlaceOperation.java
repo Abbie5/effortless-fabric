@@ -12,7 +12,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -54,56 +53,83 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
 
     private static final DefaultRenderer RENDERER = new DefaultRenderer() {
         @Override
-        public Color getColor(InteractionResult result) {
-            return super.getColor(result);
+        public Color getColor(BlockInteractionResult result) {
+            return switch (result) {
+                case SUCCESS, CONSUME -> COLOR_WHITE;
+                case FAIL_PLAYER_EMPTY_INV -> COLOR_RED;
+                default -> null;
+            };
         }
     };
 
-    private static InteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext) {
+    private static BlockInteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext, Boolean preview) {
 
         if (!blockItem.getBlock().isEnabled(blockStatePlaceContext.getLevel().enabledFeatures())) {
-            return InteractionResult.FAIL;
+            return BlockInteractionResult.FAIL_LEVEL_FEATURE_LIMIT;
         }
         if (!blockStatePlaceContext.canPlace()) {
-            return InteractionResult.FAIL;
+            return BlockInteractionResult.FAIL_BLOCK_STATE_FLAG_CANNOT_REPLACE;
         }
 //        var blockStatePlaceContext = blockItem.updatePlacementContext(blockPlaceContext);
 
         var blockState = blockStatePlaceContext.getPlaceState();
         if (blockState == null) {
-            return InteractionResult.FAIL;
+            return BlockInteractionResult.FAIL_BLOCK_STATE_NULL;
         }
-        if (!blockItem.placeBlock(blockStatePlaceContext, blockState)) {
-            return InteractionResult.FAIL;
+        if (!preview && !blockItem.placeBlock(blockStatePlaceContext, blockState)) {
+            return BlockInteractionResult.FAIL_INTERNAL_SET_BLOCK;
         }
 
         var blockPos = blockStatePlaceContext.getClickedPos();
         var level = blockStatePlaceContext.getLevel();
         var player = blockStatePlaceContext.getPlayer();
         var itemStack = blockStatePlaceContext.getItemInHand();
-        var blockState2 = level.getBlockState(blockPos);
-        if (blockState2.is(blockState.getBlock())) {
-            blockState2 = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
-            blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
-            blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
-            if (player instanceof ServerPlayer) {
-                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
+        if (!preview) {
+            var blockState2 = level.getBlockState(blockPos);
+            if (blockState2.is(blockState.getBlock())) {
+                blockState2 = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
+                blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
+                blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
+                if (player instanceof ServerPlayer) {
+                    CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
+                }
             }
+            var soundType = blockState2.getSoundType();
+            level.playSound(player, blockPos, blockItem.getPlaceSound(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+            level.gameEvent(GameEvent.BLOCK_PLACE, blockPos, GameEvent.Context.of(player, blockState2));
         }
-        var soundType = blockState2.getSoundType();
-        level.playSound(player, blockPos, blockItem.getPlaceSound(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-        level.gameEvent(GameEvent.BLOCK_PLACE, blockPos, GameEvent.Context.of(player, blockState2));
         if (player == null || !player.getAbilities().instabuild) {
             itemStack.shrink(1);
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide());
+        return BlockInteractionResult.sidedSuccess(level.isClientSide());
     }
 
-    private static boolean testPlace(Context context, Level level, Player player, BlockPos blockPos) {
-        if (!canInteract(level, player, blockPos)) {
-            return false;
+
+    private static BlockInteractionResult useBlockItemStackOn(BlockStatePlaceContext blockStatePlaceContext, Boolean preview) {
+        var itemStack = blockStatePlaceContext.getItemInHand();
+        var player = blockStatePlaceContext.getPlayer();
+        var blockPos = blockStatePlaceContext.getClickedPos();
+        var blockInWorld = new BlockInWorld(blockStatePlaceContext.getLevel(), blockPos, false);
+        if (player == null) {
+            return BlockInteractionResult.FAIL_PLAYER_NULL;
         }
+        if (!player.getAbilities().mayBuild && !itemStack.hasAdventureModePlaceTagForBlock(blockStatePlaceContext.getLevel().registryAccess().registryOrThrow(Registries.BLOCK), blockInWorld)) {
+            return BlockInteractionResult.FAIL_PLAYER_ABILITY_CANNOT_BUILD;
+        }
+//        if (!itemStack.hasAdventureModePlaceTagForBlock(blockStatePlaceContext.getLevel().registryAccess().registryOrThrow(Registries.BLOCK), blockInWorld)) {
+//            return BlockInteractionResult.PASS_LEVEL_ADVENTURE_LIMIT;
+//        }
+        var item = itemStack.getItem();
+        var interactionResult = useBlockItemOn((BlockItem) item, blockStatePlaceContext, preview);
+        if (!preview && interactionResult.shouldAwardStats()) {
+            player.awardStat(Stats.ITEM_USED.get(item));
+        }
+        return interactionResult;
+    }
+
+    private static boolean testReplace(Context context, Level level, Player player, BlockPos blockPos) {
+
         if (context.replaceMode().isReplace()) {
             if (player.isCreative()) return true;
             return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE); // fluid
@@ -111,50 +137,24 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         return level.getBlockState(blockPos).canBeReplaced(); // fluid
     }
 
-    public static InteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
-        if (!(player.getMainHandItem().getItem() instanceof BlockItem)) {
-            return InteractionResult.FAIL;
-        }
-
-        // TODO: 8/3/23
-//        if (!canPlace(level, player, blockPos, blockState)) {
-//            return InteractionResult.FAIL;
-//        }
-//        if ((blockState.isAir() || !level.getBlockState(blockPos).isAir()) && !canBreak(level, player, blockPos)) {
-//            return InteractionResult.FAIL;
-//        }
-
-        if (player.getLevel().isClientSide()) {
-            return placeBlockClient(level, player, interactionHand, blockPos, blockState);
-        } else {
-            return placeBlockServer(level, player, interactionHand, blockPos, blockState);
-        }
-    }
-
-    private static InteractionResult placeBlockServer(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
+    private static BlockInteractionResult placeBlockServer(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, Boolean preview) {
         var itemStack = player.getItemInHand(interactionHand);
         var fakeResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
         var blockStateInWorld = level.getBlockState(blockPos);
         if (!blockStateInWorld.getBlock().isEnabled(level.enabledFeatures())) {
-            return InteractionResult.FAIL;
-        }
-        if (player.isSpectator()) {
-            return InteractionResult.PASS;
+            return BlockInteractionResult.FAIL_LEVEL_FEATURE_LIMIT;
         }
         var itemStack2 = itemStack.copy();
 
-        if (itemStack.isEmpty()) {
-            return InteractionResult.PASS;
-        }
         var blockStatePlaceContext = new BlockStatePlaceContext(level, player, interactionHand, itemStack, fakeResult, blockState);
-        InteractionResult interactionResult;
+        var interactionResult = BlockInteractionResult.SUCCESS;
         if (player.isCreative()) {
             int i = itemStack.getCount();
-            interactionResult = useBlockItemStackOn(blockStatePlaceContext);
+            interactionResult = useBlockItemStackOn(blockStatePlaceContext, preview);
             itemStack.setCount(i);
         } else {
-            interactionResult = useBlockItemStackOn(blockStatePlaceContext);
+            interactionResult = useBlockItemStackOn(blockStatePlaceContext, preview);
         }
 
         if (interactionResult.consumesAction()) {
@@ -162,73 +162,75 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         }
 
         return interactionResult;
-
     }
 
-    private static InteractionResult placeBlockClient(Level level, Player localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState) {
+    // TODO: 15/7/23 use vanilla
+    private static BlockInteractionResult placeBlockClient(Level level, Player localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, Boolean preview) {
         var itemStack = localPlayer.getItemInHand(interactionHand);
         var blockHitResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
-        if (localPlayer.isSpectator()) {
-            return InteractionResult.SUCCESS;
-        }
-
-        if (itemStack.isEmpty()) {
-            return InteractionResult.PASS;
-        }
-        var blockStatePlaceContext = new BlockStatePlaceContext(level, localPlayer, interactionHand, itemStack, blockHitResult, blockState);
-//        UseOnContext useOnContext = new UseOnContext(localPlayer, interactionHand, blockHitResult);
-        InteractionResult interactionResult2;
+        var blockStatePlaceContext = new BlockStatePlaceContext(level, localPlayer, interactionHand, itemStack, blockHitResult, blockState); // new UseOnContext(localPlayer, interactionHand, blockHitResult);
+        var interactionResult2 = BlockInteractionResult.SUCCESS;
         if (localPlayer.isCreative()) {
             int i = itemStack.getCount();
-//            interactionResult2 = itemStack.useOn(useOnContext);
-            interactionResult2 = useBlockItemStackOn(blockStatePlaceContext);
+            interactionResult2 = useBlockItemStackOn(blockStatePlaceContext, preview); // itemStack.useOn(useOnContext);
             itemStack.setCount(i);
         } else {
-//            interactionResult2 = itemStack.useOn(useOnContext);
-            interactionResult2 = useBlockItemStackOn(blockStatePlaceContext);
+            interactionResult2 = useBlockItemStackOn(blockStatePlaceContext, preview); // itemStack.useOn(useOnContext);
         }
 
         return interactionResult2;
     }
 
-    private static InteractionResult useBlockItemStackOn(BlockStatePlaceContext blockStatePlaceContext) {
-        var itemStack = blockStatePlaceContext.getItemInHand();
-        var player = blockStatePlaceContext.getPlayer();
-        var blockPos = blockStatePlaceContext.getClickedPos();
-        var blockInWorld = new BlockInWorld(blockStatePlaceContext.getLevel(), blockPos, false);
-        if (player != null && !player.getAbilities().mayBuild && !itemStack.hasAdventureModePlaceTagForBlock(blockStatePlaceContext.getLevel().registryAccess().registryOrThrow(Registries.BLOCK), blockInWorld)) {
-            return InteractionResult.PASS;
+    // no context
+    public static BlockInteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, Boolean preview) {
+        if (player.isSpectator()) { // move
+            return BlockInteractionResult.FAIL_PLAYER_SPECTATOR;
         }
-        var item = itemStack.getItem();
-        var interactionResult = useBlockItemOn((BlockItem) item, blockStatePlaceContext);
-        if (player != null && interactionResult.shouldAwardStats()) {
-            player.awardStat(Stats.ITEM_USED.get(item));
+        var itemStack = player.getItemInHand(interactionHand);
+
+        if (itemStack.isEmpty()) {
+            return BlockInteractionResult.FAIL_PLAYER_EMPTY_INV;
         }
 
-        return interactionResult;
+        if (!(player.getMainHandItem().getItem() instanceof BlockItem)) {
+            return BlockInteractionResult.FAIL_PLAYER_ITEM_NOT_BLOCK;
+        }
+
+        if (player.getLevel().isClientSide()) {
+            return placeBlockClient(level, player, interactionHand, blockPos, blockState, preview);
+        } else {
+            return placeBlockServer(level, player, interactionHand, blockPos, blockState, false);
+        }
     }
+
 
     @Override
     public SingleBlockOperationResult perform() {
-        var none = Collections.<ItemStack>emptyList();
         var inputs = Collections.singletonList(blockState.getBlock().asItem().getDefaultInstance());
+        var outputs = Collections.<ItemStack>emptyList();
 
-        if (storage != null) {
-            var item = storage.findByItem(blockState.getBlock().asItem());
-            if (!player.isCreative()) {
-                item.ifPresent(stack -> stack.shrink(1));
+        var result = BlockInteractionResult.SUCCESS;
+        var interactionHand = InteractionHand.MAIN_HAND;
+        var preview = storage != null;
+
+        if (testReplace(context, level, player, blockPos)) {
+            if (preview) {
+                var old = player.getItemInHand(interactionHand);
+                player.setItemInHand(interactionHand, storage.findByItem(blockState.getBlock().asItem()).orElse(ItemStack.EMPTY));
+                result = placeBlock(level, player, interactionHand, blockPos, blockState, true);
+                player.setItemInHand(interactionHand, old);
+            } else {
+                var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
+                swapper.swapSelected();
+                result = placeBlock(level, player, interactionHand, blockPos, blockState, false);
+                swapper.restoreSelected();
             }
-            return new SingleBlockOperationResult(this, item.isPresent() ? InteractionResult.SUCCESS : InteractionResult.FAIL, inputs, none, inputs, none);
         } else {
-            var swapper = new InventorySwapper(player.getInventory(), blockState.getBlock().asItem());
-
-            swapper.swapSelected();
-            var result = placeBlock(level, player, InteractionHand.MAIN_HAND, blockPos, blockState);
-            swapper.restoreSelected();
-
-            return new SingleBlockOperationResult(this, result, inputs, none, inputs, none);
+            result = BlockInteractionResult.FAIL_BLOCK_STATE_FLAG_CANNOT_REPLACE;
         }
+
+        return new SingleBlockOperationResult(this, result, inputs, outputs);
     }
 
     @Override

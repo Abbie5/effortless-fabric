@@ -17,7 +17,6 @@ public interface Operation<R extends OperationResult<R>> {
     enum Type {
         WORLD_PLACE_OP,
         WORLD_BREAK_OP,
-        WORLD_PERFORM_OP,
     }
 
     interface Renderer<R extends OperationResult<R>> {

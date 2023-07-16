@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -43,20 +42,25 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 
     public abstract ItemStack outputItemStack();
 
+    @Override
+    public abstract DefaultRenderer getRenderer();
+
     public static class DefaultRenderer implements Renderer<SingleBlockOperationResult> {
 
         private static final DefaultRenderer INSTANCE = new DefaultRenderer();
         private static final RandomSource RAND = RandomSource.create();
-        private static final float SCALE = 1 / 256f;
-        private static final Color COLOR_RED = new Color(16733525);
-        private static final Color COLOR_WHITE = new Color(255, 255, 255);
+        public static final Color COLOR_RED = new Color(255, 85, 85);
+        public static final Color COLOR_DARK_RED = new Color(170, 0, 0);
+        public static final Color COLOR_WHITE = new Color(255, 255, 255);
+        public static final Color COLOR_ORANGE = new Color(255, 200, 0);
+        private static final float SCALE = 257 / 256f;
 
         public static DefaultRenderer getInstance() {
             return INSTANCE;
         }
 
-        protected Color getColor(InteractionResult result) {
-            return result.consumesAction() ? COLOR_WHITE : COLOR_RED;
+        public Color getColor(BlockInteractionResult result) {
+            return null;
         }
 
         @Override
@@ -69,11 +73,15 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
             var level = operation.level();
             var blockPos = operation.blockPos();
             var blockState = operation.blockState();
+            if (blockState == null) return;
 
 //            if (item instanceof BlockItem blockItem && itemStack.is(item)) {
 //                blockState = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState);
 //            }
-            var renderType = CustomRenderType.solid(getColor(result.result()));
+            var color = getColor(result.result());
+            if (color == null) return;
+
+            var renderType = CustomRenderType.solid(color);
 
             var buffer = ((SuperRenderTypeBuffer) multiBufferSource).getLateBuffer(renderType);
 
@@ -83,8 +91,8 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
             poseStack.pushPose();
 
             poseStack.translate(blockPos.getX() - camera.x(), blockPos.getY() - camera.y(), blockPos.getZ() - camera.z());
-            poseStack.translate(SCALE / -2, SCALE / -2, SCALE / -2);
-            poseStack.scale( 1 + SCALE, 1 + SCALE, 1 + SCALE);
+            poseStack.translate((SCALE - 1) / -2, (SCALE - 1) / -2, (SCALE - 1) / -2);
+            poseStack.scale( SCALE, SCALE, SCALE);
 
             dispatcher.getModelRenderer().tesselateBlock(level, model, blockState, blockPos, poseStack, buffer, false, RAND, seed, OverlayTexture.NO_OVERLAY);
 

@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -38,15 +37,25 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     }
 
     private static final DefaultRenderer RENDERER = new DefaultRenderer() {
-        private static final Color COLOR_RED = new Color(16733525);
-        private static final Color COLOR_DARK_RED = new Color(11141120);
+
         @Override
-        public Color getColor(InteractionResult result) {
-            return result.consumesAction() ? COLOR_RED : COLOR_DARK_RED;
+        public Color getColor(BlockInteractionResult result) {
+            return switch (result) {
+                case SUCCESS, CONSUME -> COLOR_RED;
+                default -> null;
+            };
         }
     };
 
-    public static boolean breakBlock(Level level, Player player, BlockPos blockPos) {
+    private static boolean testBreak(Context context, Level level, Player player, BlockPos blockPos) {
+        if (player.isCreative()) {
+            return true;
+        }
+        return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE);
+    }
+
+    public static BlockInteractionResult breakBlock(Level level, Player player, BlockPos blockPos) {
+
         if (player.getLevel().isClientSide()) {
             return breakBlockClient(level, player, blockPos);
         } else {
@@ -54,43 +63,44 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
         }
     }
 
-    private static boolean breakBlockClient(Level level, Player player, BlockPos blockPos) {
+    private static BlockInteractionResult breakBlockClient(Level level, Player player, BlockPos blockPos) {
         if (player.blockActionRestricted(level, blockPos, Minecraft.getInstance().gameMode.getPlayerMode())) {
-            return false;
+            return BlockInteractionResult.FAIL_LEVEL_INTERACT_RESTRICTED;
         }
+
         var blockState = level.getBlockState(blockPos);
         if (!player.getMainHandItem().getItem().canAttackBlock(blockState, level, blockPos, player)) {
-            return false;
+            return BlockInteractionResult.FAIL_PLAYER_ITEM_CANNOT_ATTACK;
         }
         var block = blockState.getBlock();
         if (block instanceof GameMasterBlock && !player.canUseGameMasterBlocks()) {
-            return false;
+            return BlockInteractionResult.FAIL_PLAYER_CANNOT_USE_GAME_MASTER_BLOCKS;
         }
         if (blockState.isAir()) {
-            return false;
+            return BlockInteractionResult.FAIL_BLOCK_STATE_AIR;
         }
         block.playerWillDestroy(level, blockPos, blockState, player);
         var fluidState = level.getFluidState(blockPos);
-        boolean removed = level.setBlock(blockPos, fluidState.createLegacyBlock(), 11);
+        var removed = level.setBlock(blockPos, fluidState.createLegacyBlock(), 11);
         if (removed) {
             block.destroy(level, blockPos, blockState);
         }
-        return removed;
+        return removed ? BlockInteractionResult.SUCCESS : BlockInteractionResult.FAIL_INTERNAL_SET_BLOCK;
     }
 
-    private static boolean breakBlockServer(Level level, Player player, BlockPos blockPos) {
+    private static BlockInteractionResult breakBlockServer(Level level, Player player, BlockPos blockPos) {
+        if (player.blockActionRestricted(level, blockPos, ((ServerPlayer) player).gameMode.getGameModeForPlayer())) {
+            return BlockInteractionResult.FAIL_LEVEL_INTERACT_RESTRICTED;
+        }
         var blockState = level.getBlockState(blockPos);
         if (!player.getMainHandItem().getItem().canAttackBlock(blockState, level, blockPos, player)) {
-            return false;
+            return BlockInteractionResult.FAIL_PLAYER_ITEM_CANNOT_ATTACK_BLOCK;
         }
         var blockEntity = level.getBlockEntity(blockPos);
         var block = blockState.getBlock();
         if (block instanceof GameMasterBlock && !player.canUseGameMasterBlocks()) {
             level.sendBlockUpdated(blockPos, blockState, blockState, 3);
-            return false;
-        }
-        if (player.blockActionRestricted(level, blockPos, ((ServerPlayer) player).gameMode.getGameModeForPlayer())) {
-            return false;
+            return BlockInteractionResult.FAIL_PLAYER_CANNOT_USE_GAME_MASTER_BLOCKS;
         }
         block.playerWillDestroy(level, blockPos, blockState, player);
         var removed = level.removeBlock(blockPos, false);
@@ -98,7 +108,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
             block.destroy(level, blockPos, blockState);
         }
         if (player.isCreative()) {
-            return true;
+            return BlockInteractionResult.SUCCESS;
         }
         var itemStack = player.getMainHandItem();
         var itemStack2 = itemStack.copy();
@@ -107,32 +117,26 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
         if (removed && correctTool) {
             block.playerDestroy(level, player, blockPos, blockState, blockEntity, itemStack2);
         }
-        return true;
-    }
-
-    private static boolean testBreak(Context context, Level level, Player player, BlockPos blockPos) {
-        if (!canInteract(level, player, blockPos)) {
-            return false;
-        }
-        if (player.isCreative()) {
-            return true;
-        }
-        return !level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE);
+        return BlockInteractionResult.SUCCESS;
     }
 
     @Override
     public SingleBlockOperationResult perform() {
-        var none = Collections.<ItemStack>emptyList();
+        var inputs = Collections.<ItemStack>emptyList();
         var outputs = Collections.singletonList(level.getBlockState(blockPos).getBlock().asItem().getDefaultInstance());
-//        var outputs = level.getBlockState(blockPos).getDrops(level);
+        var result = BlockInteractionResult.SUCCESS;
 
-        if (storage != null) {
-            return new SingleBlockOperationResult(this, InteractionResult.SUCCESS, none, none, none, outputs);
+        if (testBreak(context, level, player, blockPos)) {
+            if (storage != null) {
+                result = BlockInteractionResult.SUCCESS;
+            } else {
+                result = breakBlock(level, player, blockPos);
+            }
         } else {
-            var result = breakBlock(level, player, blockPos);
-            // TODO: 25/6/23 InteractionResult
-            return new SingleBlockOperationResult(this, result ? InteractionResult.SUCCESS : InteractionResult.PASS, none, none, none, outputs);
+            result = BlockInteractionResult.FAIL_BLOCK_STATE_FLAG_CANNOT_REPLACE;
         }
+        return new SingleBlockOperationResult(this, result, inputs, outputs);
+
     }
 
     @Override
@@ -153,7 +157,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
 
     @Override
     public Type getType() {
-        return Type.WORLD_PLACE_OP;
+        return Type.WORLD_BREAK_OP;
     }
 
     @Override
