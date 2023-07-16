@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.awt.*;
 import java.util.List;
 
 public abstract class StructureOperation implements Operation<StructureOperationResult> {
@@ -39,9 +38,6 @@ public abstract class StructureOperation implements Operation<StructureOperation
 
     public static final class DefaultRenderer implements Renderer<StructureOperationResult> {
 
-        private static final Color COLOR_WHITE = new Color(0.82f, 0.82f, 0.82f, 1f);
-        private static final Color COLOR_RED = new Color(0.95f, 0f, 0f, 1f);
-
         private static final DefaultRenderer INSTANCE = new DefaultRenderer();
 
         public static DefaultRenderer getInstance() {
@@ -58,7 +54,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
                     .texture(OutlineRenderType.CHECKERED_THIN_TEXTURE_LOCATION)
                     .lightMap(LightTexture.FULL_BLOCK)
                     .disableNormals()
-                    .stroke(1 / 128f);
+                    .stroke(1 / 64f);
 
             switch (context.state()) {
                 case IDLE -> {

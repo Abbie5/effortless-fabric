@@ -49,11 +49,7 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 
         private static final DefaultRenderer INSTANCE = new DefaultRenderer();
         private static final RandomSource RAND = RandomSource.create();
-        public static final Color COLOR_RED = new Color(255, 85, 85);
-        public static final Color COLOR_DARK_RED = new Color(170, 0, 0);
-        public static final Color COLOR_WHITE = new Color(255, 255, 255);
-        public static final Color COLOR_ORANGE = new Color(255, 200, 0);
-        private static final float SCALE = 257 / 256f;
+        private static final float SCALE = 129 / 128f;
 
         public static DefaultRenderer getInstance() {
             return INSTANCE;
