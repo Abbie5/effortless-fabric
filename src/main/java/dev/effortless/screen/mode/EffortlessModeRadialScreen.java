@@ -70,10 +70,8 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
             updateRadialState();
         });
         radial.setRadialOptionSelectResponder(entry -> {
-            if (entry instanceof BuildFeature.Entry) {
+            if (entry.getOption() instanceof BuildFeature.Entry) {
                 selectBuildFeature((BuildFeature.Entry) entry.getOption());
-            } else {
-
             }
             updateRadialState();
         });
