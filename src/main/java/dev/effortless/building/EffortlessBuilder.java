@@ -98,7 +98,7 @@ public class EffortlessBuilder {
                 Effortless.log("updateContext: hitResult is null");
                 return context.reset();
             }
-            if (hitResult.getType() == HitResult.Type.ENTITY) {
+            if (hitResult.getType() != HitResult.Type.BLOCK) {
                 Effortless.log("updateContext: hitResult is " + hitResult.getType());
                 return context.reset();
             }
