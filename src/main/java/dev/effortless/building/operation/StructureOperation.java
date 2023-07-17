@@ -45,9 +45,7 @@ public abstract class StructureOperation implements Operation<StructureOperation
         }
 
         public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, StructureOperationResult result) {
-            if (!result.result().isSuccess()) return;
             var context = result.operation().context();
-
             result.children().forEach((result1) -> result1.render(poseStack, multiBufferSource));
 
             var cluster = OutlineRenderer.getInstance().showCluster(context.uuid(), result.blockPoses())
