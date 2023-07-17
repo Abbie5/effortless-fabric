@@ -1,6 +1,7 @@
 package dev.effortless.building.mode.builder.twoclick;
 
 import dev.effortless.building.Context;
+import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.builder.DoubleClickBuilder;
 import dev.effortless.building.mode.builder.oneclick.Single;
 import net.minecraft.core.BlockPos;
@@ -13,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class Square extends DoubleClickBuilder {
@@ -118,10 +120,10 @@ public class Square extends DoubleClickBuilder {
         var skipRaytrace = context.skipRaytrace();
 
         return Stream.of(
-                        new NearestLineCriteria(Direction.Axis.X, player, center, reach, skipRaytrace),
-                        new NearestLineCriteria(Direction.Axis.Y, player, center, reach, skipRaytrace),
-                        new NearestLineCriteria(Direction.Axis.Z, player, center, reach, skipRaytrace)
-                )
+                        context.planeFacing() != BuildFeature.PlaneFacing.HORIZONTAL ? new NearestLineCriteria(Direction.Axis.X, player, center, reach, skipRaytrace) : null,
+                        context.planeFacing() != BuildFeature.PlaneFacing.VERTICAL ? new NearestLineCriteria(Direction.Axis.Y, player, center, reach, skipRaytrace) : null,
+                        context.planeFacing() != BuildFeature.PlaneFacing.HORIZONTAL ? new NearestLineCriteria(Direction.Axis.Z, player, center, reach, skipRaytrace) : null)
+                .filter(Objects::nonNull)
                 .filter(AxisCriteria::isInRange)
                 .min(Comparator.comparing(NearestLineCriteria::distanceToLineSqr))
                 .map(AxisCriteria::tracePlane)

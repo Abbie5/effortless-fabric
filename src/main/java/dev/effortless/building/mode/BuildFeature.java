@@ -24,7 +24,7 @@ public enum BuildFeature {
         return entries;
     }
 
-    public enum CircleStart implements Entry {
+    public enum CircleStart implements SingleSelectEntry {
         CIRCLE_START_CORNER("circle_start_corner"),
         CIRCLE_START_CENTER("circle_start_center"),
         ;
@@ -46,7 +46,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum CubeFilling implements Entry {
+    public enum CubeFilling implements SingleSelectEntry {
         CUBE_FULL("cube_full"),
         CUBE_HOLLOW("cube_hollow"),
         CUBE_SKELETON("cube_skeleton");
@@ -68,7 +68,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum PlaneFilling implements Entry {
+    public enum PlaneFilling implements SingleSelectEntry {
 
         PLANE_FULL("plane_full"),
         PLANE_HOLLOW("plane_hollow");
@@ -90,7 +90,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum PlaneFacing implements Entry {
+    public enum PlaneFacing implements SingleSelectEntry {
         HORIZONTAL("face_horizontal"),
         VERTICAL("face_vertical"),
         BOTH("face_both");
@@ -112,7 +112,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum RaisedEdge implements Entry {
+    public enum RaisedEdge implements SingleSelectEntry {
 
         RAISE_SHORT_EDGE("raise_short_edge"),
         RAISE_LONG_EDGE("raise_long_edge");
@@ -135,5 +135,11 @@ public enum BuildFeature {
     }
 
     public interface Entry extends BuildOption {
+    }
+
+    public interface SingleSelectEntry extends Entry {
+    }
+
+    public interface MultiSelectEntry extends Entry {
     }
 }

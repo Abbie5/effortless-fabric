@@ -27,7 +27,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 public class RadialSection extends AbstractWidget {
 
@@ -62,11 +61,11 @@ public class RadialSection extends AbstractWidget {
     private RadialSlot<?> hoveredSlot;
     private float lastScrollOffset = 0;
     private RadialButton<?> hoveredEntry;
-    private Set<RadialSlot<?>> selectedSlot = new HashSet<>();
-    private Set<RadialButton<?>> selectedButton = new HashSet<>();
-    private RadialSlot<?>[] radialSlots = new RadialSlot[0];
-    private RadialButtonSet[] leftButtons = new RadialButtonSet[0];
-    private RadialButtonSet[] rightButtons = new RadialButtonSet[0];
+    private Collection<? extends RadialSlot<?>> selectedSlot = new HashSet<>();
+    private Collection<? extends RadialButton<?>> selectedButton = new HashSet<>();
+    private List<? extends RadialSlot<?>> radialSlots = List.of();
+    private List<? extends RadialButtonSet> leftButtons = List.of();
+    private List<? extends RadialButtonSet> rightButtons = List.of();
     // TODO: 20/2/23 rename
     private float visibility = 0;
 
@@ -90,9 +89,9 @@ public class RadialSection extends AbstractWidget {
 //        highlightedOption = null;
         hoveredEntry = null;
 
-        var regions = Arrays.stream(radialSlots).map(Region::new).toList();
-        var west = Arrays.stream(leftButtons).map((entry) -> new Section(entry, AxisDirection.NEGATIVE)).toList();
-        var east = Arrays.stream(rightButtons).map((entry) -> new Section(entry, AxisDirection.POSITIVE)).toList();
+        var regions = radialSlots.stream().map(Region::new).toList();
+        var west = leftButtons.stream().map((entry) -> new Section(entry, AxisDirection.NEGATIVE)).toList();
+        var east = rightButtons.stream().map((entry) -> new Section(entry, AxisDirection.POSITIVE)).toList();
 
         renderRadialSlotBackgrounds(poseStack, i, j, regions);
         renderRadialButtonBackgrounds(poseStack, i, j, west);
@@ -151,24 +150,36 @@ public class RadialSection extends AbstractWidget {
         this.radialOptionSelectResponder = consumer;
     }
 
-    public void setRadialSlots(RadialSlot<?>... slots) {
+    public void setRadialSlots(List<? extends RadialSlot<?>> slots) {
         this.radialSlots = slots;
     }
 
     public void setLeftButtons(RadialButtonSet... options) {
+        this.leftButtons = List.of(options);
+    }
+
+    public void setLeftButtons(List<? extends RadialButtonSet> options) {
         this.leftButtons = options;
     }
 
     public void setRightButtons(RadialButtonSet... options) {
+        this.rightButtons = List.of(options);
+    }
+
+    public void setRightButtons(List<? extends RadialButtonSet> options) {
         this.rightButtons = options;
     }
 
-    public void setSelectedSlots(RadialSlot<?>... slot) {
-        this.selectedSlot = Arrays.stream(slot).collect(Collectors.toSet());
+    public void setSelectedSlots(RadialSlot<?>... slots) {
+        this.selectedSlot = Set.of(slots);
     }
 
-    public void setSelectedButtons(RadialButton<?>... option) {
-        this.selectedButton = Arrays.stream(option).collect(Collectors.toSet());
+    public void setSelectedSlots(Collection<? extends RadialSlot<?>> slots) {
+        this.selectedSlot = slots;
+    }
+
+    public void setSelectedButtons(Collection<? extends RadialButton<?>> options) {
+        this.selectedButton = options;
     }
 
     private void renderRadialSlotBackgrounds(PoseStack poseStack, int mouseX, int mouseY, List<Region> regions) {
@@ -391,7 +402,7 @@ public class RadialSection extends AbstractWidget {
     private record Section(RadialButtonSet option, AxisDirection direction) {
 
         public List<Button> buttons() {
-            return Arrays.stream(option.getEntries()).map((entry -> new Button(entry))).toList();
+            return option.getEntries().stream().map((Button::new)).toList();
         }
 
     }

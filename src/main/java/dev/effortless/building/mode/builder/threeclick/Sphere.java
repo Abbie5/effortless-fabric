@@ -43,7 +43,7 @@ public class Sphere extends TripleClickBuilder {
         float radiusY;
         float radiusZ;
 
-        if (context.planeFacing() == BuildFeature.PlaneFacing.HORIZONTAL) {
+        if (context.buildFeatures().contains(BuildFeature.PlaneFacing.HORIZONTAL)) {
             if (context.circleStart() == BuildFeature.CircleStart.CIRCLE_START_CORNER) {
                 centerX = x1 + (x2 - x1) / 2f;
                 centerY = y1 + (y3 - y1) / 2f;

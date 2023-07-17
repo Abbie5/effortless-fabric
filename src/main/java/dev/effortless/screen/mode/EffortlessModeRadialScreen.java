@@ -5,7 +5,6 @@ import dev.effortless.building.EffortlessBuilder;
 import dev.effortless.building.history.UndoRedo;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
-import dev.effortless.building.mode.BuildOption;
 import dev.effortless.building.replace.ReplaceMode;
 import dev.effortless.building.settings.SettingType;
 import dev.effortless.keybinding.Keys;
@@ -19,7 +18,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 
 import java.util.Arrays;
-import java.util.function.IntFunction;
 
 @Environment(EnvType.CLIENT)
 public class EffortlessModeRadialScreen extends AbstractRadialScreen {
@@ -38,18 +36,6 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
         return INSTANCE;
     }
 
-    private static RadialSlot<BuildMode> createRadialSlot(BuildMode mode) {
-        return RadialSlot.mode(mode);
-    }
-
-    private static RadialButtonSet[] createRadialButtonSetArray(BuildFeature[] features) {
-        return Arrays.stream(features).map((feature) -> RadialButtonSet.of(createRadialButtons(feature.getEntries()))).toArray(RadialButtonSet[]::new);
-    }
-
-    private static RadialButton<BuildOption>[] createRadialButtons(BuildOption[] entries) {
-        return Arrays.stream(entries).map(RadialButton::option).toArray((IntFunction<RadialButton<BuildOption>[]>) RadialButton[]::new);
-    }
-
     public boolean isVisible() {
         return Minecraft.getInstance().screen instanceof EffortlessModeRadialScreen;
     }
@@ -63,17 +49,24 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
                 RadialButtonSet.of(SETTING_OPTION, REPLACE_OPTION)
         );
         radial.setRadialSlots(
-                Arrays.stream(BuildMode.values()).map(EffortlessModeRadialScreen::createRadialSlot).toArray(RadialSlot[]::new)
+                Arrays.stream(BuildMode.values()).map(mode -> RadialSlot.mode(mode)).toList()
         );
         radial.setRadialSelectResponder(slot -> {
             selectBuildMode((BuildMode) slot.getSlot());
             updateRadialState();
         });
         radial.setRadialOptionSelectResponder(entry -> {
-            if (entry.getOption() instanceof BuildFeature.Entry) {
-                selectBuildFeature((BuildFeature.Entry) entry.getOption());
+            if (entry.getOption() instanceof BuildFeature.SingleSelectEntry) {
+                selectBuildFeature((BuildFeature.SingleSelectEntry) entry.getOption());
+                updateRadialState();
+                return;
             }
-            updateRadialState();
+            if (entry.getOption() instanceof BuildFeature.MultiSelectEntry) {
+                selectBuildFeature((BuildFeature.MultiSelectEntry) entry.getOption());
+                updateRadialState();
+                return;
+            }
+
         });
         updateRadialState();
     }
@@ -86,17 +79,29 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
     }
 
     private void updateRadialState() {
+        if (minecraft == null || minecraft.player == null) {
+            return;
+        }
         var context = EffortlessBuilder.getInstance().getContext(minecraft.player);
-        radial.setSelectedSlots(createRadialSlot(context.buildMode()));
-        radial.setRightButtons(createRadialButtonSetArray(context.buildMode().getSupportedFeatures()));
-        radial.setSelectedButtons(createRadialButtons(context.buildFeatures()));
+
+        radial.setSelectedSlots(RadialSlot.mode(context.buildMode()));
+        radial.setRightButtons(
+                Arrays.stream(context.buildMode().getSupportedFeatures()).map((feature) -> RadialButtonSet.of(Arrays.stream(feature.getEntries()).map(RadialButton::option).toList())).toList()
+        );
+        radial.setSelectedButtons(
+                context.buildFeatures().stream().map(RadialButton::option).toList()
+        );
     }
 
     private void selectBuildMode(BuildMode mode) {
         EffortlessBuilder.getInstance().setBuildMode(minecraft.player, mode);
     }
 
-    private void selectBuildFeature(BuildFeature.Entry feature) {
+    private void selectBuildFeature(BuildFeature.SingleSelectEntry feature) {
+        EffortlessBuilder.getInstance().setBuildFeature(minecraft.player, feature);
+    }
+
+    private void selectBuildFeature(BuildFeature.MultiSelectEntry feature) {
         EffortlessBuilder.getInstance().setBuildFeature(minecraft.player, feature);
     }
 

@@ -2,10 +2,15 @@ package dev.effortless.screen.radial;
 
 import net.minecraft.network.chat.Component;
 
+import java.util.List;
 
 public interface RadialButtonSet {
 
     static RadialButtonSet of(RadialButton<?>... entries) {
+        return of(List.of(entries));
+    }
+
+    static RadialButtonSet of(List<? extends RadialButton<?>> entries) {
         return new RadialButtonSet() {
             @Override
             public Component getComponentName() {
@@ -13,7 +18,7 @@ public interface RadialButtonSet {
             }
 
             @Override
-            public RadialButton<?>[] getEntries() {
+            public List<? extends RadialButton<?>> getEntries() {
                 return entries;
             }
         };
@@ -21,6 +26,6 @@ public interface RadialButtonSet {
 
     Component getComponentName();
 
-    RadialButton<?>[] getEntries();
+    List<? extends RadialButton<?>> getEntries();
 
 }

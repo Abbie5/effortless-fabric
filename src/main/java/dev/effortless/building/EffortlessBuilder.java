@@ -24,6 +24,7 @@ import net.minecraft.world.phys.HitResult;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class EffortlessBuilder {
 
@@ -79,7 +80,7 @@ public class EffortlessBuilder {
         texts.add(Component.literal(ChatFormatting.WHITE + replace.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + replace.getNameComponent().getString() + ChatFormatting.RESET));
 
         for (var supportedFeature : context.buildMode().getSupportedFeatures()) {
-            var option = Arrays.stream(context.buildFeatures()).filter((feature) -> Objects.equals(feature.getCategory(), supportedFeature.getName())).findFirst();
+            var option = context.buildFeatures().stream().filter((feature) -> Objects.equals(feature.getCategory(), supportedFeature.getName())).findFirst();
             if (option.isEmpty()) continue;
             var button = RadialButton.option(option.get());
             texts.add(Component.literal(ChatFormatting.WHITE + button.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + button.getNameComponent().getString() + ChatFormatting.RESET));
@@ -165,8 +166,24 @@ public class EffortlessBuilder {
         updateContext(player, context -> context.withEmptyHits().withBuildMode(buildMode));
     }
 
-    public void setBuildFeature(Player player, BuildFeature.Entry feature) {
-        updateContext(player, context -> context.withEmptyHits().withBuildFeature(feature));
+    public void setBuildFeature(Player player, BuildFeature.SingleSelectEntry feature) {
+        updateContext(player, context -> {
+            return context.withBuildFeature(feature);
+        });
+    }
+
+    public void setBuildFeature(Player player, BuildFeature.MultiSelectEntry feature) {
+        updateContext(player, context -> {
+            var features = context.buildFeatures().stream().filter((f) -> f.getClass().equals(feature.getClass())).collect(Collectors.toSet());
+            if (features.contains(feature)) {
+                if (features.size() > 1) {
+                    features.remove(feature);
+                }
+            } else {
+                features.add(feature);
+            }
+            return context.withBuildFeature(features);
+        });
     }
 
     public void setRightClickDelay(int delay) {

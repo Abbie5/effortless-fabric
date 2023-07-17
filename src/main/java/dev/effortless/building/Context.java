@@ -3,7 +3,6 @@ package dev.effortless.building;
 import dev.effortless.Effortless;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
-import dev.effortless.building.mode.BuildOption;
 import dev.effortless.building.pattern.randomizer.Randomizer;
 import dev.effortless.building.replace.ReplaceMode;
 import net.minecraft.core.BlockPos;
@@ -12,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -77,7 +77,7 @@ public record Context(
                         BuildFeature.CircleStart.CIRCLE_START_CORNER,
                         BuildFeature.CubeFilling.CUBE_FULL,
                         BuildFeature.PlaneFilling.PLANE_FULL,
-                        BuildFeature.PlaneFacing.HORIZONTAL,
+                        BuildFeature.PlaneFacing.BOTH,
                         BuildFeature.RaisedEdge.RAISE_LONG_EDGE,
                         ReplaceMode.DISABLED),
                 new PatternParams(),
@@ -275,6 +275,10 @@ public record Context(
         return new Context(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
+    public Context withBuildFeature(Set<BuildFeature.Entry> feature) {
+        return new Context(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
+    }
+
     public Context withRandomUUID() {
         return withUUID(UUID.randomUUID());
     }
@@ -288,7 +292,7 @@ public record Context(
         return structureParams.buildMode();
     }
 
-    public BuildOption[] buildFeatures() {
+    public Set<BuildFeature.Entry> buildFeatures() {
         return structureParams.buildFeatures();
     }
 
@@ -368,24 +372,18 @@ public record Context(
 
     public record StructureParams(
             BuildMode buildMode,
-
             BuildFeature.CircleStart circleStart,
             BuildFeature.CubeFilling cubeFilling,
             BuildFeature.PlaneFilling planeFilling,
             BuildFeature.PlaneFacing planeFacing,
             BuildFeature.RaisedEdge raisedEdge,
-
             ReplaceMode replaceMode
     ) {
 
-        public BuildOption[] buildFeatures() {
-            return new BuildOption[]{
-                    circleStart,
-                    cubeFilling,
-                    planeFilling,
-                    planeFacing,
-                    raisedEdge
-            };
+        public Set<BuildFeature.Entry> buildFeatures() {
+            return Stream.of(
+                    Set.of(circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge)
+            ).flatMap(Set::stream).collect(Collectors.toSet());
         }
 
         public StructureParams withBuildMode(BuildMode buildMode) {
@@ -393,11 +391,28 @@ public record Context(
         }
 
         public StructureParams withBuildFeature(BuildFeature.Entry feature) {
-            if (feature instanceof BuildFeature.CircleStart) return withCircleStart((BuildFeature.CircleStart) feature);
-            if (feature instanceof BuildFeature.CubeFilling) return withCubeFilling((BuildFeature.CubeFilling) feature);
-            if (feature instanceof BuildFeature.PlaneFilling) return withPlaneFilling((BuildFeature.PlaneFilling) feature);
-            if (feature instanceof BuildFeature.PlaneFacing) return withPlaneFacing((BuildFeature.PlaneFacing) feature);
-            if (feature instanceof BuildFeature.RaisedEdge) return withRaisedEdge((BuildFeature.RaisedEdge) feature);
+            if (feature instanceof BuildFeature.CircleStart) {
+                return withCircleStart((BuildFeature.CircleStart) feature);
+            }
+            if (feature instanceof BuildFeature.CubeFilling) {
+                return withCubeFilling((BuildFeature.CubeFilling) feature);
+            }
+            if (feature instanceof BuildFeature.PlaneFilling) {
+                return withPlaneFilling((BuildFeature.PlaneFilling) feature);
+            }
+            if (feature instanceof BuildFeature.PlaneFacing) {
+                return withPlaneFacing((BuildFeature.PlaneFacing) feature);
+            }
+            if (feature instanceof BuildFeature.RaisedEdge) {
+                return withRaisedEdge((BuildFeature.RaisedEdge) feature);
+            }
+            return this;
+        }
+
+        public StructureParams withBuildFeature(Set<BuildFeature.Entry> feature) {
+//            if (feature.iterator().next() instanceof BuildFeature.PlaneFacing) {
+//                return withPlaneFacing(feature.stream().map((o) -> (BuildFeature.PlaneFacing)o).collect(Collectors.toCollection(() -> EnumSet.noneOf(BuildFeature.PlaneFacing.class))));
+//            }
             return this;
         }
 
