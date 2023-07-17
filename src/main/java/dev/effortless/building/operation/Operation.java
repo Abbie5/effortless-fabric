@@ -5,6 +5,10 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 
 import java.awt.*;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public interface Operation<R extends OperationResult<R>> {
 
@@ -19,6 +23,15 @@ public interface Operation<R extends OperationResult<R>> {
     enum Type {
         WORLD_PLACE_OP,
         WORLD_BREAK_OP,
+    }
+
+    static Predicate<Operation<?>> distinctByPosition() {
+        return distinctByKey(Operation::getPosition);
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 
     interface Renderer<R extends OperationResult<R>> {

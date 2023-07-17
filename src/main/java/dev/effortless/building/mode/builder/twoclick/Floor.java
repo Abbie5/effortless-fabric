@@ -13,6 +13,9 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
+import static dev.effortless.building.mode.builder.twoclick.Square.addFullSquareBlocksY;
+import static dev.effortless.building.mode.builder.twoclick.Square.addHollowSquareBlocksY;
+
 public class Floor extends DoubleClickBuilder {
 
     public static BlockHitResult traceFloor(Player player, Context context) {
@@ -41,8 +44,8 @@ public class Floor extends DoubleClickBuilder {
 
         if (y1 == y2) {
             switch (context.planeFilling()) {
-                case PLANE_FULL -> Square.addFullSquareBlocksY(list, x1, x2, y1, z1, z2);
-                case PLANE_HOLLOW -> Square.addHollowSquareBlocksY(list, x1, x2, y1, z1, z2);
+                case PLANE_FULL -> addFullSquareBlocksY(list, x1, x2, y1, z1, z2);
+                case PLANE_HOLLOW -> addHollowSquareBlocksY(list, x1, x2, y1, z1, z2);
             }
         }
 

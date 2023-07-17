@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
+import static dev.effortless.building.mode.builder.twoclick.Square.*;
+
 public class Wall extends DoubleClickBuilder {
 
     public static BlockHitResult traceWall(Player player, Context context) {
@@ -43,13 +45,13 @@ public class Wall extends DoubleClickBuilder {
 
         if (x1 == x2) {
             switch (context.planeFilling()) {
-                case PLANE_FULL -> Square.addFullSquareBlocksX(list, x1, y1, y2, z1, z2);
-                case PLANE_HOLLOW -> Square.addHollowSquareBlocksX(list, x1, y1, y2, z1, z2);
+                case PLANE_FULL -> addFullSquareBlocksX(list, x1, y1, y2, z1, z2);
+                case PLANE_HOLLOW -> addHollowSquareBlocksX(list, x1, y1, y2, z1, z2);
             }
         } else if (z1 == z2) {
             switch (context.planeFilling()) {
-                case PLANE_FULL -> Square.addFullSquareBlocksZ(list, x1, x2, y1, y2, z1);
-                case PLANE_HOLLOW -> Square.addHollowSquareBlocksZ(list, x1, x2, y1, y2, z1);
+                case PLANE_FULL -> addFullSquareBlocksZ(list, x1, x2, y1, y2, z1);
+                case PLANE_HOLLOW -> addHollowSquareBlocksZ(list, x1, x2, y1, y2, z1);
             }
         }
 

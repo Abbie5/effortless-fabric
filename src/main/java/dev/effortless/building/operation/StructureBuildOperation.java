@@ -74,7 +74,7 @@ public final class StructureBuildOperation extends StructureOperation {
     }
 
     public StructureOperationResult perform() {
-        return new StructureOperationResult(this, context.tracingResult(), stream().map(Operation::perform).toList());
+        return new StructureOperationResult(this, context.tracingResult(), stream().filter(Operation.distinctByPosition()).map(Operation::perform).toList());
     }
 
     @Override
