@@ -25,10 +25,10 @@ public class Checkbox extends Button {
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partial) {
         if (this.visible) {
-            Minecraft mc = Minecraft.getInstance();
+            var minecraft = Minecraft.getInstance();
             this.isHovered = mouseX >= this.getX() && mouseY >= this.getY() && mouseX < this.getX() + this.boxWidth && mouseY < this.getY() + this.height;
             ScreenUtils.blitWithBorder(poseStack, WIDGETS_LOCATION, this.getX(), this.getY(), 0, 46, this.boxWidth, this.height, 200, 20, 2, 3, 2, 2, this.getBlitOffset());
-            this.renderBg(poseStack, mc, mouseX, mouseY);
+            this.renderBg(poseStack, minecraft, mouseX, mouseY);
             int color = 14737632;
             int packedFGColor = 0;
             // FIXME: 8/9/22
@@ -39,9 +39,9 @@ public class Checkbox extends Button {
             }
 
             if (this.isChecked)
-                drawCenteredString(poseStack, mc.font, "x", this.getX() + this.boxWidth / 2 + 1, this.getY() + 1, 14737632);
+                drawCenteredString(poseStack, minecraft.font, "x", this.getX() + this.boxWidth / 2 + 1, this.getY() + 1, 14737632);
 
-            drawString(poseStack, mc.font, getMessage(), this.getX() + this.boxWidth + 2, this.getY() + 2, color);
+            drawString(poseStack, minecraft.font, getMessage(), this.getX() + this.boxWidth + 2, this.getY() + 2, color);
         }
     }
 

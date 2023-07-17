@@ -239,7 +239,7 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
         boolean insideRadialMirrorEnabledLabel = mouseX >= left && mouseX < right && relativeY >= -2 && relativeY < 12;
 
         if (insideRadialMirrorEnabledLabel) {
-            buttonRadialMirrorEnabled.playDownSound(this.mc.getSoundManager());
+            buttonRadialMirrorEnabled.playDownSound(this.minecraft.getSoundManager());
             buttonRadialMirrorEnabled.onClick(mouseX, mouseY);
         }
 
@@ -254,14 +254,14 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
             radialMirrorPos = new Vec3(textRadialMirrorPosX.getNumber(), textRadialMirrorPosY.getNumber(), textRadialMirrorPosZ
                     .getNumber());
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Radial mirror position not a valid number.");
+            Effortless.log(minecraft.player, "Radial mirror position not a valid number.");
         }
 
         int radialMirrorSlices = 4;
         try {
             radialMirrorSlices = (int) textRadialMirrorSlices.getNumber();
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Radial mirror slices not a valid number.");
+            Effortless.log(minecraft.player, "Radial mirror slices not a valid number.");
         }
 
         boolean radialMirrorAlternate = buttonRadialMirrorAlternate.isChecked();
@@ -270,7 +270,7 @@ public class RadialMirrorSettingsPane extends ExpandableScrollEntry {
         try {
             radialMirrorRadius = (int) textRadialMirrorRadius.getNumber();
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Mirror radius not a valid number.");
+            Effortless.log(minecraft.player, "Mirror radius not a valid number.");
         }
 
         return new RadialMirror.RadialMirrorSettings(radialMirrorEnabled, radialMirrorPos, radialMirrorSlices, radialMirrorAlternate, radialMirrorRadius, drawLines, drawPlanes);

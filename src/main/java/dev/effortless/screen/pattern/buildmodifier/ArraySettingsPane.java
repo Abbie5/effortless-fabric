@@ -115,7 +115,7 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
             textArrayCount.setY(positionOffsetY0 + componentOffsetY);
 
             int currentReach = Math.max(-1, getArrayReach());
-            int maxReach = ReachHelper.getMaxReachDistance(mc.player);
+            int maxReach = ReachHelper.getMaxReachDistance(minecraft.player);
             var reachColor = isCurrentReachValid(currentReach, maxReach) ? ChatFormatting.GRAY : ChatFormatting.RED;
             var reachText = "Reach  " + reachColor + currentReach + ChatFormatting.GRAY + "/" + ChatFormatting.GRAY + maxReach;
 
@@ -152,7 +152,7 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
         boolean insideArrayEnabledLabel = mouseX >= left && mouseX < right && relativeY >= -2 && relativeY < 12;
 
         if (insideArrayEnabledLabel) {
-            buttonArrayEnabled.playDownSound(this.mc.getSoundManager());
+            buttonArrayEnabled.playDownSound(this.minecraft.getSoundManager());
             buttonArrayEnabled.onClick(mouseX, mouseY);
         }
 
@@ -165,14 +165,14 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
         try {
             arrayOffset = new BlockPos(textArrayOffsetX.getNumber(), textArrayOffsetY.getNumber(), textArrayOffsetZ.getNumber());
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Array offset not a valid number.");
+            Effortless.log(minecraft.player, "Array offset not a valid number.");
         }
 
         int arrayCount = 5;
         try {
             arrayCount = (int) textArrayCount.getNumber();
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Array count not a valid number.");
+            Effortless.log(minecraft.player, "Array count not a valid number.");
         }
 
         return new Array.ArraySettings(arrayEnabled, arrayOffset, arrayCount);

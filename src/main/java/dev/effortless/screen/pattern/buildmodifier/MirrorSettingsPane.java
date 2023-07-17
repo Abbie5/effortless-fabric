@@ -242,7 +242,7 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
         boolean insideMirrorEnabledLabel = mouseX >= left && mouseX < right && relativeY >= -2 && relativeY < 12;
 
         if (insideMirrorEnabledLabel) {
-            buttonMirrorEnabled.playDownSound(this.mc.getSoundManager());
+            buttonMirrorEnabled.playDownSound(this.minecraft.getSoundManager());
             buttonMirrorEnabled.onClick(mouseX, mouseY);
         }
 
@@ -256,7 +256,7 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
         try {
             mirrorPos = new Vec3(textMirrorPosX.getNumber(), textMirrorPosY.getNumber(), textMirrorPosZ.getNumber());
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Mirror position not a valid number.");
+            Effortless.log(minecraft.player, "Mirror position not a valid number.");
         }
 
         boolean mirrorX = buttonMirrorX.isChecked();
@@ -267,7 +267,7 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
         try {
             mirrorRadius = (int) textMirrorRadius.getNumber();
         } catch (NumberFormatException | NullPointerException ex) {
-            Effortless.log(mc.player, "Mirror radius not a valid number.");
+            Effortless.log(minecraft.player, "Mirror radius not a valid number.");
         }
 
         return new Mirror.MirrorSettings(mirrorEnabled, mirrorPos, mirrorX, mirrorY, mirrorZ, mirrorRadius, drawLines, drawPlanes);

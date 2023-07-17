@@ -15,7 +15,7 @@ public abstract class ExpandableScrollEntry implements ScrollPane.IScrollEntry {
 
     public ScrollPane scrollPane;
     protected Font font;
-    protected Minecraft mc;
+    protected Minecraft minecraft;
 
     protected boolean isCollapsed = true;
     protected int left, right, top, bottom;
@@ -23,7 +23,7 @@ public abstract class ExpandableScrollEntry implements ScrollPane.IScrollEntry {
     public ExpandableScrollEntry(ScrollPane scrollPane) {
         this.scrollPane = scrollPane;
         this.font = scrollPane.font;
-        this.mc = Minecraft.getInstance();
+        this.minecraft = Minecraft.getInstance();
     }
 
     @Override
