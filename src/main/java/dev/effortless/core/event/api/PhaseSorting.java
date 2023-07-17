@@ -72,7 +72,7 @@ public class PhaseSorting {
 
     private static <T> void forwardVisit(EventPhaseData<T> phase, EventPhaseData<T> parent, List<EventPhaseData<T>> toposort) {
         if (phase.visitStatus == 0) {
-            // Not yet visited.
+            // not yet visited.
             phase.visitStatus = 1;
 
             for (var data : phase.subsequentPhases) {

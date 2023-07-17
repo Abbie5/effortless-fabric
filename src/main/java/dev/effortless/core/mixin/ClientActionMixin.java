@@ -19,8 +19,6 @@ public abstract class ClientActionMixin {
     @Nullable
     public LocalPlayer player;
 
-    // TODO: 15/9/22 extract to EffortlessClient class
-    // startAttack
     @Inject(method = "startAttack", at = @At(value = "HEAD"), cancellable = true)
     private void onStartAttack(CallbackInfoReturnable<Boolean> cir) {
         var result = ClientPlayerEvent.START_ATTACH.invoker().onStartAttack(player);

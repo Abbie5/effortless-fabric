@@ -9,7 +9,6 @@ import dev.effortless.building.pattern.randomizer.ItemProbability;
 import dev.effortless.building.pattern.randomizer.Randomizer;
 import dev.effortless.building.pattern.randomizer.RandomizerSettings;
 import dev.effortless.screen.config.EditorList;
-import dev.effortless.utils.RandomizerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
@@ -29,6 +28,8 @@ import java.awt.*;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+
+import static dev.effortless.screen.pattern.randomizer.EffortlessRandomizerEditScreen.getRandomizerEntryTooltip;
 
 @Environment(EnvType.CLIENT)
 public class EffortlessRandomizerSettingsScreen extends Screen {
@@ -259,7 +260,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
                     if (last == MAX_SLOT_COUNT) {
                         renderComponentTooltip(poseStack, Collections.singletonList(Component.literal("+" + (holders.size() - MAX_SLOT_COUNT) + " More")), i, j);
                     } else {
-                        renderComponentTooltip(poseStack, RandomizerUtils.getRandomizerEntryTooltip(holder, totalCount), i, j);
+                        renderComponentTooltip(poseStack, getRandomizerEntryTooltip(holder, totalCount), i, j);
                     }
                 }
             }

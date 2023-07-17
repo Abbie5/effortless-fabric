@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.effortless.renderer.OutlineRenderType;
 import dev.effortless.renderer.SuperRenderTypeBuffer;
-import dev.effortless.utils.Iterate;
 import dev.effortless.utils.VecHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
@@ -13,10 +12,7 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class BlockClusterOutline extends Outline {
 
@@ -174,5 +170,41 @@ public class BlockClusterOutline extends Outline {
             return this.pos.hashCode() * 31 + axis.ordinal();
         }
     }
+
+    private class Iterate {
+
+        public static final boolean[] trueAndFalse = {true, false};
+        public static final boolean[] falseAndTrue = {false, true};
+        public static final int[] zeroAndOne = {0, 1};
+        public static final int[] positiveAndNegative = {1, -1};
+        public static final Direction[] directions = Direction.values();
+        public static final Direction[] horizontalDirections = getHorizontals();
+        public static final Axis[] axes = Axis.values();
+        public static final EnumSet<Axis> axisSet = EnumSet.allOf(Axis.class);
+
+        private static Direction[] getHorizontals() {
+            Direction[] directions = new Direction[4];
+            for (int i = 0; i < 4; i++)
+                directions[i] = Direction.from2DDataValue(i);
+            return directions;
+        }
+
+        public static Direction[] directionsInAxis(Axis axis) {
+            return switch (axis) {
+                case X -> new Direction[]{Direction.EAST, Direction.WEST};
+                case Y -> new Direction[]{Direction.UP, Direction.DOWN};
+                default -> new Direction[]{Direction.SOUTH, Direction.NORTH};
+            };
+        }
+
+        public static List<BlockPos> hereAndBelow(BlockPos pos) {
+            return Arrays.asList(pos, pos.below());
+        }
+
+        public static List<BlockPos> hereBelowAndAbove(BlockPos pos) {
+            return Arrays.asList(pos, pos.below(), pos.above());
+        }
+    }
+
 
 }

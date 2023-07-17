@@ -1,7 +1,6 @@
 package dev.effortless.event;
 
 import dev.effortless.Effortless;
-import dev.effortless.building.history.UndoRedoProvider;
 import dev.effortless.building.pattern.randomizer.RandomizerSettings;
 import dev.effortless.building.reach.ReachHelper;
 import dev.effortless.core.event.client.ClientScreenInputEvent;
@@ -38,10 +37,10 @@ public class InputEvents {
             openItemRandomizerSettings();
         }
         if (Keys.UNDO.getKeyMapping().consumeClick()) {
-            UndoRedoProvider.undo(player);
+
         }
         if (Keys.REDO.getKeyMapping().consumeClick()) {
-            UndoRedoProvider.undo(player);
+
         }
         if (Keys.SETTINGS.getKeyMapping().consumeClick()) {
             openSettings();

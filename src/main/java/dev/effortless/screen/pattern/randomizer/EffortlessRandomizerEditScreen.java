@@ -8,9 +8,9 @@ import dev.effortless.building.pattern.randomizer.Randomizer;
 import dev.effortless.screen.ScissorsHandler;
 import dev.effortless.screen.config.EditorList;
 import dev.effortless.screen.widget.NumberField;
-import dev.effortless.utils.RandomizerUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
@@ -23,7 +23,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
@@ -44,6 +46,18 @@ public class EffortlessRandomizerEditScreen extends Screen {
     private Button saveButton;
     private EditBox nameEditBox;
     private DetailsList entries;
+
+    public static List<Component> getRandomizerEntryTooltip(ItemProbability holder, int totalCount) {
+        var components = holder.singleItemStack().getTooltipLines(Minecraft.getInstance().player, TooltipFlag.ADVANCED.asCreative());
+        var percentage = String.format("%.2f%%", 100.0 * holder.count() / totalCount);
+        components.add(
+                Component.empty()
+        );
+        components.add(
+                Component.literal(ChatFormatting.GRAY + "Total Probability: " + ChatFormatting.GOLD + percentage + ChatFormatting.DARK_GRAY + " (" + holder.count() + "/" + totalCount + ")" + ChatFormatting.RESET)
+        );
+        return components;
+    }
 
     public EffortlessRandomizerEditScreen(Screen screen, Consumer<Randomizer> consumer, Randomizer randomizer) {
         super(Component.translatable("randomizer.edit.title"));
@@ -148,7 +162,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
             }
             var entry = this.getHovered();
             if (entry != null && i < (this.width + this.getRowWidth()) / 2 - 48) {
-                renderComponentTooltip(poseStack, RandomizerUtils.getRandomizerEntryTooltip(entry.getItem(), totalCount()), i, j);
+                renderComponentTooltip(poseStack, getRandomizerEntryTooltip(entry.getItem(), totalCount()), i, j);
             }
         }
 
