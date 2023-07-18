@@ -171,7 +171,7 @@ public class BlockClusterOutline extends Outline {
         }
     }
 
-    private class Iterate {
+    private static class Iterate {
 
         public static final boolean[] trueAndFalse = {true, false};
         public static final boolean[] falseAndTrue = {false, true};
