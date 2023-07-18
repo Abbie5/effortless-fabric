@@ -3,7 +3,7 @@ package dev.effortless.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.building.Context;
 import dev.effortless.building.mode.BuildMode;
-import dev.effortless.building.operation.StructureOperationResult;
+import dev.effortless.building.operation.StructureResult;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.resources.language.I18n;
@@ -61,7 +61,7 @@ public class ActionBarOverlay extends GuiComponent {
 
     }
 
-    private void showMessage(Player player, Context context, StructureOperationResult result) {
+    private void showMessage(Player player, Context context, StructureResult result) {
         if (result.result().isSuccess()) {
             showBlockPlaceMessage(player, context, result);
         } else {
@@ -69,7 +69,7 @@ public class ActionBarOverlay extends GuiComponent {
         }
     }
 
-    private void showBlockPlaceMessage(Player player, Context context, StructureOperationResult result) {
+    private void showBlockPlaceMessage(Player player, Context context, StructureResult result) {
         var volume = result.size();
 
         var dimensions = "(";

@@ -57,7 +57,7 @@ public final class StructureBuildOperation extends StructureOperation {
         }
     }
 
-    public Stream<SingleBlockOperation> stream() {
+    public Stream<BlockOperation> stream() {
         switch (context.state()) {
             case IDLE -> {
                 return Stream.empty();
@@ -65,7 +65,7 @@ public final class StructureBuildOperation extends StructureOperation {
             case PLACE_BLOCK -> {
                 var itemStack = player.getMainHandItem().copy();
                 return context.collect()
-                        .map((hitResult) -> new SingleBlockPlaceOperation(
+                        .map((hitResult) -> new BlockPlaceOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos(),
                                 hitResult.getDirection(),
@@ -75,7 +75,7 @@ public final class StructureBuildOperation extends StructureOperation {
             }
             case BREAK_BLOCK -> {
                 return context.collect()
-                        .map((hitResult) -> new SingleBlockBreakOperation(
+                        .map((hitResult) -> new BlockBreakOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos(),
                                 hitResult.getDirection(),
@@ -87,8 +87,8 @@ public final class StructureBuildOperation extends StructureOperation {
         return Stream.empty();
     }
 
-    public StructureOperationResult perform() {
-        return new StructureOperationResult(this, context.tracingResult(), stream().filter(Operation.distinctByPosition()).map(Operation::perform).toList());
+    public StructureResult perform() {
+        return new StructureResult(this, context.tracingResult(), stream().filter(OperationFilter.distinctByPosition()).map(Operation::perform).toList());
     }
 
     @Override
@@ -97,7 +97,7 @@ public final class StructureBuildOperation extends StructureOperation {
     }
 
     @Override
-    public Type getType() {
+    public OperationType getType() {
         return null;
     }
 

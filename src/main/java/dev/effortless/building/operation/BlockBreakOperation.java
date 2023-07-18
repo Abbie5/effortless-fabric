@@ -13,30 +13,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.GameMasterBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.awt.*;
 import java.util.Collections;
 
-public final class SingleBlockBreakOperation extends SingleBlockOperation {
+public final class BlockBreakOperation extends BlockOperation {
     private final Level level;
     private final Player player;
     private final Context context;
     private final Storage storage;
     private final BlockPos blockPos;
-    private static final DefaultRenderer RENDERER = new DefaultRenderer() {
-
-        @Override
-        public Color getColor(BlockInteractionResult result) {
-            return switch (result) {
-                case SUCCESS, SUCCESS_PREVIEW, CONSUME -> COLOR_RED;
-                default -> null;
-            };
-        }
-
-    };
     private final Direction direction;
     private final Boolean last;
 
-    public SingleBlockBreakOperation(
+    public BlockBreakOperation(
             Level level,
             Player player,
             Context context,
@@ -129,7 +117,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     }
 
     @Override
-    public SingleBlockOperationResult perform() {
+    public BlockResult perform() {
         var inputs = Collections.<ItemStack>emptyList();
         var outputs = Collections.singletonList(level.getBlockState(blockPos).getBlock().asItem().getDefaultInstance());
         var result = breakBlock(level, player, blockPos, isPreview());
@@ -137,7 +125,7 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
         if (last && isPreview() && level.isClientSide() && result.consumesAction()) {
             Minecraft.getInstance().particleEngine.crack(blockPos, direction);
         }
-        return new SingleBlockOperationResult(this, result, inputs, outputs);
+        return new BlockResult(this, result, inputs, outputs);
 
     }
 
@@ -158,13 +146,8 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     }
 
     @Override
-    public Type getType() {
-        return Type.WORLD_BREAK_OP;
-    }
-
-    @Override
-    public DefaultRenderer getRenderer() {
-        return RENDERER;
+    public OperationType getType() {
+        return OperationType.WORLD_BREAK_OP;
     }
 
     @Override
@@ -200,6 +183,11 @@ public final class SingleBlockBreakOperation extends SingleBlockOperation {
     @Override
     public Direction direction() {
         return direction;
+    }
+
+    @Override
+    public boolean isPreview() {
+        return storage() != null;
     }
 
 

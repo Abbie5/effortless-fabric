@@ -24,29 +24,18 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.util.Collections;
 
-public final class SingleBlockPlaceOperation extends SingleBlockOperation {
+public final class BlockPlaceOperation extends BlockOperation {
     private final Level level;
     private final Player player;
     private final Context context;
     private final Storage storage;
     private final BlockPos blockPos;
-    private static final DefaultRenderer RENDERER = new DefaultRenderer() {
-        @Override
-        public Color getColor(BlockInteractionResult result) {
-            return switch (result) {
-                case SUCCESS, SUCCESS_PREVIEW, CONSUME -> COLOR_WHITE;
-                case FAIL_PLAYER_EMPTY_INV -> COLOR_RED;
-                default -> null;
-            };
-        }
-    };
     private final BlockState blockState;
     private final Direction direction;
 
-    public SingleBlockPlaceOperation(
+    public BlockPlaceOperation(
             Level level,
             Player player,
             Context context,
@@ -207,9 +196,8 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         }
     }
 
-
     @Override
-    public SingleBlockOperationResult perform() {
+    public BlockResult perform() {
         var inputs = Collections.singletonList(blockState.getBlock().asItem().getDefaultInstance());
         var outputs = Collections.<ItemStack>emptyList();
 
@@ -233,7 +221,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
             result = BlockInteractionResult.FAIL_BLOCK_STATE_FLAG_CANNOT_REPLACE;
         }
 
-        return new SingleBlockOperationResult(this, result, inputs, outputs);
+        return new BlockResult(this, result, inputs, outputs);
     }
 
     @Override
@@ -253,13 +241,8 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     }
 
     @Override
-    public Type getType() {
-        return Type.WORLD_PLACE_OP;
-    }
-
-    @Override
-    public DefaultRenderer getRenderer() {
-        return RENDERER;
+    public OperationType getType() {
+        return OperationType.WORLD_PLACE_OP;
     }
 
     @Override
@@ -295,6 +278,11 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     @Override
     public Direction direction() {
         return direction;
+    }
+
+    @Override
+    public boolean isPreview() {
+        return storage() != null;
     }
 
     private static class BlockStatePlaceContext extends BlockPlaceContext {

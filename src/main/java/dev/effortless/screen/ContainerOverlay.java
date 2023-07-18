@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import dev.effortless.Effortless;
 import dev.effortless.config.ConfigManager;
 import dev.effortless.screen.mode.EffortlessModeRadialScreen;
+import dev.effortless.utils.OverlayHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
@@ -293,10 +294,6 @@ public class ContainerOverlay {
             this.items = items;
         }
 
-        private static Integer getColorTag(ItemStack itemStack) {
-            return itemStack.getTag().getInt("RenderColor");
-        }
-
         private void renderGuiItem(int i, int j, ItemStack itemStack, BakedModel bakedModel, boolean red) {
             Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
@@ -346,9 +343,9 @@ public class ContainerOverlay {
                 var i1 = i - itemCol * ITEM_SPACING_X * contentSide.getStep();
                 var j1 = j + itemRow * ITEM_SPACING_Y - ITEM_SPACING_Y * Mth.ceil(1f * items.size() / MAX_COLUMN);
 
-                renderGuiItem(i1, j1, item, minecraft.getItemRenderer().getModel(item, null, null, 0), getColorTag(item).equals(new Color(255, 85, 85).getRGB()));
+                renderGuiItem(i1, j1, item, minecraft.getItemRenderer().getModel(item, null, null, 0), OverlayHelper.getColorTag(item).equals(new Color(255, 85, 85).getRGB()));
 
-                renderGuiItemDecorations(i1, j1, minecraft.font, Integer.toString(item.getCount()), getColorTag(item));
+                renderGuiItemDecorations(i1, j1, minecraft.font, Integer.toString(item.getCount()), OverlayHelper.getColorTag(item));
 
                 if (itemCol < MAX_COLUMN - 1) {
                     itemCol += 1;

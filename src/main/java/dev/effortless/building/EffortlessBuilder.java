@@ -3,18 +3,11 @@ package dev.effortless.building;
 import dev.effortless.Effortless;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
-import dev.effortless.building.operation.ConsumerGroup;
-import dev.effortless.building.operation.ItemStackSummary;
 import dev.effortless.building.operation.StructureBuildOperation;
-import dev.effortless.building.operation.StructureOperationResult;
 import dev.effortless.network.Packets;
 import dev.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
-import dev.effortless.renderer.preview.OperationRenderer;
-import dev.effortless.screen.ContainerOverlay;
-import dev.effortless.screen.radial.RadialButton;
-import net.minecraft.ChatFormatting;
+import dev.effortless.utils.OverlayHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -22,7 +15,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,53 +38,6 @@ public class EffortlessBuilder {
 
     public static EffortlessBuilder getInstance() {
         return INSTANCE;
-    }
-
-    private static Component getStateComponent(BuildingState state) {
-        return Component.translatable(Effortless.asKey("state", switch (state) {
-                    case IDLE -> "idle";
-                    case PLACE_BLOCK -> "place_block";
-                    case BREAK_BLOCK -> "break_block";
-                })
-        );
-    }
-
-    private static Component getTracingComponent(TracingResult result) {
-        return Component.translatable(Effortless.asKey("tracing", switch (result) {
-                    case SUCCESS_FULFILLED -> "success_fulfilled";
-                    case SUCCESS_PARTIAL -> "success_partial";
-                    case PASS -> "pass";
-                    case FAILED -> "failed";
-                })
-        );
-    }
-
-    private static void showOperationResult(UUID uuid, StructureOperationResult result) {
-        OperationRenderer.getInstance().showResult(uuid, result);
-    }
-
-    private static void showItemStackSummary(UUID uuid, ItemStackSummary summary, int priority) {
-        ContainerOverlay.getInstance().showTitledItems("placed" + uuid, Component.literal(ChatFormatting.WHITE + "Placed Blocks"), summary.group().getOrDefault(ConsumerGroup.PLAYER_USED, Collections.emptyList()), priority);
-        ContainerOverlay.getInstance().showTitledItems("destroyed" + uuid, Component.literal(ChatFormatting.RED + "Destroyed Blocks"), summary.group().getOrDefault(ConsumerGroup.LEVEL_DROPPED, Collections.emptyList()), priority);
-    }
-
-    private static void showContainerContext(UUID uuid, Context context, int priority) {
-        var texts = new ArrayList<Component>();
-        texts.add(Component.literal(ChatFormatting.WHITE + "Structure " + ChatFormatting.GOLD + context.buildMode().getNameComponent().getString() + ChatFormatting.RESET));
-        var replace = RadialButton.option(context.structureParams().replaceMode());
-        texts.add(Component.literal(ChatFormatting.WHITE + replace.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + replace.getNameComponent().getString() + ChatFormatting.RESET));
-
-        for (var supportedFeature : context.buildMode().getSupportedFeatures()) {
-            var option = context.buildFeatures().stream().filter((feature) -> Objects.equals(feature.getCategory(), supportedFeature.getName())).findFirst();
-            if (option.isEmpty()) continue;
-            var button = RadialButton.option(option.get());
-            texts.add(Component.literal(ChatFormatting.WHITE + button.getCategoryComponent().getString() + " " + ChatFormatting.GOLD + button.getNameComponent().getString() + ChatFormatting.RESET));
-        }
-
-        texts.add(Component.literal(ChatFormatting.WHITE + "State" + " " + ChatFormatting.GOLD + getStateComponent(context.state()).getString()));
-        texts.add(Component.literal(ChatFormatting.WHITE + "Tracing" + " " + ChatFormatting.GOLD + getTracingComponent(context.tracingResult()).getString()));
-
-        ContainerOverlay.getInstance().showMessages("info" + uuid, texts, priority);
     }
 
     private BuildingResult perform(Player player, BuildingState state, @Nullable BlockHitResult hitResult) {
@@ -115,8 +63,8 @@ public class EffortlessBuilder {
         if (updated.isFulfilled()) {
 
             var result = generateStructurePreviewFromContext(player, updated, true).perform();
-            showOperationResult(updated.uuid(), result);
-            showItemStackSummary(updated.uuid(), result.summary(), 1000);
+            OverlayHelper.showOperationResult(updated.uuid(), result);
+            OverlayHelper.showItemStackSummary(updated.uuid(), result, 1000);
 
             Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(updated));
             provider.set(player, updated.reset());
@@ -147,9 +95,9 @@ public class EffortlessBuilder {
         context = context.withNextHit(player, true);
         var result = generateStructurePreviewFromContext(player, context, false).perform();
 
-        showOperationResult(BUILDING_UUID, result);
-        showContainerContext(BUILDING_UUID, context, 0);
-        showItemStackSummary(BUILDING_UUID, result.summary(), 1);
+        OverlayHelper.showOperationResult(BUILDING_UUID, result);
+        OverlayHelper.showContainerContext(BUILDING_UUID, context, 0);
+        OverlayHelper.showItemStackSummary(BUILDING_UUID, result, 1);
     }
 
     public Context getContext(Player player) {
