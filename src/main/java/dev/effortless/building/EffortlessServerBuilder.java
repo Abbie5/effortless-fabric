@@ -13,7 +13,7 @@ public class EffortlessServerBuilder {
     }
 
     private static StructureBuildOperation generateStructureFromContext(Level level, Player player, Context context) {
-        return new StructureBuildOperation(level, player, context, null);
+        return new StructureBuildOperation(level, player, context);
     }
 
     public void perform(Player player, Context context) {

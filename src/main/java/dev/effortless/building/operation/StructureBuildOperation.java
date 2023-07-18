@@ -21,17 +21,28 @@ public final class StructureBuildOperation extends StructureOperation {
     private final Player player;
     private final Context context;
     private final Storage storage;
+    private final Boolean once;
 
     public StructureBuildOperation(
             Level level,
             Player player,
             Context context,
-            Storage storage
+            Storage storage,
+            Boolean once
     ) {
         this.level = level;
         this.player = player;
         this.context = context;
         this.storage = storage;
+        this.once = once;
+    }
+
+    public StructureBuildOperation(
+            Level level,
+            Player player,
+            Context context
+    ) {
+        this(level, player, context, null, false);
     }
 
     private static BlockState getBlockStateFromItem(Player player, ItemStack itemStack, InteractionHand hand, BlockHitResult hitResult) {
@@ -57,6 +68,7 @@ public final class StructureBuildOperation extends StructureOperation {
                         .map((hitResult) -> new SingleBlockPlaceOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos(),
+                                hitResult.getDirection(),
                                 getBlockStateFromItem(player, itemStack, InteractionHand.MAIN_HAND, hitResult)))
                         .flatMap(Stream::of) // for modifiers
                         .map((op) -> op);
@@ -65,7 +77,9 @@ public final class StructureBuildOperation extends StructureOperation {
                 return context.collect()
                         .map((hitResult) -> new SingleBlockBreakOperation(
                                 level, player, context, storage,
-                                hitResult.getBlockPos()))
+                                hitResult.getBlockPos(),
+                                hitResult.getDirection(),
+                                once))
                         .flatMap(Stream::of) // for modifiers
                         .map((op) -> op);
             }
@@ -106,4 +120,8 @@ public final class StructureBuildOperation extends StructureOperation {
         return context;
     }
 
+    @Override
+    public boolean isPreview() {
+        return storage != null;
+    }
 }

@@ -2,13 +2,14 @@ package dev.effortless.building.operation;
 
 public enum BlockInteractionResult {
     SUCCESS,
+    SUCCESS_PREVIEW,
     CONSUME,
 
     FAIL_PLAYER_NULL,
     FAIL_PLAYER_SPECTATOR,
     FAIL_PLAYER_EMPTY_INV,
     FAIL_PLAYER_ABILITY_CANNOT_BUILD,
-    FAIL_PLAYER_ITEM_CANNOT_ATTACK,
+    FAIL_PLAYER_CANNOT_USE_ITEM_TO_ATTACK,
     FAIL_PLAYER_CANNOT_USE_GAME_MASTER_BLOCKS,
 
     FAIL_LEVEL_FEATURE_LIMIT,
@@ -31,15 +32,15 @@ public enum BlockInteractionResult {
     }
 
     public boolean consumesAction() {
-        return this == SUCCESS || this == CONSUME;
+        return this == SUCCESS || this == SUCCESS_PREVIEW || this == CONSUME;
     }
 
     public boolean success() {
-        return this == SUCCESS || this == CONSUME;
+        return this == SUCCESS || this == SUCCESS_PREVIEW || this == CONSUME;
     }
 
     public boolean fail() {
-        return this != SUCCESS && this != CONSUME;
+        return this != SUCCESS && this != SUCCESS_PREVIEW && this != CONSUME;
     }
 
     public boolean shouldSwing() {

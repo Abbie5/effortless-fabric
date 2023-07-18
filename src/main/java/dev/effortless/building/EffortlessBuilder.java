@@ -32,13 +32,13 @@ public class EffortlessBuilder {
     private static final UUID BUILDING_UUID = UUID.randomUUID();
     private final ContextProvider provider = new ContextProvider();
 
-    private static StructureBuildOperation generateStructurePreviewFromContext(Player player, Context context) {
+    private static StructureBuildOperation generateStructurePreviewFromContext(Player player, Context context, Boolean once) {
         var storage = Storage.createTemp(player.getInventory().items);
-        return new StructureBuildOperation(player.getLevel(), player, context, storage);
+        return new StructureBuildOperation(player.getLevel(), player, context, storage, once);
     }
 
     private static StructureBuildOperation generateStructureFromContext(Player player, Context context) {
-        return new StructureBuildOperation(player.getLevel(), player, context, null);
+        return new StructureBuildOperation(player.getLevel(), player, context);
     }
 
     public static EffortlessBuilder getInstance() {
@@ -114,7 +114,7 @@ public class EffortlessBuilder {
         var updated = updater.apply(context);
         if (updated.isFulfilled()) {
 
-            var result = generateStructurePreviewFromContext(player, updated).perform();
+            var result = generateStructurePreviewFromContext(player, updated, true).perform();
             showOperationResult(updated.uuid(), result);
             showItemStackSummary(updated.uuid(), result.summary(), 1000);
 
@@ -145,7 +145,7 @@ public class EffortlessBuilder {
             }
         }
         context = context.withNextHit(player, true);
-        var result = generateStructurePreviewFromContext(player, context).perform();
+        var result = generateStructurePreviewFromContext(player, context, false).perform();
 
         showOperationResult(BUILDING_UUID, result);
         showContainerContext(BUILDING_UUID, context, 0);

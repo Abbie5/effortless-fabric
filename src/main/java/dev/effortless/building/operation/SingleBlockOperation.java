@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -38,9 +39,16 @@ public abstract class SingleBlockOperation implements Operation<SingleBlockOpera
 
     public abstract BlockState blockState();
 
+    public abstract Direction direction();
+
     public abstract ItemStack inputItemStack();
 
     public abstract ItemStack outputItemStack();
+
+    @Override
+    public boolean isPreview() {
+        return storage() != null;
+    }
 
     @Override
     public abstract DefaultRenderer getRenderer();

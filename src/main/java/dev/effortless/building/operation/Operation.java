@@ -20,6 +20,8 @@ public interface Operation<R extends OperationResult<R>> {
 
     Renderer<R> getRenderer();
 
+    boolean isPreview();
+
     enum Type {
         WORLD_PLACE_OP,
         WORLD_BREAK_OP,

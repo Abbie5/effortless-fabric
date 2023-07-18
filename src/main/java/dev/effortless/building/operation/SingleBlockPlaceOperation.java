@@ -33,7 +33,18 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     private final Context context;
     private final Storage storage;
     private final BlockPos blockPos;
+    private static final DefaultRenderer RENDERER = new DefaultRenderer() {
+        @Override
+        public Color getColor(BlockInteractionResult result) {
+            return switch (result) {
+                case SUCCESS, SUCCESS_PREVIEW, CONSUME -> COLOR_WHITE;
+                case FAIL_PLAYER_EMPTY_INV -> COLOR_RED;
+                default -> null;
+            };
+        }
+    };
     private final BlockState blockState;
+    private final Direction direction;
 
     public SingleBlockPlaceOperation(
             Level level,
@@ -41,6 +52,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
             Context context,
             Storage storage,
             BlockPos blockPos, // for preview
+            Direction direction,
             BlockState blockState
     ) {
         this.level = level;
@@ -48,21 +60,11 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         this.context = context;
         this.storage = storage;
         this.blockPos = blockPos;
+        this.direction = direction;
         this.blockState = blockState;
     }
 
-    private static final DefaultRenderer RENDERER = new DefaultRenderer() {
-        @Override
-        public Color getColor(BlockInteractionResult result) {
-            return switch (result) {
-                case SUCCESS, CONSUME -> COLOR_WHITE;
-                case FAIL_PLAYER_EMPTY_INV -> COLOR_RED;
-                default -> null;
-            };
-        }
-    };
-
-    private static BlockInteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext, Boolean preview) {
+    private static BlockInteractionResult useBlockItemOn(BlockItem blockItem, BlockStatePlaceContext blockStatePlaceContext, boolean preview) {
 
         if (!blockItem.getBlock().isEnabled(blockStatePlaceContext.getLevel().enabledFeatures())) {
             return BlockInteractionResult.FAIL_LEVEL_FEATURE_LIMIT;
@@ -84,29 +86,30 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         var level = blockStatePlaceContext.getLevel();
         var player = blockStatePlaceContext.getPlayer();
         var itemStack = blockStatePlaceContext.getItemInHand();
-        if (!preview) {
-            var blockState2 = level.getBlockState(blockPos);
-            if (blockState2.is(blockState.getBlock())) {
-                blockState2 = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
-                blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
-                blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
-                if (player instanceof ServerPlayer) {
-                    CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
-                }
-            }
-            var soundType = blockState2.getSoundType();
-            level.playSound(player, blockPos, blockItem.getPlaceSound(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
-            level.gameEvent(GameEvent.BLOCK_PLACE, blockPos, GameEvent.Context.of(player, blockState2));
+        if (preview) {
+            return BlockInteractionResult.SUCCESS_PREVIEW;
         }
+        var blockState2 = level.getBlockState(blockPos);
+        if (blockState2.is(blockState.getBlock())) {
+            blockState2 = blockItem.updateBlockStateFromTag(blockPos, level, itemStack, blockState2);
+            blockItem.updateCustomBlockEntityTag(blockPos, level, player, itemStack, blockState2);
+            blockState2.getBlock().setPlacedBy(level, blockPos, blockState2, player, itemStack);
+            if (player instanceof ServerPlayer) {
+                CriteriaTriggers.PLACED_BLOCK.trigger((ServerPlayer) player, blockPos, itemStack);
+            }
+        }
+        var soundType = blockState2.getSoundType();
+        level.playSound(player, blockPos, blockItem.getPlaceSound(blockState2), SoundSource.BLOCKS, (soundType.getVolume() + 1.0F) / 2.0F, soundType.getPitch() * 0.8F);
+        level.gameEvent(GameEvent.BLOCK_PLACE, blockPos, GameEvent.Context.of(player, blockState2));
         if (player == null || !player.getAbilities().instabuild) {
             itemStack.shrink(1);
         }
-
         return BlockInteractionResult.sidedSuccess(level.isClientSide());
+
     }
 
 
-    private static BlockInteractionResult useBlockItemStackOn(BlockStatePlaceContext blockStatePlaceContext, Boolean preview) {
+    private static BlockInteractionResult useBlockItemStackOn(BlockStatePlaceContext blockStatePlaceContext, boolean preview) {
         var itemStack = blockStatePlaceContext.getItemInHand();
         var player = blockStatePlaceContext.getPlayer();
         var blockPos = blockStatePlaceContext.getClickedPos();
@@ -137,7 +140,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         return level.getBlockState(blockPos).canBeReplaced(); // fluid
     }
 
-    private static BlockInteractionResult placeBlockServer(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, Boolean preview) {
+    private static BlockInteractionResult placeBlockServer(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, boolean preview) {
         var itemStack = player.getItemInHand(interactionHand);
         var fakeResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
@@ -165,7 +168,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     }
 
     // TODO: 15/7/23 use vanilla
-    private static BlockInteractionResult placeBlockClient(Level level, Player localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, Boolean preview) {
+    private static BlockInteractionResult placeBlockClient(Level level, Player localPlayer, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, boolean preview) {
         var itemStack = localPlayer.getItemInHand(interactionHand);
         var blockHitResult = new BlockHitResult(Vec3.ZERO, Direction.UP, blockPos, false);
 
@@ -183,7 +186,7 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
     }
 
     // no context
-    public static BlockInteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, Boolean preview) {
+    public static BlockInteractionResult placeBlock(Level level, Player player, InteractionHand interactionHand, BlockPos blockPos, BlockState blockState, boolean preview) {
         if (player.isSpectator()) { // move
             return BlockInteractionResult.FAIL_PLAYER_SPECTATOR;
         }
@@ -289,6 +292,11 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         return blockState;
     }
 
+    @Override
+    public Direction direction() {
+        return direction;
+    }
+
     private static class BlockStatePlaceContext extends BlockPlaceContext {
 
         private final BlockState placeState;
@@ -307,12 +315,6 @@ public final class SingleBlockPlaceOperation extends SingleBlockOperation {
         public BlockState getPlaceState() {
             return placeState;
         }
-
-        //    public boolean canPlace() {
-        //        var player = getPlayer();
-        //        if (player == null) return false;
-        //        return SurvivalHelper.canPlace(player.getLevel(), player, blockPos, placeState);
-        //    }
 
     }
 }
