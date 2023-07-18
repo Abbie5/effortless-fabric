@@ -22,7 +22,9 @@ public class Shaders {
             sink.registerShader(
                     // TODO: 10/9/22 use custom namespace
                     new ShaderInstance(provider, "rendertype_tinted_solid", DefaultVertexFormat.BLOCK),
-                    (shaderInstance) -> { tintedSolidShaderInstance = shaderInstance; }
+                    (shaderInstance) -> {
+                        tintedSolidShaderInstance = shaderInstance;
+                    }
             );
         } catch (IOException e) {
             LOGGER.error("Failed to register effortless shaders");

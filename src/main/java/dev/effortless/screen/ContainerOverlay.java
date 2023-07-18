@@ -89,7 +89,7 @@ public class ContainerOverlay {
             return;
         }
         poseStack.pushPose();
-        var startX = contentSide == Direction.AxisDirection.POSITIVE ?  minecraft.getWindow().getGuiScaledWidth() : 0f;
+        var startX = contentSide == Direction.AxisDirection.POSITIVE ? minecraft.getWindow().getGuiScaledWidth() : 0f;
         var startY = minecraft.getWindow().getGuiScaledHeight() * 1f;
         poseStack.translate(startX, startY, 0);
         poseStack.translate(-1f * contentSide.getStep(), 0, 0);
@@ -104,7 +104,7 @@ public class ContainerOverlay {
                     continue;
                 }
                 poseStack.pushPose();
-                entry.fill(poseStack, entry.getTotalWidth(), 0, 0, -entry.getTotalHeight(), minecraft.options.getBackgroundColor(0.8f * entry.getAlpha()));
+                GuiComponent.fill(poseStack, entry.getTotalWidth(), 0, 0, -entry.getTotalHeight(), minecraft.options.getBackgroundColor(0.8f * entry.getAlpha()));
                 poseStack.translate(entry.getPaddingX(), -entry.getPaddingY(), 0);
                 entry.render(poseStack, (int) startX + entry.getPaddingX(), (int) startY - entry.getPaddingY(), contentSide);
                 poseStack.popPose();
@@ -303,7 +303,7 @@ public class ContainerOverlay {
             PoseStack poseStack = RenderSystem.getModelViewStack();
 
             poseStack.pushPose();
-            poseStack.translate((float) i, (float)j, 100.0F);
+            poseStack.translate((float) i, (float) j, 100.0F);
             poseStack.translate(8.0F, 8.0F, 0.0F);
             poseStack.scale(1.0F, -1.0F, 1.0F);
             poseStack.scale(16.0F, 16.0F, 16.0F);
@@ -328,7 +328,7 @@ public class ContainerOverlay {
             var poseStack = new PoseStack();
             poseStack.translate(0.0F, 0.0F, 200.0F);
             var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            font.drawInBatch(string, (float)(i + 19 - 2 - font.width(string)), (float)(j + 6 + 3), color, true, poseStack.last().pose(), bufferSource, false, 0, 15728880);
+            font.drawInBatch(string, (float) (i + 19 - 2 - font.width(string)), (float) (j + 6 + 3), color, true, poseStack.last().pose(), bufferSource, false, 0, 15728880);
             bufferSource.endBatch();
         }
 

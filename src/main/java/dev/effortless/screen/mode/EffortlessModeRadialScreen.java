@@ -64,7 +64,6 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
             if (entry.getOption() instanceof BuildFeature.MultiSelectEntry) {
                 selectBuildFeature((BuildFeature.MultiSelectEntry) entry.getOption());
                 updateRadialState();
-                return;
             }
 
         });

@@ -23,7 +23,7 @@ public class Packets {
         }
 
         return new FabricNetworkChannel<>(
-                Effortless.asResource( "default_channel"),
+                Effortless.asResource("default_channel"),
                 ServerEffortlessPacketHandler::new,
                 clientPacketHandlerCreator
         );

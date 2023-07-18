@@ -21,6 +21,10 @@ public class OperationRenderer {
         registerRenderers();
     }
 
+    public static OperationRenderer getInstance() {
+        return INSTANCE;
+    }
+
     private <O extends Operation<R>, R extends OperationResult<R>> void registerRenderer(Class<O> clazz, ResultRenderer<R> renderer) {
         resultRendererMap.put(clazz, renderer);
     }
@@ -41,10 +45,6 @@ public class OperationRenderer {
         registerRenderer(BlockBreakOperation.class, new BlockResultRenderer.Break());
         registerRenderer(BlockBreakOperation.class, new BlockResultRenderer.Break());
         registerRenderer(StructureBuildOperation.class, new StructureResultRenderer());
-    }
-
-    public static OperationRenderer getInstance() {
-        return INSTANCE;
     }
 
     public void showResult(Object id, OperationResult result) {

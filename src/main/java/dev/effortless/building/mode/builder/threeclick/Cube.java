@@ -93,6 +93,7 @@ public class Cube extends TripleClickBuilder {
 
         return list.stream();
     }
+
     @Override
     protected BlockHitResult traceFirstHit(Player player, Context context) {
         return traceSingle(player, context);

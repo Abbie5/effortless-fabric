@@ -390,6 +390,12 @@ public class RadialSection extends AbstractWidget {
         return Mth.sign(ab) == Mth.sign(bc) && Mth.sign(bc) == Mth.sign(ca);
     }
 
+    public void cycleBuildMode(Player player, boolean reverse) {
+        // TODO: 23/5/23
+//        setBuildMode(player, BuildMode.values()[(getBuildMode(player).ordinal() + 1) % BuildMode.values().length]);
+//        Constructor.getInstance().reset(player);
+    }
+
     record ColorState(
             Color disabledColor,
             Color defaultColor,
@@ -411,12 +417,6 @@ public class RadialSection extends AbstractWidget {
     }
 
     private record Button(RadialButton<?> entry) {
-    }
-
-    public void cycleBuildMode(Player player, boolean reverse) {
-        // TODO: 23/5/23
-//        setBuildMode(player, BuildMode.values()[(getBuildMode(player).ordinal() + 1) % BuildMode.values().length]);
-//        Constructor.getInstance().reset(player);
     }
 
 

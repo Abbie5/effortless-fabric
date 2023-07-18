@@ -47,6 +47,14 @@ public class EffortlessRandomizerEditScreen extends Screen {
     private EditBox nameEditBox;
     private DetailsList entries;
 
+    public EffortlessRandomizerEditScreen(Screen screen, Consumer<Randomizer> consumer, Randomizer randomizer) {
+        super(Component.translatable("randomizer.edit.title"));
+        this.parent = screen;
+        this.applySettings = consumer;
+        this.defaultSettings = randomizer;
+        this.lastSettings = randomizer;
+    }
+
     public static List<Component> getRandomizerEntryTooltip(ItemProbability holder, int totalCount) {
         var components = holder.singleItemStack().getTooltipLines(Minecraft.getInstance().player, TooltipFlag.ADVANCED.asCreative());
         var percentage = String.format("%.2f%%", 100.0 * holder.count() / totalCount);
@@ -57,14 +65,6 @@ public class EffortlessRandomizerEditScreen extends Screen {
                 Component.literal(ChatFormatting.GRAY + "Total Probability: " + ChatFormatting.GOLD + percentage + ChatFormatting.DARK_GRAY + " (" + holder.count() + "/" + totalCount + ")" + ChatFormatting.RESET)
         );
         return components;
-    }
-
-    public EffortlessRandomizerEditScreen(Screen screen, Consumer<Randomizer> consumer, Randomizer randomizer) {
-        super(Component.translatable("randomizer.edit.title"));
-        this.parent = screen;
-        this.applySettings = consumer;
-        this.defaultSettings = randomizer;
-        this.lastSettings = randomizer;
     }
 
     private void updateSettings() {

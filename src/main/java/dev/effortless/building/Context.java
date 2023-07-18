@@ -353,8 +353,8 @@ public record Context(
         } else {
             return Stream.empty();
         }
-
     }
+
     public TracingResult tracingResult() {
         if (isIdle()) {
             return TracingResult.PASS;

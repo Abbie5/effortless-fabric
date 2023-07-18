@@ -33,12 +33,12 @@ public class Cylinder extends TripleClickBuilder {
                 list.addAll(Circle.collectCircleBlocks(context).map(blockPos -> new BlockPos(blockPos.getX(), y0, blockPos.getZ())).toList());
             }
         } else if (x1 == x2) {
-                        for (int x = x1; x1 < x3 ? x <= x3 : x >= x3; x += x1 < x3 ? 1 : -1) {
+            for (int x = x1; x1 < x3 ? x <= x3 : x >= x3; x += x1 < x3 ? 1 : -1) {
                 int x0 = x;
                 list.addAll(Circle.collectCircleBlocks(context).map(blockPos -> new BlockPos(x0, blockPos.getY(), blockPos.getZ())).toList());
             }
         } else if (z1 == z2) {
-                        for (int z = z1; z1 < z3 ? z <= z3 : z >= z3; z += z1 < z3 ? 1 : -1) {
+            for (int z = z1; z1 < z3 ? z <= z3 : z >= z3; z += z1 < z3 ? 1 : -1) {
                 int z0 = z;
                 list.addAll(Circle.collectCircleBlocks(context).map(blockPos -> new BlockPos(blockPos.getX(), blockPos.getY(), z0)).toList());
             }

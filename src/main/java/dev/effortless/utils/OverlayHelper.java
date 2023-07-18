@@ -149,11 +149,12 @@ public class OverlayHelper {
 
     public enum Group {
         PLAYER_USED,
-        LEVEL_DROPPED;
+        LEVEL_DROPPED
     }
 
     private record ItemStackSummary(
             Context context,
             Map<Group, List<ItemStack>> group
-    ) { }
+    ) {
+    }
 }

@@ -175,7 +175,7 @@ public class Sphere extends TripleClickBuilder {
 
     @Override
     protected Stream<BlockPos> collectInterBlocks(Context context) {
-         return Circle.collectCircleBlocks(context);
+        return Circle.collectCircleBlocks(context);
     }
 
     @Override
