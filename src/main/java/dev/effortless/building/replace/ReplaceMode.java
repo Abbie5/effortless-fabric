@@ -1,8 +1,8 @@
 package dev.effortless.building.replace;
 
-import dev.effortless.building.mode.BuildOption;
+import dev.effortless.building.base.Option;
 
-public enum ReplaceMode implements BuildOption {
+public enum ReplaceMode implements Option {
     DISABLED("replace_disabled"),
     NORMAL("normal_replace"),
     QUICK("quick_replace");

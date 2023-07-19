@@ -159,6 +159,7 @@ public class RadialMirror implements Modifier {
         return blockStates;
     }
 
+    // TODO: 19/7/23 move to RadialMirror
     public record RadialMirrorSettings(
             boolean enabled,
             Vec3 position,

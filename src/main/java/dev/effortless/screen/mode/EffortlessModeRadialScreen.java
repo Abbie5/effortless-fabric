@@ -2,11 +2,12 @@ package dev.effortless.screen.mode;
 
 import dev.effortless.Effortless;
 import dev.effortless.building.EffortlessBuilder;
+import dev.effortless.building.base.MultiSelectFeature;
+import dev.effortless.building.base.SingleSelectFeature;
 import dev.effortless.building.history.UndoRedo;
-import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
 import dev.effortless.building.replace.ReplaceMode;
-import dev.effortless.building.settings.SettingType;
+import dev.effortless.building.settings.Settings;
 import dev.effortless.keybinding.Keys;
 import dev.effortless.screen.radial.AbstractRadialScreen;
 import dev.effortless.screen.radial.RadialButton;
@@ -25,7 +26,7 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
     private static final EffortlessModeRadialScreen INSTANCE = new EffortlessModeRadialScreen();
     private static final RadialButton<UndoRedo> UNDO_OPTION = RadialButton.option(UndoRedo.UNDO);
     private static final RadialButton<UndoRedo> REDO_OPTION = RadialButton.option(UndoRedo.REDO);
-    private static final RadialButton<SettingType> SETTING_OPTION = RadialButton.option(SettingType.MODE_SETTINGS);
+    private static final RadialButton<Settings> SETTING_OPTION = RadialButton.option(Settings.MODE_SETTINGS);
     private static final RadialButton<ReplaceMode> REPLACE_OPTION = RadialButton.option(ReplaceMode.DISABLED);
 
     public EffortlessModeRadialScreen() {
@@ -56,13 +57,13 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
             updateRadialState();
         });
         radial.setRadialOptionSelectResponder(entry -> {
-            if (entry.getOption() instanceof BuildFeature.SingleSelectEntry) {
-                selectBuildFeature((BuildFeature.SingleSelectEntry) entry.getOption());
+            if (entry.getOption() instanceof SingleSelectFeature) {
+                selectBuildFeature((SingleSelectFeature) entry.getOption());
                 updateRadialState();
                 return;
             }
-            if (entry.getOption() instanceof BuildFeature.MultiSelectEntry) {
-                selectBuildFeature((BuildFeature.MultiSelectEntry) entry.getOption());
+            if (entry.getOption() instanceof MultiSelectFeature) {
+                selectBuildFeature((MultiSelectFeature) entry.getOption());
                 updateRadialState();
             }
 
@@ -96,11 +97,11 @@ public class EffortlessModeRadialScreen extends AbstractRadialScreen {
         EffortlessBuilder.getInstance().setBuildMode(minecraft.player, mode);
     }
 
-    private void selectBuildFeature(BuildFeature.SingleSelectEntry feature) {
+    private void selectBuildFeature(SingleSelectFeature feature) {
         EffortlessBuilder.getInstance().setBuildFeature(minecraft.player, feature);
     }
 
-    private void selectBuildFeature(BuildFeature.MultiSelectEntry feature) {
+    private void selectBuildFeature(MultiSelectFeature feature) {
         EffortlessBuilder.getInstance().setBuildFeature(minecraft.player, feature);
     }
 

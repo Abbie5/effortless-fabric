@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -120,7 +121,7 @@ public abstract class EditorList<T> extends ObjectSelectionList<EditorList<T>.En
         children().set(j, old);
     }
 
-    public void reset(List<T> items) {
+    public void reset(Collection<T> items) {
         int i = children().indexOf(getSelected());
         clearEntries();
 

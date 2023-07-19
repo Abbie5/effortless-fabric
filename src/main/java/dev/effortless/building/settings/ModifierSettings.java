@@ -1,4 +1,4 @@
-package dev.effortless.building.base;
+package dev.effortless.building.settings;
 
 import dev.effortless.building.pattern.modifier.array.Array;
 import dev.effortless.building.pattern.modifier.mirror.Mirror;
@@ -9,23 +9,23 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 
 // removed
-public record ModifierConfig(
+public record ModifierSettings(
         Array.ArraySettings arraySettings,
         Mirror.MirrorSettings mirrorSettings,
         RadialMirror.RadialMirrorSettings radialMirrorSettings,
         ReplaceMode replaceMode
 ) {
 
-    public ModifierConfig() {
+    public ModifierSettings() {
         this(new Array.ArraySettings(), new Mirror.MirrorSettings(), new RadialMirror.RadialMirrorSettings(), ReplaceMode.DISABLED);
     }
 
-    public ModifierConfig(Mirror.MirrorSettings mirrorSettings, Array.ArraySettings arraySettings,
-                          RadialMirror.RadialMirrorSettings radialMirrorSettings) {
+    public ModifierSettings(Mirror.MirrorSettings mirrorSettings, Array.ArraySettings arraySettings,
+                            RadialMirror.RadialMirrorSettings radialMirrorSettings) {
         this(arraySettings, mirrorSettings, radialMirrorSettings, ReplaceMode.DISABLED);
     }
 
-    public static ModifierConfig decodeBuf(FriendlyByteBuf friendlyByteBuf) {
+    public static ModifierSettings decodeBuf(FriendlyByteBuf friendlyByteBuf) {
 
         //ARRAY
         var arraySettings = new Array.ArraySettings();
@@ -66,10 +66,10 @@ public record ModifierConfig(
 
         int replaceMode = friendlyByteBuf.readInt();
 
-        return new ModifierConfig(arraySettings, mirrorSettings, radialMirrorSettings, ReplaceMode.values()[replaceMode]);
+        return new ModifierSettings(arraySettings, mirrorSettings, radialMirrorSettings, ReplaceMode.values()[replaceMode]);
     }
 
-    public static void write(FriendlyByteBuf friendlyByteBuf, ModifierConfig modifierSettings) {
+    public static void write(FriendlyByteBuf friendlyByteBuf, ModifierSettings modifierSettings) {
 
         //ARRAY
         var arraySettings = modifierSettings.arraySettings();

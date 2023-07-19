@@ -1,5 +1,8 @@
 package dev.effortless.building.mode;
 
+import dev.effortless.building.base.Feature;
+import dev.effortless.building.base.SingleSelectFeature;
+
 public enum BuildFeature {
     CIRCLE_START("circle_start", CircleStart.values()),
     CUBE_FILLING("cube_filling", CubeFilling.values()),
@@ -9,9 +12,9 @@ public enum BuildFeature {
     ;
 
     private final String name;
-    private final Entry[] entries;
+    private final Feature[] entries;
 
-    BuildFeature(String name, Entry... defaultEntries) {
+    BuildFeature(String name, Feature... defaultEntries) {
         this.name = name;
         this.entries = defaultEntries;
     }
@@ -20,11 +23,11 @@ public enum BuildFeature {
         return name;
     }
 
-    public Entry[] getEntries() {
+    public Feature[] getEntries() {
         return entries;
     }
 
-    public enum CircleStart implements SingleSelectEntry {
+    public enum CircleStart implements SingleSelectFeature {
         CIRCLE_START_CORNER("circle_start_corner"),
         CIRCLE_START_CENTER("circle_start_center"),
         ;
@@ -46,7 +49,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum CubeFilling implements SingleSelectEntry {
+    public enum CubeFilling implements SingleSelectFeature {
         CUBE_FULL("cube_full"),
         CUBE_HOLLOW("cube_hollow"),
         CUBE_SKELETON("cube_skeleton");
@@ -68,7 +71,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum PlaneFilling implements SingleSelectEntry {
+    public enum PlaneFilling implements SingleSelectFeature {
 
         PLANE_FULL("plane_full"),
         PLANE_HOLLOW("plane_hollow");
@@ -90,7 +93,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum PlaneFacing implements SingleSelectEntry {
+    public enum PlaneFacing implements SingleSelectFeature {
         HORIZONTAL("face_horizontal"),
         VERTICAL("face_vertical"),
         BOTH("face_both");
@@ -112,7 +115,7 @@ public enum BuildFeature {
         }
     }
 
-    public enum RaisedEdge implements SingleSelectEntry {
+    public enum RaisedEdge implements SingleSelectFeature {
 
         RAISE_SHORT_EDGE("raise_short_edge"),
         RAISE_LONG_EDGE("raise_long_edge");
@@ -134,12 +137,4 @@ public enum BuildFeature {
         }
     }
 
-    public interface Entry extends BuildOption {
-    }
-
-    public interface SingleSelectEntry extends Entry {
-    }
-
-    public interface MultiSelectEntry extends Entry {
-    }
 }

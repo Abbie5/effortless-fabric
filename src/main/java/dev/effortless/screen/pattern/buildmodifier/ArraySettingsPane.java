@@ -3,7 +3,6 @@ package dev.effortless.screen.pattern.buildmodifier;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.Effortless;
 import dev.effortless.building.pattern.modifier.array.Array;
-import dev.effortless.building.reach.ReachHelper;
 import dev.effortless.screen.widget.Checkbox;
 import dev.effortless.screen.widget.ExpandableScrollEntry;
 import dev.effortless.screen.widget.NumberField;
@@ -115,7 +114,7 @@ public class ArraySettingsPane extends ExpandableScrollEntry {
             textArrayCount.setY(positionOffsetY0 + componentOffsetY);
 
             int currentReach = Math.max(-1, getArrayReach());
-            int maxReach = ReachHelper.getMaxReachDistance(minecraft.player);
+            int maxReach = 0; // TODO: 19/7/23
             var reachColor = isCurrentReachValid(currentReach, maxReach) ? ChatFormatting.GRAY : ChatFormatting.RED;
             var reachText = "Reach  " + reachColor + currentReach + ChatFormatting.GRAY + "/" + ChatFormatting.GRAY + maxReach;
 

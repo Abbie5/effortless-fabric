@@ -202,6 +202,7 @@ public class Mirror implements Modifier {
         return blockStates;
     }
 
+    // TODO: 19/7/23 move to Mirror
     public record MirrorSettings(
             boolean enabled,
             Vec3 position,

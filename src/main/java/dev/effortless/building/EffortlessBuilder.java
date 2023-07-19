@@ -1,7 +1,8 @@
 package dev.effortless.building;
 
 import dev.effortless.Effortless;
-import dev.effortless.building.mode.BuildFeature;
+import dev.effortless.building.base.MultiSelectFeature;
+import dev.effortless.building.base.SingleSelectFeature;
 import dev.effortless.building.mode.BuildMode;
 import dev.effortless.building.operation.StructureBuildOperation;
 import dev.effortless.network.Packets;
@@ -114,13 +115,13 @@ public class EffortlessBuilder {
         updateContext(player, context -> context.withEmptyHits().withBuildMode(buildMode));
     }
 
-    public void setBuildFeature(Player player, BuildFeature.SingleSelectEntry feature) {
+    public void setBuildFeature(Player player, SingleSelectFeature feature) {
         updateContext(player, context -> {
             return context.withBuildFeature(feature);
         });
     }
 
-    public void setBuildFeature(Player player, BuildFeature.MultiSelectEntry feature) {
+    public void setBuildFeature(Player player, MultiSelectFeature feature) {
         updateContext(player, context -> {
             var features = context.buildFeatures().stream().filter((f) -> f.getClass().equals(feature.getClass())).collect(Collectors.toSet());
             if (features.contains(feature)) {

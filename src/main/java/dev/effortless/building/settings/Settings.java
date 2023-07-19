@@ -1,14 +1,17 @@
 package dev.effortless.building.settings;
 
-import dev.effortless.building.mode.BuildOption;
+import dev.effortless.building.base.Option;
 
-public enum SettingType implements BuildOption {
+public enum Settings implements Option {
+    DIMENSION_SETTINGS("dimension_settings"),
     MODE_SETTINGS("mode_settings"),
+    PATTERN_SETTINGS("pattern_settings"),
+    PROFILE_SETTINGS("profile_settings"),
     ;
 
     private final String name;
 
-    SettingType(String name) {
+    Settings(String name) {
         this.name = name;
     }
 

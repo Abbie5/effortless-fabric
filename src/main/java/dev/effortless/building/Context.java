@@ -1,9 +1,11 @@
 package dev.effortless.building;
 
 import dev.effortless.Effortless;
+import dev.effortless.building.base.Feature;
 import dev.effortless.building.mode.BuildFeature;
 import dev.effortless.building.mode.BuildMode;
 import dev.effortless.building.pattern.randomizer.Randomizer;
+import dev.effortless.building.pattern.randomizer.Randomizers;
 import dev.effortless.building.replace.ReplaceMode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -61,7 +63,7 @@ public record Context(
                         friendlyByteBuf.readEnum(BuildFeature.RaisedEdge.class),
                         friendlyByteBuf.readEnum(ReplaceMode.class)),
                 new PatternParams(),
-                new RandomizerParams(Randomizer.EMPTY),
+                new RandomizerParams(Randomizers.EMPTY),
                 new ReachParams(0, 0),
                 friendlyByteBuf.readBoolean()
         );
@@ -81,7 +83,7 @@ public record Context(
                         BuildFeature.RaisedEdge.RAISE_LONG_EDGE,
                         ReplaceMode.DISABLED),
                 new PatternParams(),
-                new RandomizerParams(Randomizer.EMPTY),
+                new RandomizerParams(Randomizers.EMPTY),
                 new ReachParams(0, 0),
                 false
         );
@@ -271,11 +273,11 @@ public record Context(
         return new Context(uuid, state, blockHitResults, structureParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public Context withBuildFeature(BuildFeature.Entry feature) {
+    public Context withBuildFeature(Feature feature) {
         return new Context(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
-    public Context withBuildFeature(Set<BuildFeature.Entry> feature) {
+    public Context withBuildFeature(Set<Feature> feature) {
         return new Context(uuid, state, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
     }
 
@@ -292,7 +294,7 @@ public record Context(
         return structureParams.buildMode();
     }
 
-    public Set<BuildFeature.Entry> buildFeatures() {
+    public Set<Feature> buildFeatures() {
         return structureParams.buildFeatures();
     }
 
@@ -380,7 +382,7 @@ public record Context(
             ReplaceMode replaceMode
     ) {
 
-        public Set<BuildFeature.Entry> buildFeatures() {
+        public Set<Feature> buildFeatures() {
             return Stream.of(
                     Set.of(circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge)
             ).flatMap(Set::stream).collect(Collectors.toSet());
@@ -390,7 +392,7 @@ public record Context(
             return new StructureParams(buildMode, circleStart, cubeFilling, planeFilling, planeFacing, raisedEdge, replaceMode);
         }
 
-        public StructureParams withBuildFeature(BuildFeature.Entry feature) {
+        public StructureParams withBuildFeature(Feature feature) {
             if (feature instanceof BuildFeature.CircleStart) {
                 return withCircleStart((BuildFeature.CircleStart) feature);
             }
@@ -409,7 +411,7 @@ public record Context(
             return this;
         }
 
-        public StructureParams withBuildFeature(Set<BuildFeature.Entry> feature) {
+        public StructureParams withBuildFeature(Set<Feature> feature) {
 //            if (feature.iterator().next() instanceof BuildFeature.PlaneFacing) {
 //                return withPlaneFacing(feature.stream().map((o) -> (BuildFeature.PlaneFacing)o).collect(Collectors.toCollection(() -> EnumSet.noneOf(BuildFeature.PlaneFacing.class))));
 //            }

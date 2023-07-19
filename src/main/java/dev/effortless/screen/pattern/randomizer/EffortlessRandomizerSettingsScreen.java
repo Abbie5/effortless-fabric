@@ -5,9 +5,10 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.effortless.building.pattern.randomizer.ItemProbability;
+import dev.effortless.building.pattern.randomizer.ItemChance;
 import dev.effortless.building.pattern.randomizer.Randomizer;
-import dev.effortless.building.pattern.randomizer.RandomizerSettings;
+import dev.effortless.building.pattern.randomizer.Randomizers;
+import dev.effortless.building.settings.RandomizerSettings;
 import dev.effortless.screen.config.EditorList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -109,7 +110,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
                         entries.insertSelected(randomizer);
                         updateSettings();
                     },
-                    Randomizer.EMPTY));
+                    Randomizers.EMPTY));
         }).bounds(width / 2 + 4, height - 52, 150, 20).build());
 
 
@@ -211,7 +212,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
             drawString(poseStack, minecraft.font, getDisplayName(entry.getItem()), k + 2 + 32 + 1, j + 2, 0xFFFFFFFF);
 
             var slot = new AtomicInteger(0);
-            entry.getItem().holders().forEach((holder) -> {
+            entry.getItem().chances().forEach((holder) -> {
                 var last = slot.getAndIncrement();
                 if (last >= MAX_SLOT_COUNT) {
                     if (last == MAX_SLOT_COUNT) {
@@ -247,8 +248,8 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
 
             if (entry.isMouseOver(i, j - 13) && entry.isMouseOver(i, j + 3)) {
                 var index = new AtomicInteger(0);
-                var holders = entry.getItem().holders();
-                var totalCount = holders.stream().mapToInt((holder) -> holder.count()).sum();
+                var holders = entry.getItem().chances();
+                var totalCount = holders.stream().mapToInt((holder) -> holder.chance()).sum();
                 for (var holder : holders) {
                     var last = index.getAndIncrement();
                     if (last > MAX_SLOT_COUNT) break;
@@ -272,7 +273,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
         }
 
         private Component getDisplayName(Randomizer randomizer) {
-            if (randomizer.isEmpty()) {
+            if (randomizer.chances().isEmpty()) {
                 return Component.literal(String.valueOf(ChatFormatting.GRAY) + ChatFormatting.ITALIC + "Empty Randomizer" + ChatFormatting.RESET);
             }
             if (randomizer.name().isBlank()) {
@@ -281,9 +282,9 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
             return Component.literal(randomizer.name());
         }
 
-        private void blitSlot(PoseStack poseStack, int i, int j, ItemProbability holder) {
+        private void blitSlot(PoseStack poseStack, int i, int j, ItemChance itemChance) {
             blitSlotBg(poseStack, i + 1, j + 1);
-            blitSlotItem(poseStack, i + 2, j + 2, holder.singleItemStack(), Integer.toString(holder.count()));
+            blitSlotItem(poseStack, i + 2, j + 2,  new ItemStack(itemChance.content(), 1), Integer.toString(itemChance.chance()));
         }
 
         private void blitSlotItem(PoseStack poseStack, int i, int j, ItemStack itemStack, String string2) {

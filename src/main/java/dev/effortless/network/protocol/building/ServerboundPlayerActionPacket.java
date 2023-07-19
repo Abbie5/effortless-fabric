@@ -1,6 +1,6 @@
 package dev.effortless.network.protocol.building;
 
-import dev.effortless.building.SingleAction;
+import dev.effortless.building.mode.SingleAction;
 import dev.effortless.network.protocol.ServerEffortlessPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;

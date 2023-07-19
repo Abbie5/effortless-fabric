@@ -6,8 +6,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.effortless.building.pattern.Pattern;
-import dev.effortless.building.pattern.PatternSettings;
-import dev.effortless.building.pattern.randomizer.ItemProbability;
+import dev.effortless.building.pattern.randomizer.ItemChance;
+import dev.effortless.building.settings.PatternSettings;
 import dev.effortless.screen.config.EditorList;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -269,9 +269,9 @@ public class EffortlessPatternSettingsScreen extends Screen {
             return Component.literal(pattern.name());
         }
 
-        private void blitSlot(PoseStack poseStack, int i, int j, ItemProbability holder) {
+        private void blitSlot(PoseStack poseStack, int i, int j, ItemChance chance) {
             blitSlotBg(poseStack, i + 1, j + 1);
-            blitSlotItem(poseStack, i + 2, j + 2, holder.singleItemStack(), Integer.toString(holder.count()));
+            blitSlotItem(poseStack, i + 2, j + 2, new ItemStack(chance.content(), 1), Integer.toString(chance.chance()));
         }
 
         private void blitSlotItem(PoseStack poseStack, int i, int j, ItemStack itemStack, String string2) {

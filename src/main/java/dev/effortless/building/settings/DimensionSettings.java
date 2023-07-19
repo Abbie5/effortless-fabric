@@ -1,6 +1,6 @@
-package dev.effortless.building.reach;
+package dev.effortless.building.settings;
 
-public record ReachConfig(
+public record DimensionSettings(
         int maxReachDistance,
         int maxBlockPlacePerAxis,
         int maxBlockPlaceAtOnce,
@@ -8,7 +8,7 @@ public record ReachConfig(
         boolean enableUndoRedo,
         int undoStackSize
 ) {
-    public ReachConfig() {
+    public DimensionSettings() {
         this(
                 512,
                 128,

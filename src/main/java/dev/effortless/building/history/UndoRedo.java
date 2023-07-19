@@ -1,8 +1,8 @@
 package dev.effortless.building.history;
 
-import dev.effortless.building.mode.BuildOption;
+import dev.effortless.building.base.Option;
 
-public enum UndoRedo implements BuildOption {
+public enum UndoRedo implements Option {
     UNDO("undo"),
     REDO("redo"),
     ;

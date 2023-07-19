@@ -1,7 +1,7 @@
 package dev.effortless.screen.radial;
 
 import dev.effortless.Effortless;
-import dev.effortless.building.mode.BuildOption;
+import dev.effortless.building.base.Option;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -57,7 +57,7 @@ public interface RadialButton<T> {
         };
     }
 
-    static <T extends BuildOption> RadialButton<T> option(T option) {
+    static <T extends Option> RadialButton<T> option(T option) {
         return of(
                 Component.translatable(Effortless.asKey("option", option.getCategory())),
                 Component.translatable(Effortless.asKey("action", option.getName())),

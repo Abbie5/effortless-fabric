@@ -1,17 +1,17 @@
 package dev.effortless.network.protocol.settings;
 
-import dev.effortless.building.reach.ReachConfig;
+import dev.effortless.building.settings.DimensionSettings;
 import dev.effortless.network.protocol.ServerEffortlessPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 
 public record ServerboundPlayerSettingsPacket(
-        ReachConfig reachConfig
+        DimensionSettings dimensionSettings
 ) implements Packet<ServerEffortlessPacketListener> {
 
     public ServerboundPlayerSettingsPacket(FriendlyByteBuf friendlyByteBuf) {
         this(
-                new ReachConfig(
+                new DimensionSettings(
                         friendlyByteBuf.readInt(),
                         friendlyByteBuf.readInt(),
                         friendlyByteBuf.readInt(),
@@ -24,12 +24,12 @@ public record ServerboundPlayerSettingsPacket(
 
     @Override
     public void write(FriendlyByteBuf friendlyByteBuf) {
-        friendlyByteBuf.writeInt(reachConfig.maxReachDistance());
-        friendlyByteBuf.writeInt(reachConfig.maxBlockPlacePerAxis());
-        friendlyByteBuf.writeInt(reachConfig.maxBlockPlaceAtOnce());
-        friendlyByteBuf.writeBoolean(reachConfig.canBreakFar());
-        friendlyByteBuf.writeBoolean(reachConfig.enableUndoRedo());
-        friendlyByteBuf.writeInt(reachConfig.undoStackSize());
+        friendlyByteBuf.writeInt(dimensionSettings.maxReachDistance());
+        friendlyByteBuf.writeInt(dimensionSettings.maxBlockPlacePerAxis());
+        friendlyByteBuf.writeInt(dimensionSettings.maxBlockPlaceAtOnce());
+        friendlyByteBuf.writeBoolean(dimensionSettings.canBreakFar());
+        friendlyByteBuf.writeBoolean(dimensionSettings.enableUndoRedo());
+        friendlyByteBuf.writeInt(dimensionSettings.undoStackSize());
     }
 
     @Override

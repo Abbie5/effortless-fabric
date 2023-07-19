@@ -75,6 +75,7 @@ public class Array implements Modifier {
         return blockStates;
     }
 
+    // TODO: 19/7/23 move to Array
     public record ArraySettings(
             boolean enabled,
             Vec3i offset,

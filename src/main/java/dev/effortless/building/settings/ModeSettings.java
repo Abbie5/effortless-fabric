@@ -1,4 +1,6 @@
-package dev.effortless.building.mode;
+package dev.effortless.building.settings;
+
+import dev.effortless.building.mode.BuildMode;
 
 import java.util.Collections;
 import java.util.List;

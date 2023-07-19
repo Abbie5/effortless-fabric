@@ -3,7 +3,7 @@ package dev.effortless.screen.pattern.randomizer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import dev.effortless.building.pattern.randomizer.ItemProbability;
+import dev.effortless.building.pattern.randomizer.ItemChance;
 import dev.effortless.building.pattern.randomizer.Randomizer;
 import dev.effortless.screen.ScissorsHandler;
 import dev.effortless.screen.config.EditorList;
@@ -55,20 +55,20 @@ public class EffortlessRandomizerEditScreen extends Screen {
         this.lastSettings = randomizer;
     }
 
-    public static List<Component> getRandomizerEntryTooltip(ItemProbability holder, int totalCount) {
-        var components = holder.singleItemStack().getTooltipLines(Minecraft.getInstance().player, TooltipFlag.ADVANCED.asCreative());
-        var percentage = String.format("%.2f%%", 100.0 * holder.count() / totalCount);
+    public static List<Component> getRandomizerEntryTooltip(ItemChance chance, int totalCount) {
+        var components = new ItemStack(chance.content(), 1).getTooltipLines(Minecraft.getInstance().player, TooltipFlag.ADVANCED.asCreative());
+        var percentage = String.format("%.2f%%", 100.0 * chance.chance() / totalCount);
         components.add(
                 Component.empty()
         );
         components.add(
-                Component.literal(ChatFormatting.GRAY + "Total Probability: " + ChatFormatting.GOLD + percentage + ChatFormatting.DARK_GRAY + " (" + holder.count() + "/" + totalCount + ")" + ChatFormatting.RESET)
+                Component.literal(ChatFormatting.GRAY + "Total Probability: " + ChatFormatting.GOLD + percentage + ChatFormatting.DARK_GRAY + " (" + chance.chance() + "/" + totalCount + ")" + ChatFormatting.RESET)
         );
         return components;
     }
 
     private void updateSettings() {
-        lastSettings = new Randomizer(
+        lastSettings = Randomizer.create(
                 nameEditBox.getValue(),
                 entries.items()
         );
@@ -84,7 +84,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
     @Override
     protected void init() {
         this.entries = addRenderableWidget(new DetailsList(minecraft, width, height, 50, height - 60, 24));
-        this.entries.reset(lastSettings.holders());
+        this.entries.reset(lastSettings.chances());
 
         this.nameEditBox = addRenderableWidget(
                 new EditBox(font, width / 2 - (ROW_WIDTH - 2) / 2, 24, ROW_WIDTH - 2, 20, null)
@@ -102,7 +102,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
         this.addButton = addRenderableWidget(Button.builder(Component.translatable("Add New Item"), (button) -> {
             minecraft.setScreen(new EffortlessItemPickerScreen(this,
                     (itemStack) -> {
-                        entries.insertSelected(new ItemProbability(itemStack.getItem(), 1));
+                        entries.insertSelected(ItemChance.of(itemStack.getItem(), 1));
                         updateSettings();
                     }));
             updateSettings();
@@ -139,7 +139,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
     }
 
     @Environment(EnvType.CLIENT)
-    private class DetailsList extends EditorList<ItemProbability> {
+    private class DetailsList extends EditorList<ItemChance> {
 
         public DetailsList(Minecraft minecraft, int width, int height, int top, int bottom, int itemHeight) {
             super(minecraft, width, height, top, bottom, itemHeight);
@@ -167,12 +167,12 @@ public class EffortlessRandomizerEditScreen extends Screen {
         }
 
         @Override
-        protected EditorList<ItemProbability>.Entry createHolder(ItemProbability item) {
+        protected EditorList<ItemChance>.Entry createHolder(ItemChance item) {
             return new Entry(item);
         }
 
         public int totalCount() {
-            return items().stream().mapToInt(ItemProbability::count).sum();
+            return items().stream().mapToInt(ItemChance::chance).sum();
         }
 
         public void tick() {
@@ -180,14 +180,14 @@ public class EffortlessRandomizerEditScreen extends Screen {
         }
 
         @Environment(EnvType.CLIENT)
-        class Entry extends EditorList<ItemProbability>.Entry {
+        class Entry extends EditorList<ItemChance>.Entry {
 
             private final NumberField numberField;
-            private ItemProbability holder;
+            private ItemChance chance;
 
-            public Entry(ItemProbability holder) {
-                super(holder);
-                this.holder = holder;
+            public Entry(ItemChance chance) {
+                super(chance);
+                this.chance = chance;
                 this.numberField = new NumberField(0, 0, 42, 18);
                 this.numberField.getTextField().setFilter((string) -> {
                     if (string.isEmpty()) {
@@ -208,21 +208,24 @@ public class EffortlessRandomizerEditScreen extends Screen {
                         return false;
                     }
                 });
-                this.numberField.getTextField().setValue(String.valueOf(this.holder.count()));
+                this.numberField.getTextField().setValue(String.valueOf(this.chance.chance()));
                 this.numberField.getTextField().setResponder((string) -> {
                     var count = 0;
                     try {
                         count = Integer.parseInt(string);
                     } catch (NumberFormatException ignored) {
                     }
-                    this.holder = this.holder.withCount(count);
+                    this.chance = updateChance(chance, count);
                 });
+            }
 
+            private static ItemChance updateChance(ItemChance chance, int newChance) {
+                return ItemChance.of(chance.content(), newChance);
             }
 
             public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-                GuiComponent.drawString(poseStack, minecraft.font, getDisplayName(holder), k + 24, j + 6, 0xFFFFFFFF);
-                var percentage = String.format("%.2f%%", 100.0 * holder.count() / totalCount());
+                GuiComponent.drawString(poseStack, minecraft.font, getDisplayName(chance), k + 24, j + 6, 0xFFFFFFFF);
+                var percentage = String.format("%.2f%%", 100.0 * chance.chance() / totalCount());
                 GuiComponent.drawString(poseStack, minecraft.font, percentage, k + ROW_WIDTH - 50 - minecraft.font.width(percentage), j + 6, 0xFFFFFFFF);
 
                 numberField.setX(k + getRowWidth() - 46);
@@ -234,13 +237,13 @@ public class EffortlessRandomizerEditScreen extends Screen {
                     numberField.setFocused(null);
                 }
 
-                blitSlot(poseStack, k, j, holder);
+                blitSlot(poseStack, k, j, chance);
             }
 
             // TODO: 8/2/23
             @Override
             public Component getNarration() {
-                return Component.translatable("narrator.select", getDisplayName(holder));
+                return Component.translatable("narrator.select", getDisplayName(chance));
             }
 
             @Override
@@ -277,13 +280,13 @@ public class EffortlessRandomizerEditScreen extends Screen {
                 numberField.tick();
             }
 
-            private Component getDisplayName(ItemProbability holder) {
-                return holder.singleItemStack().getHoverName();
+            private Component getDisplayName(ItemChance chance) {
+                return new ItemStack(chance.content(), 1).getHoverName();
             }
 
-            private void blitSlot(PoseStack poseStack, int i, int j, ItemProbability holder) {
+            private void blitSlot(PoseStack poseStack, int i, int j, ItemChance chance) {
                 blitSlotBg(poseStack, i + 1, j + 1);
-                blitSlotItem(poseStack, i + 2, j + 2, holder.singleItemStack(), Integer.toString(holder.count()));
+                blitSlotItem(poseStack, i + 2, j + 2, new ItemStack(chance.content(), 1), Integer.toString(chance.chance()));
             }
 
             private void blitSlotItem(PoseStack poseStack, int i, int j, ItemStack itemStack, String string2) {

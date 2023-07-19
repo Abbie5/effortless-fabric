@@ -1,4 +1,6 @@
-package dev.effortless.building.pattern;
+package dev.effortless.building.settings;
+
+import dev.effortless.building.pattern.Pattern;
 
 import java.util.Collections;
 import java.util.List;

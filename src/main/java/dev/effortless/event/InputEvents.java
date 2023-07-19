@@ -1,14 +1,11 @@
 package dev.effortless.event;
 
-import dev.effortless.Effortless;
-import dev.effortless.building.pattern.randomizer.RandomizerSettings;
-import dev.effortless.building.reach.ReachHelper;
+import dev.effortless.building.settings.RandomizerSettings;
 import dev.effortless.core.event.client.ClientScreenInputEvent;
 import dev.effortless.keybinding.Keys;
 import dev.effortless.screen.config.EffortlessSettingsScreen;
 import dev.effortless.screen.mode.EffortlessModeRadialScreen;
 import dev.effortless.screen.mode.PlayerSettingsScreen;
-import dev.effortless.screen.pattern.buildmodifier.EffortlessModifierSettingsScreen;
 import dev.effortless.screen.pattern.randomizer.EffortlessRandomizerSettingsScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
@@ -62,16 +59,16 @@ public class InputEvents {
     }
 
     public static void openBuildModifierSettings() {
-        var player = Minecraft.getInstance().player;
-        if (player == null) return;
-
-        //Disabled if max reach is 0, might be set in the config that way.
-        if (ReachHelper.getMaxReachDistance(player) == 0) {
-            Effortless.log(player, "Build modifiers are disabled until your reach has increased. Increase your reach with craftable reach upgrades.");
-        } else {
-            Minecraft.getInstance().setScreen(null);
-            Minecraft.getInstance().setScreen(new EffortlessModifierSettingsScreen());
-        }
+//        var player = Minecraft.getInstance().player;
+//        if (player == null) return;
+//
+//        //Disabled if max reach is 0, might be set in the config that way.
+//        if (ReachHelper.getMaxReachDistance(player) == 0) {
+//            Effortless.log(player, "Build modifiers are disabled until your reach has increased. Increase your reach with craftable reach upgrades.");
+//        } else {
+//            Minecraft.getInstance().setScreen(null);
+//            Minecraft.getInstance().setScreen(new EffortlessModifierSettingsScreen());
+//        }
     }
 
     public static void openItemRandomizerSettings() {
