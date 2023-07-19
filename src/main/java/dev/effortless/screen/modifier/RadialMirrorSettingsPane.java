@@ -1,4 +1,4 @@
-package dev.effortless.screen.pattern.buildmodifier;
+package dev.effortless.screen.modifier;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.Effortless;

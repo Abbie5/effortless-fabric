@@ -1,4 +1,4 @@
-package dev.effortless.screen.pattern.buildmodifier;
+package dev.effortless.screen.modifier;
 
 
 public class Dimen {
