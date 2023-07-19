@@ -30,8 +30,6 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import static dev.effortless.screen.pattern.randomizer.EffortlessRandomizerEditScreen.getRandomizerEntryTooltip;
-
 @Environment(EnvType.CLIENT)
 public class EffortlessRandomizerSettingsScreen extends Screen {
     private static final int SLOT_TEX_SIZE = 128;
@@ -261,7 +259,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
                     if (last == MAX_SLOT_COUNT) {
                         renderComponentTooltip(poseStack, Collections.singletonList(Component.literal("+" + (holders.size() - MAX_SLOT_COUNT) + " More")), i, j);
                     } else {
-                        renderComponentTooltip(poseStack, getRandomizerEntryTooltip(holder, totalCount), i, j);
+                        renderComponentTooltip(poseStack, EffortlessRandomizerEditScreen.getRandomizerEntryTooltip(holder, totalCount), i, j);
                     }
                 }
             }

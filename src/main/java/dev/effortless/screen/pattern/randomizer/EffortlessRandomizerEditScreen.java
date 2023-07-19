@@ -183,11 +183,9 @@ public class EffortlessRandomizerEditScreen extends Screen {
         class Entry extends EditorList<ItemChance>.Entry {
 
             private final NumberField numberField;
-            private ItemChance chance;
 
             public Entry(ItemChance chance) {
                 super(chance);
-                this.chance = chance;
                 this.numberField = new NumberField(0, 0, 42, 18);
                 this.numberField.getTextField().setFilter((string) -> {
                     if (string.isEmpty()) {
@@ -208,14 +206,14 @@ public class EffortlessRandomizerEditScreen extends Screen {
                         return false;
                     }
                 });
-                this.numberField.getTextField().setValue(String.valueOf(this.chance.chance()));
+                this.numberField.getTextField().setValue(String.valueOf(getItem().chance()));
                 this.numberField.getTextField().setResponder((string) -> {
                     var count = 0;
                     try {
                         count = Integer.parseInt(string);
                     } catch (NumberFormatException ignored) {
                     }
-                    this.chance = updateChance(chance, count);
+                    this.setItem(updateChance(chance, count));
                 });
             }
 
@@ -224,8 +222,8 @@ public class EffortlessRandomizerEditScreen extends Screen {
             }
 
             public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-                GuiComponent.drawString(poseStack, minecraft.font, getDisplayName(chance), k + 24, j + 6, 0xFFFFFFFF);
-                var percentage = String.format("%.2f%%", 100.0 * chance.chance() / totalCount());
+                GuiComponent.drawString(poseStack, minecraft.font, getDisplayName(getItem()), k + 24, j + 6, 0xFFFFFFFF);
+                var percentage = String.format("%.2f%%", 100.0 * getItem().chance() / totalCount());
                 GuiComponent.drawString(poseStack, minecraft.font, percentage, k + ROW_WIDTH - 50 - minecraft.font.width(percentage), j + 6, 0xFFFFFFFF);
 
                 numberField.setX(k + getRowWidth() - 46);
@@ -237,13 +235,13 @@ public class EffortlessRandomizerEditScreen extends Screen {
                     numberField.setFocused(null);
                 }
 
-                blitSlot(poseStack, k, j, chance);
+                blitSlot(poseStack, k, j, getItem());
             }
 
             // TODO: 8/2/23
             @Override
             public Component getNarration() {
-                return Component.translatable("narrator.select", getDisplayName(chance));
+                return Component.translatable("narrator.select", getDisplayName(getItem()));
             }
 
             @Override
