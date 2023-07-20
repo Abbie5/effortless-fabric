@@ -21,20 +21,17 @@ public final class StructureBuildOperation extends StructureOperation {
     private final Player player;
     private final Context context;
     private final Storage storage;
-    private final Boolean once;
 
     public StructureBuildOperation(
             Level level,
             Player player,
             Context context,
-            Storage storage,
-            Boolean once
+            Storage storage
     ) {
         this.level = level;
         this.player = player;
         this.context = context;
         this.storage = storage;
-        this.once = once;
     }
 
     public StructureBuildOperation(
@@ -42,7 +39,7 @@ public final class StructureBuildOperation extends StructureOperation {
             Player player,
             Context context
     ) {
-        this(level, player, context, null, false);
+        this(level, player, context, null);
     }
 
     private static BlockState getBlockStateFromItem(Player player, ItemStack itemStack, InteractionHand hand, BlockHitResult hitResult) {
@@ -78,8 +75,7 @@ public final class StructureBuildOperation extends StructureOperation {
                         .map((hitResult) -> new BlockBreakOperation(
                                 level, player, context, storage,
                                 hitResult.getBlockPos(),
-                                hitResult.getDirection(),
-                                once))
+                                hitResult.getDirection()))
                         .flatMap(Stream::of) // for modifiers
                         .map((op) -> op);
             }

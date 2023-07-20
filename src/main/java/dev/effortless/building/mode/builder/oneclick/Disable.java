@@ -13,6 +13,7 @@ public class Disable extends SingleClickBuilder {
 
     @Override
     protected BlockHitResult traceFirstHit(Player player, Context context) {
+        // FIXME: 20/7/23
         return (Minecraft.getInstance().hitResult instanceof BlockHitResult hitResult) ? hitResult : null;
     }
 

@@ -1,5 +1,6 @@
 package dev.effortless.network;
 
+import dev.effortless.Effortless;
 import dev.effortless.building.EffortlessServerBuilder;
 import dev.effortless.network.protocol.ServerEffortlessPacketListener;
 import dev.effortless.network.protocol.building.ServerboundPlayerActionPacket;
@@ -32,7 +33,8 @@ public class ServerEffortlessPacketHandler implements ServerEffortlessPacketList
     @Override
     public void handle(ServerboundPlayerBuildPacket packet) {
         PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
-        EffortlessServerBuilder.getInstance().perform(player, packet.context());
+        Effortless.log("Received build packet from " + player.getDisplayName().getString() + " with context " + packet.context());
+        EffortlessServerBuilder.getInstance().onContextReceived(player, packet.context());
     }
 
     @Override

@@ -1,8 +1,9 @@
 package dev.effortless.building;
 
-import dev.effortless.building.operation.StructureBuildOperation;
+import dev.effortless.building.operation.Operations;
+import dev.effortless.network.Packets;
+import dev.effortless.network.protocol.building.ClientboundPlayerBuildPacket;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 public class EffortlessServerBuilder {
 
@@ -12,12 +13,19 @@ public class EffortlessServerBuilder {
         return INSTANCE;
     }
 
-    private static StructureBuildOperation generateStructureFromContext(Level level, Player player, Context context) {
-        return new StructureBuildOperation(level, player, context);
-    }
+    public void onContextReceived(Player player, Context context) {
 
-    public void perform(Player player, Context context) {
-        generateStructureFromContext(player.getCommandSenderWorld(), player, context).perform();
+        if (context.isPreview()) {
+            if (player.getServer() != null) {
+                for (var serverPlayer : player.getServer().getPlayerList().getPlayers()) {
+                    Packets.channel().sendToClient(new ClientboundPlayerBuildPacket(player.getUUID(), context), serverPlayer);
+                }
+            }
+        } else {
+            Operations.createStructure(player.getCommandSenderWorld(), player, context).perform();
+        }
+
+
     }
 
 }

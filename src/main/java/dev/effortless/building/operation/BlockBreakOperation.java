@@ -22,7 +22,6 @@ public final class BlockBreakOperation extends BlockOperation {
     private final Storage storage;
     private final BlockPos blockPos;
     private final Direction direction;
-    private final Boolean last;
 
     public BlockBreakOperation(
             Level level,
@@ -30,8 +29,7 @@ public final class BlockBreakOperation extends BlockOperation {
             Context context,
             Storage storage, // for preview
             BlockPos blockPos,
-            Direction direction,
-            Boolean last
+            Direction direction
     ) {
         this.level = level;
         this.player = player;
@@ -39,7 +37,6 @@ public final class BlockBreakOperation extends BlockOperation {
         this.storage = storage;
         this.blockPos = blockPos;
         this.direction = direction;
-        this.last = last;
     }
 
     private static BlockInteractionResult breakBlockClient(Level level, Player player, BlockPos blockPos, boolean preview) {
@@ -122,7 +119,7 @@ public final class BlockBreakOperation extends BlockOperation {
         var outputs = Collections.singletonList(level.getBlockState(blockPos).getBlock().asItem().getDefaultInstance());
         var result = breakBlock(level, player, blockPos, isPreview());
 
-        if (last && isPreview() && level.isClientSide() && result.consumesAction()) {
+        if (context.isPreviewOnce() && level.isClientSide() && result.consumesAction()) {
             Minecraft.getInstance().particleEngine.crack(blockPos, direction);
         }
         return new BlockResult(this, result, inputs, outputs);

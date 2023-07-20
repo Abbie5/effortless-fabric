@@ -5,6 +5,7 @@ import dev.effortless.core.network.FabricNetworkChannel;
 import dev.effortless.core.network.NetworkChannel;
 import dev.effortless.network.protocol.ClientEffortlessPacketListener;
 import dev.effortless.network.protocol.ServerEffortlessPacketListener;
+import dev.effortless.network.protocol.building.ClientboundPlayerBuildPacket;
 import dev.effortless.network.protocol.building.ServerboundPlayerActionPacket;
 import dev.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
 import dev.effortless.network.protocol.settings.ClientboundPlayerSettingsPacket;
@@ -14,11 +15,13 @@ import net.fabricmc.loader.impl.launch.FabricLauncherBase;
 
 public class Packets {
 
-    private static final NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel = createChannel();
+    private static boolean isClientSide() {
+        return FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.CLIENT;
+    }
 
     private static NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> createChannel() {
         var clientPacketHandlerCreator = (NetworkChannel.ClientHandlerCreator<ClientEffortlessPacketListener>) null;
-        if (FabricLauncherBase.getLauncher().getEnvironmentType() == EnvType.CLIENT) {
+        if (isClientSide()) {
             clientPacketHandlerCreator = ClientEffortlessPacketHandler::new;
         }
 
@@ -29,19 +32,22 @@ public class Packets {
         );
     }
 
+    private static final NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel = createChannel();
+
     public static NetworkChannel<ServerEffortlessPacketListener, ClientEffortlessPacketListener> channel() {
         return channel;
     }
 
-    public static void registerServer() {
+    public static void register() {
         channel.registerServer();
+        if (isClientSide()) {
+            channel.registerClient();
+        }
+
         channel.registerServerBoundPacket(ServerboundPlayerActionPacket.class, ServerboundPlayerActionPacket::new);
         channel.registerServerBoundPacket(ServerboundPlayerSettingsPacket.class, ServerboundPlayerSettingsPacket::new);
         channel.registerServerBoundPacket(ServerboundPlayerBuildPacket.class, ServerboundPlayerBuildPacket::new);
-    }
-
-    public static void registerClient() {
-        channel.registerClient();
+        channel.registerClientBoundPacket(ClientboundPlayerBuildPacket.class, ClientboundPlayerBuildPacket::new);
         channel.registerClientBoundPacket(ClientboundPlayerSettingsPacket.class, ClientboundPlayerSettingsPacket::new);
     }
 

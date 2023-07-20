@@ -4,7 +4,7 @@ import dev.effortless.Effortless;
 import dev.effortless.building.base.MultiSelectFeature;
 import dev.effortless.building.base.SingleSelectFeature;
 import dev.effortless.building.mode.BuildMode;
-import dev.effortless.building.operation.StructureBuildOperation;
+import dev.effortless.building.operation.Operations;
 import dev.effortless.network.Packets;
 import dev.effortless.network.protocol.building.ServerboundPlayerBuildPacket;
 import dev.effortless.utils.OverlayHelper;
@@ -19,26 +19,30 @@ import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class EffortlessBuilder {
 
     private static final EffortlessBuilder INSTANCE = new EffortlessBuilder();
-    private static final UUID BUILDING_UUID = UUID.randomUUID();
+    private static final UUID TRACING_UUID = UUID.randomUUID();
     private final ContextProvider provider = new ContextProvider();
-
-    private static StructureBuildOperation generateStructurePreviewFromContext(Player player, Context context, Boolean once) {
-        var storage = Storage.createTemp(player.getInventory().items);
-        return new StructureBuildOperation(player.getLevel(), player, context, storage, once);
-    }
-
-    private static StructureBuildOperation generateStructureFromContext(Player player, Context context) {
-        return new StructureBuildOperation(player.getLevel(), player, context);
-    }
 
     public static EffortlessBuilder getInstance() {
         return INSTANCE;
+    }
+
+    private static void showPreview(Player player, Context context) {
+        var result = Operations.createStructurePreview(player, context).perform();
+        OverlayHelper.showOperationResult(context.uuid(), result);
+        OverlayHelper.showContainerContext(context.uuid(), context, 0);
+        OverlayHelper.showItemStackSummary(context.uuid(), result, 1);
+    }
+
+    private static void showPreviewOnce(Player player, Context context) {
+        var result = Operations.createStructurePreviewOnce(player, context).perform();
+        OverlayHelper.showOperationResult(context.uuid(), result);
+        OverlayHelper.showItemStackSummary(context.uuid(), result, 1000);
     }
 
     private BuildingResult perform(Player player, BuildingState state, @Nullable BlockHitResult hitResult) {
@@ -58,16 +62,15 @@ public class EffortlessBuilder {
         });
     }
 
-    private BuildingResult updateContext(Player player, Function<Context, Context> updater) {
+    private BuildingResult updateContext(Player player, UnaryOperator<Context> updater) {
         var context = provider.get(player);
         var updated = updater.apply(context);
         if (updated.isFulfilled()) {
 
-            var result = generateStructurePreviewFromContext(player, updated, true).perform();
-            OverlayHelper.showOperationResult(updated.uuid(), result);
-            OverlayHelper.showItemStackSummary(updated.uuid(), result, 1000);
+            showPreviewOnce(player, updated);
 
             Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(updated));
+            Effortless.log("Sent to server: " + updated);
             provider.set(player, updated.reset());
 
             return BuildingResult.COMPLETED;
@@ -81,11 +84,8 @@ public class EffortlessBuilder {
         }
     }
 
-    private void generateClientPreview() {
-        var player = Minecraft.getInstance().player;
-        if (player == null) return; // necessary
-
-        var context = getContext(player);
+    private Context getContextWithNextTrace(Player player) {
+        var context = getContext(player).withPreviewSource();
         if (context.noClicks()) {
             if (player.getMainHandItem().isEmpty()) {
                 context = context.withBreakingState();
@@ -93,12 +93,7 @@ public class EffortlessBuilder {
                 context = context.withPlacingState();
             }
         }
-        context = context.withNextHit(player, true);
-        var result = generateStructurePreviewFromContext(player, context, false).perform();
-
-        OverlayHelper.showOperationResult(BUILDING_UUID, result);
-        OverlayHelper.showContainerContext(BUILDING_UUID, context, 0);
-        OverlayHelper.showItemStackSummary(BUILDING_UUID, result, 1);
+        return context.withNextHitTraced(player).withUUID(player.getUUID());
     }
 
     public Context getContext(Player player) {
@@ -107,7 +102,12 @@ public class EffortlessBuilder {
 
     public void tick() {
         provider.tick();
-        generateClientPreview();
+        var player = Minecraft.getInstance().player;
+        if (player != null && !getContext(player).isDisabled()) {
+            var context = getContextWithNextTrace(player);
+            showPreview(player, context);
+            Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(context));
+        }
     }
 
     // from settings screen
@@ -116,9 +116,7 @@ public class EffortlessBuilder {
     }
 
     public void setBuildFeature(Player player, SingleSelectFeature feature) {
-        updateContext(player, context -> {
-            return context.withBuildFeature(feature);
-        });
+        updateContext(player, context -> context.withBuildFeature(feature));
     }
 
     public void setBuildFeature(Player player, MultiSelectFeature feature) {
@@ -141,7 +139,7 @@ public class EffortlessBuilder {
 
     public void handlePlayerBreak(Player player) {
         var context = getContext(player);
-        var hitResult = context.withBreakingState().trace(player, false);
+        var hitResult = context.withBreakingState().trace(player);
         var perform = perform(player, BuildingState.BREAK_BLOCK, hitResult);
 
         if (perform.isSuccess()) {
@@ -166,7 +164,7 @@ public class EffortlessBuilder {
                 continue;
             }
 
-            var hitResult = context.withPlacingState().trace(player, false);
+            var hitResult = context.withPlacingState().trace(player);
             var perform = perform(player, BuildingState.PLACE_BLOCK, hitResult);
 
             if (perform.isSuccess()) {
@@ -174,6 +172,10 @@ public class EffortlessBuilder {
             }
             break;
         }
+    }
+
+    public void onContextReceived(Player player, Context context) {
+        showPreview(player, context);
     }
 
     public static class ContextProvider {
@@ -190,7 +192,6 @@ public class EffortlessBuilder {
 
         public void set(Player player, Context context) {
             contexts.put(player.getUUID(), context);
-//            Effortless.log("setContext: " + player.getUUID() + " to " + context);
         }
 
         public void remove(Player player) {

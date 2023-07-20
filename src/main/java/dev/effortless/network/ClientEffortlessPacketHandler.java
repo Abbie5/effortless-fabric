@@ -1,6 +1,8 @@
 package dev.effortless.network;
 
+import dev.effortless.building.EffortlessBuilder;
 import dev.effortless.network.protocol.ClientEffortlessPacketListener;
+import dev.effortless.network.protocol.building.ClientboundPlayerBuildPacket;
 import dev.effortless.network.protocol.settings.ClientboundPlayerSettingsPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.Connection;
@@ -15,6 +17,13 @@ public class ClientEffortlessPacketHandler implements ClientEffortlessPacketList
     public ClientEffortlessPacketHandler(Minecraft minecraft, PacketListener packetHandler) {
         this.minecraft = minecraft;
         this.packetHandler = packetHandler;
+    }
+
+    @Override
+    public void handle(ClientboundPlayerBuildPacket packet) {
+        var player = Minecraft.getInstance().level.getPlayerByUUID(packet.playerId());
+        EffortlessBuilder.getInstance().onContextReceived(player, packet.context());
+
     }
 
     @Override

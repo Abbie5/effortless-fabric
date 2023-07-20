@@ -63,6 +63,7 @@ public class FabricNetworkChannel<S extends PacketListener, C extends PacketList
     }
 
     @Override
+    // FIXME: 21/7/23
     public void sendToClients(Packet<C> packet, Iterable<ServerPlayer> players) {
         Packet<?> vanillaPacket = createS2CVanillaPacket(channelName, packet);
         for (ServerPlayer player : players) {
