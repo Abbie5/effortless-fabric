@@ -26,8 +26,7 @@ public record Context(
         StructureParams structureParams,
         PatternParams patternParams,
         RandomizerParams randomizerParams,
-        ReachParams reachParams,
-        @Deprecated() boolean skipRaytrace
+        ReachParams reachParams
 ) {
 
     public static void write(FriendlyByteBuf friendlyByteBuf, Context context) {
@@ -44,8 +43,6 @@ public record Context(
         friendlyByteBuf.writeEnum(context.planeFacing());
         friendlyByteBuf.writeEnum(context.raisedEdge());
         friendlyByteBuf.writeEnum(context.replaceMode());
-
-        friendlyByteBuf.writeBoolean(context.skipRaytrace());
     }
 
     public static Context decodeBuf(FriendlyByteBuf friendlyByteBuf) {
@@ -66,8 +63,8 @@ public record Context(
                 friendlyByteBuf.readEnum(ReplaceMode.class)),
                 new PatternParams(),
                 new RandomizerParams(Randomizers.EMPTY),
-                new ReachParams(0, 0),
-                friendlyByteBuf.readBoolean());
+                new ReachParams(0, 0)
+        );
     }
 
     public static Context defaultSet() {
@@ -86,8 +83,8 @@ public record Context(
                         ReplaceMode.DISABLED),
                 new PatternParams(),
                 new RandomizerParams(Randomizers.EMPTY),
-                new ReachParams(0, 0),
-                false);
+                new ReachParams(0, 0)
+        );
     }
 
     // new context for idle
@@ -96,8 +93,8 @@ public record Context(
                 UUID.randomUUID(),
                 BuildingState.IDLE,
                 source,
-                Collections.emptyList(), structureParams, patternParams, randomizerParams, reachParams,
-                skipRaytrace);
+                Collections.emptyList(), structureParams, patternParams, randomizerParams, reachParams
+        );
     }
 
     public Context withPlacingState() {
@@ -117,28 +114,28 @@ public record Context(
                     uuid,
                     BuildingState.IDLE,
                     source,
-                    blockHitResults, structureParams, patternParams, randomizerParams, reachParams,
-                    skipRaytrace);
+                    blockHitResults, structureParams, patternParams, randomizerParams, reachParams
+            );
             case PLACE_BLOCK -> new Context(
                     uuid,
                     BuildingState.PLACE_BLOCK,
                     source,
-                    blockHitResults, structureParams, patternParams, randomizerParams, reachParams,
-                    skipRaytrace);
+                    blockHitResults, structureParams, patternParams, randomizerParams, reachParams
+            );
             case BREAK_BLOCK -> new Context(
                     uuid,
                     BuildingState.BREAK_BLOCK,
                     source,
-                    blockHitResults, structureParams, patternParams, randomizerParams, reachParams,
-                    skipRaytrace);
+                    blockHitResults, structureParams, patternParams, randomizerParams, reachParams
+            );
         };
     }
 
-    public boolean isPlaceBlock() {
+    public boolean isPlacingBlock() {
         return state == BuildingState.PLACE_BLOCK;
     }
 
-    public boolean isBreakBlock() {
+    public boolean isBreakingBlock() {
         return state == BuildingState.BREAK_BLOCK;
     }
 
@@ -150,8 +147,8 @@ public record Context(
         return buildMode() != BuildMode.DISABLED && state != BuildingState.IDLE;
     }
 
-    public boolean isSkipTracing() {
-        return state() == BuildingState.BREAK_BLOCK || structureParams().replaceMode() == ReplaceMode.QUICK;
+    public boolean skipRaytrace() {
+        return false;
     }
 
     public BlockHitResult firstBlockHitResult() {
@@ -219,15 +216,15 @@ public record Context(
     }
 
     public Context withNextHit(BlockHitResult blockHitResult) {
-        return new Context(uuid, state, source, Stream.concat(blockHitResults.stream(), Stream.of(blockHitResult)).toList(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, Stream.concat(blockHitResults.stream(), Stream.of(blockHitResult)).toList(), structureParams, patternParams, randomizerParams, reachParams);
     }
 
     public Context withHits(BlockHitResult... hitResults) {
-        return new Context(uuid, state, source, Arrays.asList(hitResults), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, Arrays.asList(hitResults), structureParams, patternParams, randomizerParams, reachParams);
     }
 
     public Context withEmptyHits() {
-        return new Context(uuid, state, source, new ArrayList<>(), structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, new ArrayList<>(), structureParams, patternParams, randomizerParams, reachParams);
     }
 
     public Context withNextHitTraced(Player player) {
@@ -235,15 +232,15 @@ public record Context(
     }
 
     public Context withBuildMode(BuildMode buildMode) {
-        return new Context(uuid, state, source, blockHitResults, structureParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, blockHitResults, structureParams.withBuildMode(buildMode), patternParams, randomizerParams, reachParams);
     }
 
     public Context withBuildFeature(Feature feature) {
-        return new Context(uuid, state, source, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams);
     }
 
     public Context withBuildFeature(Set<Feature> feature) {
-        return new Context(uuid, state, source, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, blockHitResults, structureParams.withBuildFeature(feature), patternParams, randomizerParams, reachParams);
     }
 
     public Context withRandomUUID() {
@@ -251,7 +248,7 @@ public record Context(
     }
 
     public Context withUUID(UUID uuid) {
-        return new Context(uuid, state, source, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, source, blockHitResults, structureParams, patternParams, randomizerParams, reachParams);
     }
 
     // mode
@@ -347,15 +344,15 @@ public record Context(
     }
 
     public Context withPerformSource() {
-        return new Context(uuid, state, BuildingSource.PERFORM, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, BuildingSource.PERFORM, blockHitResults, structureParams, patternParams, randomizerParams, reachParams);
     }
 
     public Context withPreviewSource() {
-        return new Context(uuid, state, BuildingSource.PREVIEW, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, BuildingSource.PREVIEW, blockHitResults, structureParams, patternParams, randomizerParams, reachParams);
     }
 
     public Context withPreviewOnceSource() {
-        return new Context(uuid, state, BuildingSource.PREVIEW_ONCE, blockHitResults, structureParams, patternParams, randomizerParams, reachParams, skipRaytrace);
+        return new Context(uuid, state, BuildingSource.PREVIEW_ONCE, blockHitResults, structureParams, patternParams, randomizerParams, reachParams);
     }
 
     public record StructureParams(

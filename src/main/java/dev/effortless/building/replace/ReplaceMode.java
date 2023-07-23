@@ -35,4 +35,8 @@ public enum ReplaceMode implements Option {
         return this != DISABLED;
     }
 
+    public boolean isQuick() {
+        return this == QUICK;
+    }
+
 }

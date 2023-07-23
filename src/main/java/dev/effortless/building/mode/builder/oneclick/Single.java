@@ -49,13 +49,11 @@ public class Single extends SingleClickBuilder {
         var hitResult = clipInRange(player, context.maxReachDistance());
         var startPos = hitResult.getBlockPos();
 
-        var skipTracing = context.isSkipTracing();
-
+        var tracingAbsolute = context.isBreakingBlock() || context.replaceMode().isQuick();
         var replaceable = player.getLevel().getBlockState(startPos).canBeReplaced();
-
         var becomesDoubleSlab = checkDoubleSlab(player, startPos, hitResult.getDirection());
 
-        var tracingRelative = !skipTracing && !replaceable && !becomesDoubleSlab;
+        var tracingRelative = !tracingAbsolute && !replaceable && !becomesDoubleSlab;
 
         if (tracingRelative) {
             startPos = startPos.relative(hitResult.getDirection());
