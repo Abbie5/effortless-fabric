@@ -18,14 +18,15 @@ public class EffortlessServerBuilder {
         if (context.isPreview()) {
             if (player.getServer() != null) {
                 for (var serverPlayer : player.getServer().getPlayerList().getPlayers()) {
+                    if (serverPlayer.getUUID() == player.getUUID()) {
+                        continue;
+                    }
                     Packets.channel().sendToClient(new ClientboundPlayerBuildPacket(player.getUUID(), context), serverPlayer);
                 }
             }
         } else {
             Operations.createStructure(player.getCommandSenderWorld(), player, context).perform();
         }
-
-
     }
 
 }

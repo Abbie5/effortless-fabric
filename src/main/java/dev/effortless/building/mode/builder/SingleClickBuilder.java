@@ -17,8 +17,7 @@ public abstract class SingleClickBuilder extends AbstractClickBuilder {
     public BlockHitResult trace(Player player, Context context) {
         return switch (context.clicks()) {
             case 0 -> traceFirstHit(player, context);
-            default -> null; // FIXME: 7/3/23
-//            default -> BlockHitResult.miss(Vec3.ZERO, Direction.UP, BlockPos.ZERO); // FIXME: 7/3/23
+            default -> null;
         };
     }
 

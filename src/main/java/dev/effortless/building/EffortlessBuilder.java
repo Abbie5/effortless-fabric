@@ -25,24 +25,28 @@ import java.util.stream.Collectors;
 public class EffortlessBuilder {
 
     private static final EffortlessBuilder INSTANCE = new EffortlessBuilder();
-    private static final UUID TRACING_UUID = UUID.randomUUID();
     private final ContextProvider provider = new ContextProvider();
 
     public static EffortlessBuilder getInstance() {
         return INSTANCE;
     }
 
-    private static void showPreview(Player player, Context context) {
+    private static void showLocalPreview(Player player, Context context) {
         var result = Operations.createStructurePreview(player, context).perform();
         OverlayHelper.showOperationResult(context.uuid(), result);
-        OverlayHelper.showContainerContext(context.uuid(), context, 0);
-        OverlayHelper.showItemStackSummary(context.uuid(), result, 1);
+        OverlayHelper.showContext(context.uuid(), context, 0);
+        OverlayHelper.showStructureResult(context.uuid(), result, 1);
     }
 
-    private static void showPreviewOnce(Player player, Context context) {
+    private static void showLocalPreviewOnce(Player player, Context context) {
         var result = Operations.createStructurePreviewOnce(player, context).perform();
         OverlayHelper.showOperationResult(context.uuid(), result);
-        OverlayHelper.showItemStackSummary(context.uuid(), result, 1000);
+        OverlayHelper.showStructureResult(context.uuid(), result, 1000);
+    }
+
+    private static void showPreview(Player player, Context context) {
+        var result = Operations.createStructurePreview(player, context).perform();
+        OverlayHelper.showStructureResult(context.uuid(), result, 1);
     }
 
     private BuildingResult perform(Player player, BuildingState state, @Nullable BlockHitResult hitResult) {
@@ -67,7 +71,7 @@ public class EffortlessBuilder {
         var updated = updater.apply(context);
         if (updated.isFulfilled()) {
 
-            showPreviewOnce(player, updated);
+            showLocalPreviewOnce(player, updated);
 
             Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(updated));
             Effortless.log("Sent to server: " + updated);
@@ -105,7 +109,7 @@ public class EffortlessBuilder {
         var player = Minecraft.getInstance().player;
         if (player != null && !getContext(player).isDisabled()) {
             var context = getContextWithNextTrace(player);
-            showPreview(player, context);
+            showLocalPreview(player, context);
             Packets.channel().sendToServer(new ServerboundPlayerBuildPacket(context));
         }
     }
@@ -144,6 +148,7 @@ public class EffortlessBuilder {
 
         if (perform.isSuccess()) {
             //play sound if further than normal
+            // TODO: 22/7/23
             if ((hitResult.getLocation().subtract(player.getEyePosition(1f))).lengthSqr() > 25f) {
                 var blockPos = hitResult.getBlockPos();
                 var state = player.level.getBlockState(blockPos);

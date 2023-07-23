@@ -122,13 +122,13 @@ public class OverlayHelper {
         OperationRenderer.getInstance().showResult(uuid, result);
     }
 
-    public static void showItemStackSummary(UUID uuid, StructureResult result, int priority) {
+    public static void showStructureResult(UUID uuid, StructureResult result, int priority) {
         var summary = createSummary(result);
         ContainerOverlay.getInstance().showTitledItems("placed" + uuid, Component.literal(ChatFormatting.WHITE + "Placed Blocks"), summary.group().getOrDefault(Group.PLAYER_USED, Collections.emptyList()), priority);
         ContainerOverlay.getInstance().showTitledItems("destroyed" + uuid, Component.literal(ChatFormatting.RED + "Destroyed Blocks"), summary.group().getOrDefault(Group.LEVEL_DROPPED, Collections.emptyList()), priority);
     }
 
-    public static void showContainerContext(UUID uuid, Context context, int priority) {
+    public static void showContext(UUID uuid, Context context, int priority) {
         var texts = new ArrayList<Component>();
         texts.add(Component.literal(ChatFormatting.WHITE + "Structure " + ChatFormatting.GOLD + context.buildMode().getNameComponent().getString() + ChatFormatting.RESET));
         var replace = RadialButton.option(context.structureParams().replaceMode());

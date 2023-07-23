@@ -21,9 +21,13 @@ public class ClientEffortlessPacketHandler implements ClientEffortlessPacketList
 
     @Override
     public void handle(ClientboundPlayerBuildPacket packet) {
-        var player = Minecraft.getInstance().level.getPlayerByUUID(packet.playerId());
-        EffortlessBuilder.getInstance().onContextReceived(player, packet.context());
-
+        var level = Minecraft.getInstance().level;
+        if (level != null) {
+            var player = level.getPlayerByUUID(packet.playerId());
+            if (player != null) {
+                EffortlessBuilder.getInstance().onContextReceived(player, packet.context());
+            }
+        }
     }
 
     @Override

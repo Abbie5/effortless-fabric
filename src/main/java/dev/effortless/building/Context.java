@@ -11,6 +11,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -34,7 +35,7 @@ public record Context(
         friendlyByteBuf.writeEnum(context.state());
         friendlyByteBuf.writeEnum(context.source());
         friendlyByteBuf.writeVarInt(context.blockHitResults().size());
-        context.blockHitResults().forEach(friendlyByteBuf::writeBlockHitResult);
+        context.blockHitResults().forEach((hitResult) -> friendlyByteBuf.writeNullable(hitResult, FriendlyByteBuf::writeBlockHitResult));
 
         friendlyByteBuf.writeEnum(context.buildMode());
         friendlyByteBuf.writeEnum(context.circleStart());
@@ -53,7 +54,7 @@ public record Context(
                 friendlyByteBuf.readEnum(BuildingState.class),
                 friendlyByteBuf.readEnum(BuildingSource.class),
                 IntStream.range(0, friendlyByteBuf.readVarInt())
-                        .mapToObj(i -> friendlyByteBuf.readBlockHitResult())
+                        .mapToObj(i -> friendlyByteBuf.readNullable(FriendlyByteBuf::readBlockHitResult))
                         .toList(),
                 new StructureParams(
                 friendlyByteBuf.readEnum(BuildMode.class),
@@ -97,42 +98,6 @@ public record Context(
                 source,
                 Collections.emptyList(), structureParams, patternParams, randomizerParams, reachParams,
                 skipRaytrace);
-    }
-
-    // new context for placing
-    public Context placing() {
-        return new Context(
-                UUID.randomUUID(),
-                BuildingState.PLACE_BLOCK,
-                source,
-                Collections.emptyList(), structureParams, patternParams, randomizerParams, reachParams,
-                skipRaytrace);
-    }
-
-    // new context for breaking
-    public Context breaking() {
-        return new Context(
-                UUID.randomUUID(),
-                BuildingState.BREAK_BLOCK,
-                source,
-                Collections.emptyList(), structureParams, patternParams, randomizerParams, reachParams,
-                skipRaytrace);
-    }
-
-    public Context withNextBreak(BlockHitResult blockHitResult) {
-        if (isBreakBlock()) {
-            return this.withNextHit(blockHitResult);
-        } else {
-            return this.withBreakingState().withNextHit(blockHitResult);
-        }
-    }
-
-    public Context withNextPlace(BlockHitResult blockHitResult) {
-        if (isBreakBlock()) {
-            return this.withNextHit(blockHitResult);
-        } else {
-            return this.withPlacingState().withNextHit(blockHitResult);
-        }
     }
 
     public Context withPlacingState() {
@@ -249,7 +214,7 @@ public record Context(
     }
 
     public Context withPos(int position, BlockPos pos) {
-        var result = IntStream.range(0, blockHitResults.size()).mapToObj((i) -> i == position ? blockHitResults.get(i).withPosition(pos) : blockHitResults.get(i)).toArray(BlockHitResult[]::new);
+        var result = IntStream.of(0, blockHitResults.size()).mapToObj((i) -> i == position ? blockHitResults.get(i).withPosition(pos) : blockHitResults.get(i)).toArray(BlockHitResult[]::new);
         return withHits(result);
     }
 
@@ -352,6 +317,7 @@ public record Context(
     }
 
     // for build mode only
+    @Nullable
     public BlockHitResult trace(Player player) {
         return buildMode().getInstance().trace(player, this);
     }

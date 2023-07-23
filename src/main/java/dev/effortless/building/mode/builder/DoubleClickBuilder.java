@@ -2,10 +2,8 @@ package dev.effortless.building.mode.builder;
 
 import dev.effortless.building.Context;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.stream.Stream;
 
@@ -28,7 +26,7 @@ public abstract class DoubleClickBuilder extends AbstractClickBuilder {
         return switch (context.clicks()) {
             case 0 -> traceFirstHit(player, context);
             case 1 -> traceSecondHit(player, context);
-            default -> BlockHitResult.miss(Vec3.ZERO, Direction.UP, BlockPos.ZERO); // FIXME: 7/3/23 ;
+            default -> null;
         };
     }
 

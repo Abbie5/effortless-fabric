@@ -90,7 +90,7 @@ public abstract class TripleClickBuilder extends AbstractClickBuilder {
             case 0 -> traceFirstHit(player, context);
             case 1 -> traceSecondHit(player, context);
             case 2 -> traceThirdHit(player, context);
-            default -> BlockHitResult.miss(Vec3.ZERO, Direction.UP, BlockPos.ZERO); // FIXME: 7/3/23
+            default -> null;
         };
     }
 
