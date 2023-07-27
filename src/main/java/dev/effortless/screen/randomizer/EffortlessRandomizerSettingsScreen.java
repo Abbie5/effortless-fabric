@@ -14,12 +14,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CenteredStringWidget;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -55,6 +57,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
     private static final int RADIAL_SIZE = 12;
     private static final double RING_INNER_EDGE = 6;
     private static final double RING_OUTER_EDGE = 15;
+    private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
 
     private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation("textures/gui/server_selection.png");
 
@@ -82,7 +85,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
     protected void init() {
         this.entries = addRenderableWidget(new DetailsList(minecraft, width, height, 32, height - 60, 24 + 12));
         this.entries.reset(lastSettings.randomizers());
-        addRenderableWidget(new CenteredStringWidget(width, 49, title, minecraft.font));
+        addRenderableWidget(new StringWidget(width, 49, title, minecraft.font).alignCenter());
 
         this.editRandomizerButton = addRenderableWidget(Button.builder(Component.translatable("Edit"), (button) -> {
             if (hasValidSelection()) {
@@ -137,9 +140,9 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderBackground(poseStack);
-        super.render(poseStack, i, j, f);
+    public void render(GuiGraphics gui, int i, int j, float f) {
+        renderBackground(gui);
+        super.render(gui, i, j, f);
         updateButtonValidity();
     }
 
@@ -149,7 +152,7 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
             super(minecraft, width, height, top, bottom, itemHeight);
         }
 
-        private static void drawRadialButtonBackgrounds(PoseStack poseStack, double middleX, double middleY, double ringInnerEdge, double ringOuterEdge, int selected) {
+        private static void drawRadialButtonBackgrounds(GuiGraphics gui, double middleX, double middleY, double ringInnerEdge, double ringOuterEdge, int selected) {
             var bufferBuilder = Tesselator.getInstance().getBuilder();
             bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
             var totalModes = Math.max(3, RADIAL_SIZE);
@@ -183,48 +186,45 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
         }
 
         @Override
-        protected boolean isFocused() {
+        public boolean isFocused() {
             return EffortlessRandomizerSettingsScreen.this.getFocused() == this;
         }
 
         @Override
-        protected void renderEntry(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry) {
-            GuiComponent.fill(poseStack, k, j, k + ICON_WIDTH, j + ICON_WIDTH, 0x9f6c6c6c);
+        protected void renderEntry(GuiGraphics gui, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry) {
+            gui.fill(k, j, k + ICON_WIDTH, j + ICON_WIDTH, 0x9f6c6c6c);
 
-            drawRadialButtonBackgrounds(poseStack, k + (ICON_WIDTH >> 1), j + (ICON_HEIGHT >> 1), RING_INNER_EDGE, RING_OUTER_EDGE, i + 1);
+            drawRadialButtonBackgrounds(gui, k + (ICON_WIDTH >> 1), j + (ICON_HEIGHT >> 1), RING_INNER_EDGE, RING_OUTER_EDGE, i + 1);
 
             if (o > j && o < j + ICON_WIDTH) {
-                RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 int v = n - k;
                 int w = o - j;
 
                 if (i > 0) {
-                    GuiComponent.blit(poseStack, k + 8, j, 96.0F, 8 < v && v < 24 && w < 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
+                    gui.blit(ICON_OVERLAY_LOCATION, k + 8, j, 96.0F, 8 < v && v < 24 && w < 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
                 }
                 if (i < children().size() - 1) {
-                    GuiComponent.blit(poseStack, k + 8, j, 64.0F, 8 < v && v < 24 && w > 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
+                    gui.blit(ICON_OVERLAY_LOCATION, k + 8, j, 64.0F, 8 < v && v < 24 && w > 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
                 }
             }
-            drawString(poseStack, minecraft.font, getDisplayName(entry.getItem()), k + 2 + 32 + 1, j + 2, 0xFFFFFFFF);
+            gui.drawString(minecraft.font, getDisplayName(entry.getItem()), k + 2 + 32 + 1, j + 2, 0xFFFFFFFF);
 
             var slot = new AtomicInteger(0);
             entry.getItem().chances().forEach((holder) -> {
                 var last = slot.getAndIncrement();
                 if (last >= MAX_SLOT_COUNT) {
                     if (last == MAX_SLOT_COUNT) {
-                        blitExtraSlot(poseStack, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1);
+                        blitExtraSlot(gui, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1);
                     }
                     return;
                 }
-                blitSlot(poseStack, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1, holder);
+                blitSlot(gui, k + last * SLOT_OFFSET_X + ICON_WIDTH + 1, j + 10 + 1, holder);
             });
         }
 
         @Override
-        protected void renderDecorations(PoseStack poseStack, int i, int j) {
-            super.renderDecorations(poseStack, i, j);
+        protected void renderDecorations(GuiGraphics gui, int i, int j) {
+            super.renderDecorations(gui, i, j);
             var entry = this.getHovered();
 
             if (entry == null || !entry.isMouseOver(i, j)) {
@@ -237,9 +237,9 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
             if (i >= x0 && i <= x1) {
                 var index = children().indexOf(entry);
                 if (index + 1 < RADIAL_SIZE) {
-                    renderTooltip(poseStack, Component.literal("Slot " + (index + 1)), i, j);
+                    gui.renderTooltip(font, Component.literal("Slot " + (index + 1)), i, j);
                 } else {
-                    renderTooltip(poseStack, Component.literal("Not in Slot"), i, j);
+                    gui.renderTooltip(font, Component.literal("Not in Slot"), i, j);
                 }
                 return;
             }
@@ -257,9 +257,9 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
                     if (i < x0 || i > x1) continue;
 
                     if (last == MAX_SLOT_COUNT) {
-                        renderComponentTooltip(poseStack, Collections.singletonList(Component.literal("+" + (holders.size() - MAX_SLOT_COUNT) + " More")), i, j);
+                        gui.renderComponentTooltip(font, Collections.singletonList(Component.literal("+" + (holders.size() - MAX_SLOT_COUNT) + " More")), i, j);
                     } else {
-                        renderComponentTooltip(poseStack, EffortlessRandomizerEditScreen.getRandomizerEntryTooltip(holder, totalCount), i, j);
+                        gui.renderComponentTooltip(font, EffortlessRandomizerEditScreen.getRandomizerEntryTooltip(holder, totalCount), i, j);
                     }
                 }
             }
@@ -280,35 +280,32 @@ public class EffortlessRandomizerSettingsScreen extends Screen {
             return Component.literal(randomizer.name());
         }
 
-        private void blitSlot(PoseStack poseStack, int i, int j, ItemChance itemChance) {
-            blitSlotBg(poseStack, i + 1, j + 1);
-            blitSlotItem(poseStack, i + 2, j + 2,  new ItemStack(itemChance.content(), 1), Integer.toString(itemChance.chance()));
+        private void blitSlot(GuiGraphics gui, int i, int j, ItemChance itemChance) {
+            blitSlotBg(gui, i + 1, j + 1);
+            blitSlotItem(gui, i + 2, j + 2,  new ItemStack(itemChance.content(), 1), Integer.toString(itemChance.chance()));
         }
 
-        private void blitSlotItem(PoseStack poseStack, int i, int j, ItemStack itemStack, String string2) {
-            itemRenderer.renderGuiItem(itemStack, i, j);
+        private void blitSlotItem(GuiGraphics gui, int i, int j, ItemStack itemStack, String string2) {
+            PoseStack poseStack = gui.pose();
+            gui.renderFakeItem(itemStack, i, j);
             poseStack.pushPose();
-            poseStack.translate(0.0F, 0.0F, itemRenderer.blitOffset + 200.0F);
+            poseStack.translate(0.0F, 0.0F, ItemRenderer.ITEM_COUNT_BLIT_OFFSET + 200.0F);
             var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            font.drawInBatch(string2, (float) (i + 19 - 2 - font.width(string2)), (float) (j + 6 + 3), 16777215, true, poseStack.last().pose(), bufferSource, false, 0, 15728880);
+            font.drawInBatch(string2, (float) (i + 19 - 2 - font.width(string2)), (float) (j + 6 + 3), 16777215, true, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, 15728880, false);
             bufferSource.endBatch();
             poseStack.popPose();
         }
 
-        private void blitSlotBg(PoseStack poseStack, int i, int j) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-            GuiComponent.blit(poseStack, i, j, getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+        private void blitSlotBg(GuiGraphics gui, int i, int j) {
+            gui.blit(STATS_ICON_LOCATION, i, j, 0.0F, 0.0F, 18, 18, 128, 128);
         }
 
-        private void blitExtraSlot(PoseStack poseStack, int i, int j) {
-            blitSlotBgExtra(poseStack, i + 1, j + 1);
+        private void blitExtraSlot(GuiGraphics gui, int i, int j) {
+            blitSlotBgExtra(gui, i + 1, j + 1);
         }
 
-        private void blitSlotBgExtra(PoseStack poseStack, int i, int j) {
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-            GuiComponent.blit(poseStack, i, j, getBlitOffset(), 0.0F, 0.0F, 5, 18, 128, 128);
+        private void blitSlotBgExtra(GuiGraphics gui, int i, int j) {
+            gui.blit(STATS_ICON_LOCATION, i, j, 0.0F, 0.0F, 5, 18, 128, 128);
         }
 
     }

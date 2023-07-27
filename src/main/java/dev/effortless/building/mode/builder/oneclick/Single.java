@@ -22,7 +22,7 @@ public class Single extends SingleClickBuilder {
         var look = getEntityLookAngleGap(player);
         var start = new Vec3(player.getX(), player.getY() + player.getEyeHeight(), player.getZ());
         var end = new Vec3(player.getX() + look.x * range, player.getY() + player.getEyeHeight() + look.y * range, player.getZ() + look.z * range);
-        return player.level.clip(new ClipContext(start, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
+        return player.level().clip(new ClipContext(start, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, player));
     }
 
     public static BlockHitResult clipOverride(Player player, BlockPos blockPos) {
@@ -50,7 +50,7 @@ public class Single extends SingleClickBuilder {
         var startPos = hitResult.getBlockPos();
 
         var tracingAbsolute = context.isBreakingBlock() || context.replaceMode().isQuick();
-        var replaceable = player.getLevel().getBlockState(startPos).canBeReplaced();
+        var replaceable = player.level().getBlockState(startPos).canBeReplaced();
         var becomesDoubleSlab = checkDoubleSlab(player, startPos, hitResult.getDirection());
 
         var tracingRelative = !tracingAbsolute && !replaceable && !becomesDoubleSlab;

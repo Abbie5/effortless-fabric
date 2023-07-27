@@ -6,6 +6,7 @@ import dev.effortless.building.pattern.modifier.mirror.Mirror;
 import dev.effortless.screen.widget.*;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.resources.ResourceLocation;
@@ -166,15 +167,15 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
     }
 
     @Override
-    public void drawEntry(PoseStack poseStack, int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY,
+    public void drawEntry(GuiGraphics gui, int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY,
                           boolean isSelected, float partialTicks) {
 
         int offset = 8;
 
-        buttonMirrorEnabled.render(poseStack, mouseX, mouseY, partialTicks);
+        buttonMirrorEnabled.render(gui, mouseX, mouseY, partialTicks);
         if (buttonMirrorEnabled.isChecked()) {
             buttonMirrorEnabled.setY(y);
-            font.draw(poseStack, "Mirror enabled", left + offset, y + 2, 0xFFFFFF);
+            gui.drawString(font, "Mirror enabled", left + offset, y + 2, 0xFFFFFF);
 
             var positionOffsetX0 = left + Dimen.SECTION_OFFSET_X0;
             var positionOffsetX1 = left + Dimen.SECTION_OFFSET_X1;
@@ -185,20 +186,20 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
             var textOffsetX = 40;
             var componentOffsetY = -5;
 
-            font.draw(poseStack, "Position", positionOffsetX0, positionOffsetY0, 0xFFFFFF);
-            font.draw(poseStack, "X", positionOffsetX0 + textOffsetX, positionOffsetY0, 0xFFFFFF);
-            font.draw(poseStack, "Y", positionOffsetX0 + textOffsetX, positionOffsetY1, 0xFFFFFF);
-            font.draw(poseStack, "Z", positionOffsetX0 + textOffsetX, positionOffsetY2, 0xFFFFFF);
+            gui.drawString(font, "Position", positionOffsetX0, positionOffsetY0, 0xFFFFFF);
+            gui.drawString(font, "X", positionOffsetX0 + textOffsetX, positionOffsetY0, 0xFFFFFF);
+            gui.drawString(font, "Y", positionOffsetX0 + textOffsetX, positionOffsetY1, 0xFFFFFF);
+            gui.drawString(font, "Z", positionOffsetX0 + textOffsetX, positionOffsetY2, 0xFFFFFF);
             textMirrorPosX.setY(positionOffsetY0 + componentOffsetY);
             textMirrorPosY.setY(positionOffsetY1 + componentOffsetY);
             textMirrorPosZ.setY(positionOffsetY2 + componentOffsetY);
 
 
-            font.draw(poseStack, "Radius", positionOffsetX1, positionOffsetY0, 0xFFFFFF);
+            gui.drawString(font, "Radius", positionOffsetX1, positionOffsetY0, 0xFFFFFF);
             textMirrorRadius.setY(positionOffsetY0 + componentOffsetY);
 
 
-            font.draw(poseStack, "Axis", positionOffsetX1, positionOffsetY1, 0xFFFFFF);
+            gui.drawString(font, "Axis", positionOffsetX1, positionOffsetY1, 0xFFFFFF);
             buttonMirrorX.setY(positionOffsetY1 - 2);
             buttonMirrorY.setY(positionOffsetY1 - 2);
             buttonMirrorZ.setY(positionOffsetY1 - 2);
@@ -208,21 +209,21 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
             buttonDrawLines.setY(positionOffsetY2 - 6);
             buttonDrawPlanes.setY(positionOffsetY2 - 6);
 
-            mirrorButtonList.forEach(button -> button.render(poseStack, mouseX, mouseY, partialTicks));
-            mirrorIconButtonList.forEach(button -> button.render(poseStack, mouseX, mouseY, partialTicks));
-            mirrorNumberFieldList.forEach(numberField -> numberField.render(poseStack, mouseX, mouseY, partialTicks));
+            mirrorButtonList.forEach(button -> button.render(gui, mouseX, mouseY, partialTicks));
+            mirrorIconButtonList.forEach(button -> button.render(gui, mouseX, mouseY, partialTicks));
+            mirrorNumberFieldList.forEach(numberField -> numberField.getTextField().render(gui, mouseX, mouseY, partialTicks));
         } else {
             buttonMirrorEnabled.setY(y);
-            font.draw(poseStack, "Mirror disabled", left + offset, y + 2, 0x999999);
+            gui.drawString(font, "Mirror disabled", left + offset, y + 2, 0x999999);
         }
 
     }
 
-    public void drawTooltip(PoseStack poseStack, Screen guiScreen, int mouseX, int mouseY) {
+    public void drawTooltip(GuiGraphics gui, Screen guiScreen, int mouseX, int mouseY) {
         //Draw tooltips last
         if (buttonMirrorEnabled.isChecked()) {
-            mirrorIconButtonList.forEach(iconButton -> iconButton.drawTooltip(poseStack, scrollPane.parent, mouseX, mouseY));
-            mirrorNumberFieldList.forEach(numberField -> numberField.drawTooltip(poseStack, scrollPane.parent, mouseX, mouseY));
+            mirrorIconButtonList.forEach(iconButton -> iconButton.drawTooltip(gui, scrollPane.parent, mouseX, mouseY));
+            mirrorNumberFieldList.forEach(numberField -> numberField.drawTooltip(gui, scrollPane.parent, mouseX, mouseY));
         }
     }
 
@@ -230,14 +231,14 @@ public class MirrorSettingsPane extends ExpandableScrollEntry {
     public boolean charTyped(char typedChar, int keyCode) {
         super.charTyped(typedChar, keyCode);
         for (NumberField numberField : mirrorNumberFieldList) {
-            numberField.charTyped(typedChar, keyCode);
+            numberField.getTextField().charTyped(typedChar, keyCode);
         }
         return true;
     }
 
     @Override
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY) {
-        mirrorNumberFieldList.forEach(numberField -> numberField.mouseClicked(mouseX, mouseY, mouseEvent));
+        mirrorNumberFieldList.forEach(numberField -> numberField.getTextField().mouseClicked(mouseX, mouseY, mouseEvent));
 
         boolean insideMirrorEnabledLabel = mouseX >= left && mouseX < right && relativeY >= -2 && relativeY < 12;
 

@@ -40,8 +40,8 @@ public class ClientEffortlessPacketHandler implements ClientEffortlessPacketList
     }
 
     @Override
-    public Connection getConnection() {
-        return packetHandler.getConnection();
+    public boolean isAcceptingMessages() {
+        return packetHandler.isAcceptingMessages();
     }
 
     @Override

@@ -3,17 +3,17 @@
 [versions]
 
 # Minecraft / Loaders
-minecraft = "1.19.3"
-fabric-loader = "0.14.11"
-fabric-api = "0.68.1+1.19.3"
-fabric-loom = "1.0-SNAPSHOT"
+minecraft = "1.20.1"
+fabric-loader = "0.14.21"
+fabric-api = "0.86.1+1.20.1"
+fabric-loom = "1.3-SNAPSHOT"
 
 # Dependencies
 jsr305 = "3.0.2"
 
 # Mod dependencies
-modmenu = "5.0.1"
-cloth-config = "9.0.94"
+modmenu = "7.2.1"
+cloth-config = "11.1.106"
 
 # Tests
 junit = "4.13.1"

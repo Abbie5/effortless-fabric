@@ -11,15 +11,15 @@ import dev.effortless.screen.mode.EffortlessModeRadialScreen;
 import dev.effortless.utils.OverlayHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 import java.awt.*;
@@ -75,7 +75,8 @@ public class ContainerOverlay {
         });
     }
 
-    public void renderGuiOverlay(PoseStack poseStack) {
+    public void renderGuiOverlay(GuiGraphics gui) {
+        PoseStack poseStack = gui.pose();
         lastTipsHeight = 0;
         var contentSide = ConfigManager.getGlobalPreviewConfig().getBuildInfoPosition().getAxis();
         if (contentSide == null) {
@@ -104,9 +105,9 @@ public class ContainerOverlay {
                     continue;
                 }
                 poseStack.pushPose();
-                GuiComponent.fill(poseStack, entry.getTotalWidth(), 0, 0, -entry.getTotalHeight(), minecraft.options.getBackgroundColor(0.8f * entry.getAlpha()));
+                gui.fill(entry.getTotalWidth(), 0, 0, -entry.getTotalHeight(), minecraft.options.getBackgroundColor(0.8f * entry.getAlpha()));
                 poseStack.translate(entry.getPaddingX(), -entry.getPaddingY(), 0);
-                entry.render(poseStack, (int) startX + entry.getPaddingX(), (int) startY - entry.getPaddingY(), contentSide);
+                entry.render(gui, (int) startX + entry.getPaddingX(), (int) startY - entry.getPaddingY(), contentSide);
                 poseStack.popPose();
                 poseStack.translate(0, -entry.getTotalHeight() - 1, 0);
                 startY -= entry.getTotalHeight() + 1;
@@ -160,13 +161,13 @@ public class ContainerOverlay {
         }
     }
 
-    private static abstract class Entry extends GuiComponent {
+    private static abstract class Entry {
 
         private static final int FADE_TICKS = 10;
 
         private int ticksTillRemoval = 20;
 
-        public abstract void render(PoseStack poseStack, int i, int j, Direction.AxisDirection contentSide);
+        public abstract void render(GuiGraphics gui, int i, int j, Direction.AxisDirection contentSide);
 
         public abstract int getWidth();
 
@@ -215,7 +216,8 @@ public class ContainerOverlay {
         }
 
         @Override
-        public void render(PoseStack poseStack, int i, int j, Direction.AxisDirection contentSide) {
+        public void render(GuiGraphics gui, int i, int j, Direction.AxisDirection contentSide) {
+            PoseStack poseStack = gui.pose();
             var minecraft = Minecraft.getInstance();
             poseStack.translate(0, 1, 0);
             var font = minecraft.font;
@@ -223,7 +225,7 @@ public class ContainerOverlay {
             for (var text : components) {
                 textY -= 10;
                 var positionX = contentSide == Direction.AxisDirection.POSITIVE ? getWidth() - font.width(text) : 0;
-                font.drawShadow(poseStack, text, positionX, textY, 0xffffffff);
+                gui.drawString(font, text, positionX, textY, 0xffffffff, true);
             }
         }
 
@@ -264,12 +266,12 @@ public class ContainerOverlay {
         }
 
         @Override
-        public void render(PoseStack poseStack, int i, int j, Direction.AxisDirection contentSide) {
-            super.render(poseStack, i, j, contentSide);
+        public void render(GuiGraphics gui, int i, int j, Direction.AxisDirection contentSide) {
+            super.render(gui, i, j, contentSide);
             var minecraft = Minecraft.getInstance();
             var font = minecraft.font;
             var positionX = contentSide == Direction.AxisDirection.POSITIVE ? getWidth() - font.width(header) : 0;
-            font.drawShadow(poseStack, header, positionX, -getHeight() + 2, 0xffffffff);
+            gui.drawString(font, header, positionX, -getHeight() + 2, 0xffffffff, true);
         }
 
         @Override
@@ -295,8 +297,8 @@ public class ContainerOverlay {
         }
 
         private void renderGuiItem(int i, int j, ItemStack itemStack, BakedModel bakedModel, boolean red) {
-            Minecraft.getInstance().getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false);
-            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS);
+            Minecraft.getInstance().getTextureManager().getTexture(InventoryMenu.BLOCK_ATLAS).setFilter(false, false);
+            RenderSystem.setShaderTexture(0, InventoryMenu.BLOCK_ATLAS);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
@@ -314,7 +316,7 @@ public class ContainerOverlay {
             if (light) {
                 Lighting.setupForFlatItems();
             }
-            Minecraft.getInstance().getItemRenderer().render(itemStack, ItemTransforms.TransformType.GUI, false, new PoseStack(), bufferSource, 15728880, red ? OverlayTexture.RED_OVERLAY_V : OverlayTexture.NO_OVERLAY, bakedModel);
+            Minecraft.getInstance().getItemRenderer().render(itemStack, ItemDisplayContext.GUI, false, new PoseStack(), bufferSource, 15728880, red ? OverlayTexture.RED_OVERLAY_V : OverlayTexture.NO_OVERLAY, bakedModel);
             bufferSource.endBatch();
             RenderSystem.enableDepthTest();
             if (light) {
@@ -328,12 +330,12 @@ public class ContainerOverlay {
             var poseStack = new PoseStack();
             poseStack.translate(0.0F, 0.0F, 200.0F);
             var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-            font.drawInBatch(string, (float) (i + 19 - 2 - font.width(string)), (float) (j + 6 + 3), color, true, poseStack.last().pose(), bufferSource, false, 0, 15728880);
+            font.drawInBatch(string, (float) (i + 19 - 2 - font.width(string)), (float) (j + 6 + 3), color, true, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, 15728880, false);
             bufferSource.endBatch();
         }
 
         @Override
-        public void render(PoseStack poseStack, int i, int j, Direction.AxisDirection contentSide) {
+        public void render(GuiGraphics gui, int i, int j, Direction.AxisDirection contentSide) {
             var minecraft = Minecraft.getInstance();
 
             var itemCol = 0;

@@ -149,12 +149,12 @@ public abstract class AbstractClickBuilder implements Builder {
 
         public BlockHitResult tracePlane() {
             var offset = startVec().subtract(center);
-            var found = new BlockPos(planeVec().subtract(axis == Axis.X ? offset.x : 0, axis == Axis.Y ? offset.y : 0, axis == Axis.Z ? offset.z : 0));
+            var found = BlockPos.containing(planeVec().subtract(axis == Axis.X ? offset.x : 0, axis == Axis.Y ? offset.y : 0, axis == Axis.Z ? offset.z : 0));
             return convert(found);
         }
 
         public BlockHitResult traceLine() {
-            var found = new BlockPos(lineVec());
+            var found = BlockPos.containing(lineVec());
             return convert(found);
         }
 

@@ -121,8 +121,8 @@ public abstract class TripleClickBuilder extends AbstractClickBuilder {
         }
 
         public Vec3 lineVec(Axis axis) {
-            var pos = new BlockPos(center);
-            var bound = new BlockPos(planeVec());
+            var pos = BlockPos.containing(center);
+            var bound = BlockPos.containing(planeVec());
             return switch (axis) {
                 case X -> new Vec3(bound.getX(), pos.getY(), pos.getZ());
                 case Y -> new Vec3(pos.getX(), bound.getY(), pos.getZ());
@@ -131,7 +131,7 @@ public abstract class TripleClickBuilder extends AbstractClickBuilder {
         }
 
         public BlockHitResult traceLine(Axis axis) {
-            var found = new BlockPos(lineVec(axis));
+            var found = BlockPos.containing(lineVec(axis));
             return convert(found);
         }
 

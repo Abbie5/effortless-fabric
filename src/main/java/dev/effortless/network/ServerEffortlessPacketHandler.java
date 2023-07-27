@@ -27,19 +27,19 @@ public class ServerEffortlessPacketHandler implements ServerEffortlessPacketList
 
     @Override
     public void handle(ServerboundPlayerActionPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
+        PacketUtils.ensureRunningOnSameThread(packet, this, player.serverLevel());
     }
 
     @Override
     public void handle(ServerboundPlayerBuildPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
+        PacketUtils.ensureRunningOnSameThread(packet, this, player.serverLevel());
         Effortless.log("Received build packet from " + player.getDisplayName().getString() + " with context " + packet.context());
         EffortlessServerBuilder.getInstance().onContextReceived(player, packet.context());
     }
 
     @Override
     public void handle(ServerboundPlayerSettingsPacket packet) {
-        PacketUtils.ensureRunningOnSameThread(packet, this, player.getLevel());
+        PacketUtils.ensureRunningOnSameThread(packet, this, player.serverLevel());
     }
 
     @Override
@@ -48,8 +48,8 @@ public class ServerEffortlessPacketHandler implements ServerEffortlessPacketList
     }
 
     @Override
-    public Connection getConnection() {
-        return packetListener.getConnection();
+    public boolean isAcceptingMessages() {
+        return packetListener.isAcceptingMessages();
     }
 
     @Override

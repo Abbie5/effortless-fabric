@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.screen.ScissorsHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ObjectSelectionList;
@@ -16,6 +16,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,6 +33,8 @@ public class EffortlessItemPickerScreen extends Screen {
 
     private static final int MAX_SEARCH_NAME_LENGTH = 255;
     private static final int ROW_WIDTH = 268;
+    private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
+
 
     protected final Screen parent;
     private final Consumer<ItemStack> applySettings;
@@ -57,7 +60,7 @@ public class EffortlessItemPickerScreen extends Screen {
             var player = this.minecraft.player;
             var itemStacks = new ArrayList<ItemStack>();
             if (player != null) {
-                CreativeModeTabs.tryRebuildTabContents(player.connection.enabledFeatures(), player.canUseGameMasterBlocks());
+                CreativeModeTabs.tryRebuildTabContents(player.connection.enabledFeatures(), player.canUseGameMasterBlocks(), player.level().registryAccess());
                 itemStacks.add(new ItemStack(Items.AIR));
                 itemStacks.addAll(CreativeModeTabs.searchTab().getSearchTabDisplayItems());
             } else {
@@ -118,12 +121,12 @@ public class EffortlessItemPickerScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderBackground(poseStack);
-        entries.render(poseStack, i, j, f);
-        searchEditBox.render(poseStack, i, j, f);
-        drawCenteredString(poseStack, font, title, width / 2, 8, 16777215);
-        super.render(poseStack, i, j, f);
+    public void render(GuiGraphics gui, int i, int j, float f) {
+        renderBackground(gui);
+        entries.render(gui, i, j, f);
+        searchEditBox.render(gui, i, j, f);
+        gui.drawCenteredString(font, title, width / 2, 8, 16777215);
+        super.render(gui, i, j, f);
     }
 
     @Environment(EnvType.CLIENT)
@@ -152,7 +155,7 @@ public class EffortlessItemPickerScreen extends Screen {
         }
 
         @Override
-        protected boolean isFocused() {
+        public boolean isFocused() {
             return EffortlessItemPickerScreen.this.getFocused() == this;
         }
 
@@ -162,7 +165,7 @@ public class EffortlessItemPickerScreen extends Screen {
         }
 
         @Override
-        public void render(PoseStack poseStack, int i, int j, float f) {
+        public void render(GuiGraphics gui, int i, int j, float f) {
             if (minecraft.level != null) {
                 setRenderBackground(false);
                 setRenderTopAndBottom(false);
@@ -171,24 +174,24 @@ public class EffortlessItemPickerScreen extends Screen {
                 setRenderBackground(true);
                 setRenderTopAndBottom(true);
             }
-            super.render(poseStack, i, j, f);
+            super.render(gui, i, j, f);
         }
 
         @Override
-        protected void renderBackground(PoseStack poseStack) {
+        protected void renderBackground(GuiGraphics gui) {
             if (this.minecraft.level != null) {
-                this.fillGradient(poseStack, 0, 0, this.width, this.height, 0xa1101010, 0x8c101010);
+                gui.fillGradient(0, 0, this.width, this.height, 0xa1101010, 0x8c101010);
             }
         }
 
         @Override
-        protected void renderDecorations(PoseStack poseStack, int i, int j) {
+        protected void renderDecorations(GuiGraphics gui, int i, int j) {
             if (this.minecraft.level != null) {
                 ScissorsHandler.removeLastScissor();
             }
             var entry = this.getHovered();
             if (entry != null && i < (this.width + this.getRowWidth()) / 2 - 48) {
-                renderTooltip(poseStack, entry.itemStack.getHoverName(), i, j);
+                gui.renderTooltip(font, entry.itemStack.getHoverName(), i, j);
             }
         }
 
@@ -225,10 +228,10 @@ public class EffortlessItemPickerScreen extends Screen {
 
             }
 
-            public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-                GuiComponent.drawString(poseStack, minecraft.font, getDisplayName(itemStack), k + 24, j + 6, 0xFFFFFFFF);
+            public void render(GuiGraphics gui, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
+                gui.drawString(minecraft.font, getDisplayName(itemStack), k + 24, j + 6, 0xFFFFFFFF);
 
-                blitSlot(poseStack, k, j, itemStack);
+                blitSlot(gui, k, j, itemStack);
             }
 
             // TODO: 8/2/23
@@ -250,17 +253,15 @@ public class EffortlessItemPickerScreen extends Screen {
                 return itemStack.getHoverName();
             }
 
-            private void blitSlot(PoseStack poseStack, int i, int j, ItemStack itemStack) {
-                this.blitSlotBg(poseStack, i + 1, j + 1);
+            private void blitSlot(GuiGraphics gui, int i, int j, ItemStack itemStack) {
+                this.blitSlotBg(gui, i + 1, j + 1);
                 if (!itemStack.isEmpty()) {
-                    itemRenderer.renderGuiItem(itemStack, i + 2, j + 2);
+                    gui.renderFakeItem(itemStack, i + 2, j + 2);
                 }
             }
 
-            private void blitSlotBg(PoseStack poseStack, int i, int j) {
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(poseStack, i, j, getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+            private void blitSlotBg(GuiGraphics gui, int i, int j) {
+                gui.blit(STATS_ICON_LOCATION, i, j, 0.0F, 0.0F, 18, 18, 128, 128);
             }
 
         }

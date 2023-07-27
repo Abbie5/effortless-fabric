@@ -14,6 +14,7 @@ import dev.effortless.renderer.preview.OperationRenderer;
 import dev.effortless.screen.ContainerOverlay;
 import dev.effortless.utils.AnimationTicker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandBuildContext;
@@ -43,8 +44,8 @@ public class ClientEvents {
     public static void onScreenOpening(@Nullable Screen screen) {
     }
 
-    public static void onRenderGui(PoseStack poseStack) {
-        ContainerOverlay.getInstance().renderGuiOverlay(poseStack);
+    public static void onRenderGui(GuiGraphics gui) {
+        ContainerOverlay.getInstance().renderGuiOverlay(gui);
     }
 
     public static void onRenderAfterEntities(WorldRenderContext context) {

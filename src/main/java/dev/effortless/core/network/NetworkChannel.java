@@ -86,7 +86,7 @@ public abstract class NetworkChannel<S extends PacketListener, C extends PacketL
 
         public FriendlyByteBuf createBuf(Packet<P> packet) {
             var id = getId(packet.getClass());
-            if (id == null) {
+            if (id == -1) {
                 throw new IllegalArgumentException("Packet " + packet.getClass() + " is not registered");
             }
             var buf = new FriendlyByteBuf(Unpooled.buffer());

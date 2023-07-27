@@ -13,12 +13,12 @@ public abstract class Operations {
 
     public static StructureBuildOperation createStructurePreview(Player player, Context context) {
         var storage = Storage.createTemp(player.getInventory().items);
-        return new StructureBuildOperation(player.getLevel(), player, context.withPreviewSource(), storage);
+        return new StructureBuildOperation(player.level(), player, context.withPreviewSource(), storage);
     }
 
     public static StructureBuildOperation createStructurePreviewOnce(Player player, Context context) {
         var storage = Storage.createTemp(player.getInventory().items);
-        return new StructureBuildOperation(player.getLevel(), player, context.withPreviewOnceSource(), storage);
+        return new StructureBuildOperation(player.level(), player, context.withPreviewOnceSource(), storage);
     }
 
 

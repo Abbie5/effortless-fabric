@@ -6,6 +6,7 @@ import dev.effortless.keybinding.Keys;
 import dev.effortless.screen.widget.RadialSection;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -25,7 +26,6 @@ public class AbstractRadialScreen extends Screen {
     }
 
     protected static void fillGradient2(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o) {
-        RenderSystem.disableTexture();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -35,7 +35,6 @@ public class AbstractRadialScreen extends Screen {
         fillGradient2(poseStack.last().pose(), bufferBuilder, i, j, k, l, o, m, n);
         tesselator.end();
         RenderSystem.disableBlend();
-        RenderSystem.enableTexture();
     }
 
     protected static void fillGradient2(Matrix4f matrix4f, BufferBuilder bufferBuilder, int i, int j, int k, int l, int m, int n, int o) {
@@ -70,22 +69,22 @@ public class AbstractRadialScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    public void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         visibility = Math.min(visibility + FADE_SPEED * partialTicks, 1f);
-        renderBackground(poseStack);
-        super.render(poseStack, mouseX, mouseY, partialTicks);
-        radial.renderTooltip(poseStack, this, mouseX, mouseY);
-        font.drawShadow(poseStack, title, width - font.width(title) - 10, height - 15, WATERMARK_TEXT_COLOR);
+        renderBackground(gui);
+        super.render(gui, mouseX, mouseY, partialTicks);
+        radial.renderTooltip(gui, this, mouseX, mouseY);
+        gui.drawString(font, title, width - font.width(title) - 10, height - 15, WATERMARK_TEXT_COLOR, true);
 //        fillGradient2(poseStack, this.width - 80, 0, this.width, this.height, 0x00101010, 0xb4101010);
 //        fillGradient2(poseStack, 80, 0, this.width, 0, 0x00101010, 0xb4101010);
     }
 
     @Override
-    public void renderBackground(PoseStack poseStack, int i) {
+    public void renderBackground(GuiGraphics gui) {
         if (minecraft != null && minecraft.level != null) {
-            fillGradient(poseStack, 0, 0, this.width, this.height, (int) (visibility * 0xC0) << 24 | 0x101010, (int) (visibility * 0xD0) << 24 | 0x101010);
+            gui.fillGradient(0, 0, this.width, this.height, (int) (visibility * 0xC0) << 24 | 0x101010, (int) (visibility * 0xD0) << 24 | 0x101010);
         } else {
-            this.renderDirtBackground(0);
+            this.renderDirtBackground(gui);
         }
     }
 

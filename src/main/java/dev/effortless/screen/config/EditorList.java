@@ -1,14 +1,11 @@
 package dev.effortless.screen.config;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.effortless.screen.ScissorsHandler;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ObjectSelectionList;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -53,7 +50,7 @@ public abstract class EditorList<T> extends ObjectSelectionList<EditorList<T>.En
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
+    public void render(GuiGraphics gui, int i, int j, float f) {
         if (minecraft.level != null) {
             setRenderBackground(false);
             setRenderTopAndBottom(false);
@@ -62,18 +59,18 @@ public abstract class EditorList<T> extends ObjectSelectionList<EditorList<T>.En
             setRenderBackground(true);
             setRenderTopAndBottom(true);
         }
-        super.render(poseStack, i, j, f);
+        super.render(gui, i, j, f);
     }
 
     @Override
-    protected void renderBackground(PoseStack poseStack) {
+    protected void renderBackground(GuiGraphics gui) {
         if (this.minecraft.level != null) {
-            this.fillGradient(poseStack, 0, 0, this.width, this.height, 0xa1101010, 0x8c101010);
+            gui.fillGradient(0, 0, this.width, this.height, 0xa1101010, 0x8c101010);
         }
     }
 
     @Override
-    protected void renderDecorations(PoseStack poseStack, int i, int j) {
+    protected void renderDecorations(GuiGraphics gui, int i, int j) {
         if (this.minecraft.level != null) {
             ScissorsHandler.removeLastScissor();
         }
@@ -84,7 +81,7 @@ public abstract class EditorList<T> extends ObjectSelectionList<EditorList<T>.En
         return new Entry(item);
     }
 
-    protected void renderEntry(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry) {
+    protected void renderEntry(GuiGraphics gui, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f, Entry entry) {
 
     }
 
@@ -157,19 +154,16 @@ public abstract class EditorList<T> extends ObjectSelectionList<EditorList<T>.En
         }
 
         @Override
-        public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-            renderEntry(poseStack, i, j, k, l, m, n, o, bl, f, this);
+        public void render(GuiGraphics gui, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
+            renderEntry(gui, i, j, k, l, m, n, o, bl, f, this);
             if (o > j && o < j + ICON_WIDTH) {
-                RenderSystem.setShaderTexture(0, ICON_OVERLAY_LOCATION);
-                RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 int v = n - k;
                 int w = o - j;
                 if (i > 0) {
-                    GuiComponent.blit(poseStack, k + 8, j, 96.0F, 8 < v && v < 24 && w < 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
+                    gui.blit(ICON_OVERLAY_LOCATION, k + 8, j, 96.0F, 8 < v && v < 24 && w < 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
                 }
                 if (i < children().size() - 1) {
-                    GuiComponent.blit(poseStack, k + 8, j, 64.0F, 8 < v && v < 24 && w > 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
+                    gui.blit(ICON_OVERLAY_LOCATION, k + 8, j, 64.0F, 8 < v && v < 24 && w > 16 ? 32.0F : 0.0F, 32, 32, 256, 256);
                 }
             }
 

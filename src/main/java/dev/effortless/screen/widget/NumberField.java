@@ -5,21 +5,25 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractContainerWidget;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.layouts.AbstractLayout;
+import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class NumberField extends AbstractContainerWidget {
+public class NumberField extends AbstractLayout {
 
     private final int buttonWidth = 10;
     private final Minecraft minecraft = Minecraft.getInstance();
@@ -29,7 +33,7 @@ public class NumberField extends AbstractContainerWidget {
     List<Component> tooltip = new ArrayList<>();
 
     public NumberField(int x, int y, int width, int height) {
-        super(x, y, width, height, Component.literal(""));
+        super(x, y, width, height);
 
         textField = new EditBox(minecraft.font, x + buttonWidth + 1, y + 1, width - 2 * buttonWidth - 2, height - 2, Component.empty());
         minusButton = new Button(x, y - 1, buttonWidth, height + 2, Component.literal("-"), button -> {
@@ -75,14 +79,14 @@ public class NumberField extends AbstractContainerWidget {
     }
 
     @Override
-    protected List<? extends AbstractWidget> getContainedChildren() {
-        return List.of(textField, minusButton, plusButton);
+    public void visitChildren(@NotNull Consumer<LayoutElement> consumer) {
+        List.of(textField, minusButton, plusButton).forEach(consumer);
     }
 
-    public void drawTooltip(PoseStack poseStack, Screen screen, int mouseX, int mouseY) {
-        boolean insideTextField = mouseX >= x + buttonWidth && mouseX < x + width - buttonWidth && mouseY >= y && mouseY < y + height;
-        boolean insideMinusButton = mouseX >= x && mouseX < x + buttonWidth && mouseY >= y && mouseY < y + height;
-        boolean insidePlusButton = mouseX >= x + width - buttonWidth && mouseX < x + width && mouseY >= y && mouseY < y + height;
+    public void drawTooltip(GuiGraphics gui, Screen screen, int mouseX, int mouseY) {
+        boolean insideTextField = mouseX >= getX() + buttonWidth && mouseX < getX() + width - buttonWidth && mouseY >= getY() && mouseY < getY() + height;
+        boolean insideMinusButton = mouseX >= getX() && mouseX < getX() + buttonWidth && mouseY >= getY() && mouseY < getY() + height;
+        boolean insidePlusButton = mouseX >= getX() + width - buttonWidth && mouseX < getX() + width && mouseY >= getY() && mouseY < getY() + height;
 
         List<Component> textLines = new ArrayList<>();
 
@@ -106,7 +110,7 @@ public class NumberField extends AbstractContainerWidget {
                     .append(Component.literal("5").withStyle(ChatFormatting.RED)));
         }
 
-        minecraft.screen.renderComponentTooltip(poseStack, textLines, mouseX - 10, mouseY + 25);
+        gui.renderComponentTooltip(minecraft.font, textLines, mouseX - 10, mouseY + 25);
 
     }
 

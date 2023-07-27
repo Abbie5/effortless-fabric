@@ -5,12 +5,11 @@ import dev.effortless.building.Context;
 import dev.effortless.building.mode.BuildMode;
 import dev.effortless.building.operation.StructureResult;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-public class ActionBarOverlay extends GuiComponent {
+public class ActionBarOverlay {
 
     private static final ActionBarOverlay INSTANCE = new ActionBarOverlay();
 

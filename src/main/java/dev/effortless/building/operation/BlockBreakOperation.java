@@ -106,7 +106,7 @@ public final class BlockBreakOperation extends BlockOperation {
         if (!player.isCreative() && level.getBlockState(blockPos).is(BlockTags.FEATURES_CANNOT_REPLACE)) {
             return BlockInteractionResult.FAIL_BLOCK_STATE_FLAG_CANNOT_REPLACE;
         }
-        if (player.getLevel().isClientSide()) {
+        if (player.level().isClientSide()) {
             return breakBlockClient(level, player, blockPos, preview);
         } else {
             return breakBlockServer(level, player, blockPos);

@@ -151,9 +151,9 @@ public class EffortlessBuilder {
             // TODO: 22/7/23
             if ((hitResult.getLocation().subtract(player.getEyePosition(1f))).lengthSqr() > 25f) {
                 var blockPos = hitResult.getBlockPos();
-                var state = player.level.getBlockState(blockPos);
+                var state = player.level().getBlockState(blockPos);
                 var soundtype = state.getBlock().getSoundType(state);
-                player.level.playSound(player, player.blockPosition(), soundtype.getBreakSound(), SoundSource.BLOCKS, 0.4f, soundtype.getPitch());
+                player.level().playSound(player, player.blockPosition(), soundtype.getBreakSound(), SoundSource.BLOCKS, 0.4f, soundtype.getPitch());
             }
             player.swing(InteractionHand.MAIN_HAND);
         }

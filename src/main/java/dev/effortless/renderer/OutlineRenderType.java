@@ -31,7 +31,7 @@ public class OutlineRenderType extends RenderType {
     private static final RenderType GLOWING_SOLID_DEFAULT = glowingSolid(InventoryMenu.BLOCK_ATLAS);
     private static final RenderType ADDITIVE = RenderType.create(createLayerName("additive"), DefaultVertexFormat.BLOCK,
             VertexFormat.Mode.QUADS, 256, true, true, RenderType.CompositeState.builder()
-                    .setShaderState(BLOCK_SHADER)
+//                    .setShaderState(BLOCK_SHADER)
                     .setTextureState(new TextureStateShard(InventoryMenu.BLOCK_ATLAS, false, false))
                     .setTransparencyState(ADDITIVE_TRANSPARENCY)
                     .setCullState(NO_CULL)

@@ -12,14 +12,17 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CenteredStringWidget;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +39,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
     private static final int MIN_ITEM_COUNT = 0;
     private static final int MAX_ITEM_COUNT = 64;
     private static final int ROW_WIDTH = 268;
+    private static final ResourceLocation STATS_ICON_LOCATION = new ResourceLocation("textures/gui/container/stats_icons.png");
 
     protected final Screen parent;
     private final Consumer<Randomizer> applySettings;
@@ -93,7 +97,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
         this.nameEditBox.setHint(Component.literal("Randomizer Name"));
         this.nameEditBox.setValue(lastSettings.name());
 
-        addRenderableWidget(new CenteredStringWidget(width, 26, title, minecraft.font));
+        addRenderableWidget(new StringWidget(width, 26, title, minecraft.font).alignCenter());
 
         this.deleteButton = addRenderableWidget(Button.builder(Component.translatable("Delete Item"), (button) -> {
             entries.deleteSelected();
@@ -133,9 +137,9 @@ public class EffortlessRandomizerEditScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
-        renderBackground(poseStack);
-        super.render(poseStack, i, j, f);
+    public void render(GuiGraphics gui, int i, int j, float f) {
+        renderBackground(gui);
+        super.render(gui, i, j, f);
     }
 
     @Environment(EnvType.CLIENT)
@@ -146,7 +150,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
         }
 
         @Override
-        protected boolean isFocused() {
+        public boolean isFocused() {
             return EffortlessRandomizerEditScreen.this.getFocused() == this;
         }
 
@@ -156,13 +160,13 @@ public class EffortlessRandomizerEditScreen extends Screen {
         }
 
         @Override
-        protected void renderDecorations(PoseStack poseStack, int i, int j) {
+        protected void renderDecorations(GuiGraphics gui, int i, int j) {
             if (this.minecraft.level != null) {
                 ScissorsHandler.removeLastScissor();
             }
             var entry = this.getHovered();
             if (entry != null && i < (this.width + this.getRowWidth()) / 2 - 48) {
-                renderComponentTooltip(poseStack, getRandomizerEntryTooltip(entry.getItem(), totalCount()), i, j);
+                gui.renderComponentTooltip(font, getRandomizerEntryTooltip(entry.getItem(), totalCount()), i, j);
             }
         }
 
@@ -221,21 +225,20 @@ public class EffortlessRandomizerEditScreen extends Screen {
                 return ItemChance.of(chance.content(), newChance);
             }
 
-            public void render(PoseStack poseStack, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
-                GuiComponent.drawString(poseStack, minecraft.font, getDisplayName(getItem()), k + 24, j + 6, 0xFFFFFFFF);
+            public void render(GuiGraphics gui, int i, int j, int k, int l, int m, int n, int o, boolean bl, float f) {
+                gui.drawString(minecraft.font, getDisplayName(getItem()), k + 24, j + 6, 0xFFFFFFFF);
                 var percentage = String.format("%.2f%%", 100.0 * getItem().chance() / totalCount());
-                GuiComponent.drawString(poseStack, minecraft.font, percentage, k + ROW_WIDTH - 50 - minecraft.font.width(percentage), j + 6, 0xFFFFFFFF);
+                gui.drawString(minecraft.font, percentage, k + ROW_WIDTH - 50 - minecraft.font.width(percentage), j + 6, 0xFFFFFFFF);
 
                 numberField.setX(k + getRowWidth() - 46);
                 numberField.setY(j + 1);
-                numberField.render(poseStack, n, o, f);
+                numberField.getTextField().render(gui, n, o, f);
 
                 if (DetailsList.this.getSelected() != this) {
-                    numberField.getTextField().setFocus(false);
-                    numberField.setFocused(null);
+                    numberField.getTextField().active = false;
                 }
 
-                blitSlot(poseStack, k, j, getItem());
+                blitSlot(gui, k, j, getItem());
             }
 
             // TODO: 8/2/23
@@ -246,7 +249,7 @@ public class EffortlessRandomizerEditScreen extends Screen {
 
             @Override
             public boolean mouseClicked(double d, double e, int i) {
-                var r = numberField.mouseClicked(d, e, i);
+                var r = numberField.getTextField().mouseClicked(d, e, i);
                 if (!numberField.getTextField().isFocused()) {
                     if (numberField.getTextField().getValue().isEmpty()) {
                         numberField.getTextField().setValue("0");
@@ -261,17 +264,17 @@ public class EffortlessRandomizerEditScreen extends Screen {
 
             @Override
             public boolean keyPressed(int i, int j, int k) {
-                return numberField.keyPressed(i, j, k) || super.keyPressed(i, j, k);
+                return numberField.getTextField().keyPressed(i, j, k) || super.keyPressed(i, j, k);
             }
 
             @Override
             public boolean keyReleased(int i, int j, int k) {
-                return numberField.keyReleased(i, j, k) || super.keyReleased(i, j, k);
+                return numberField.getTextField().keyReleased(i, j, k) || super.keyReleased(i, j, k);
             }
 
             @Override
             public boolean charTyped(char c, int i) {
-                return numberField.charTyped(c, i) || super.charTyped(c, i);
+                return numberField.getTextField().charTyped(c, i) || super.charTyped(c, i);
             }
 
             public void tick() {
@@ -282,25 +285,24 @@ public class EffortlessRandomizerEditScreen extends Screen {
                 return new ItemStack(chance.content(), 1).getHoverName();
             }
 
-            private void blitSlot(PoseStack poseStack, int i, int j, ItemChance chance) {
-                blitSlotBg(poseStack, i + 1, j + 1);
-                blitSlotItem(poseStack, i + 2, j + 2, new ItemStack(chance.content(), 1), Integer.toString(chance.chance()));
+            private void blitSlot(GuiGraphics gui, int i, int j, ItemChance chance) {
+                blitSlotBg(gui, i + 1, j + 1);
+                blitSlotItem(gui, i + 2, j + 2, new ItemStack(chance.content(), 1), Integer.toString(chance.chance()));
             }
 
-            private void blitSlotItem(PoseStack poseStack, int i, int j, ItemStack itemStack, String string2) {
-                itemRenderer.renderGuiItem(itemStack, i, j);
+            private void blitSlotItem(GuiGraphics gui, int i, int j, ItemStack itemStack, String string2) {
+                PoseStack poseStack = gui.pose();
+                gui.renderFakeItem(itemStack, i, j);
                 poseStack.pushPose();
-                poseStack.translate(0.0F, 0.0F, itemRenderer.blitOffset + 200.0F);
+                poseStack.translate(0.0F, 0.0F, ItemRenderer.ITEM_COUNT_BLIT_OFFSET + 200.0F);
                 var bufferSource = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
-                font.drawInBatch(string2, (float) (i + 19 - 2 - font.width(string2)), (float) (j + 6 + 3), 16777215, true, poseStack.last().pose(), bufferSource, false, 0, 15728880);
+                font.drawInBatch(string2, (float) (i + 19 - 2 - font.width(string2)), (float) (j + 6 + 3), 16777215, true, poseStack.last().pose(), bufferSource, Font.DisplayMode.NORMAL, 0, 15728880);
                 bufferSource.endBatch();
                 poseStack.popPose();
             }
 
-            private void blitSlotBg(PoseStack poseStack, int i, int j) {
-                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderSystem.setShaderTexture(0, GuiComponent.STATS_ICON_LOCATION);
-                GuiComponent.blit(poseStack, i, j, getBlitOffset(), 0.0F, 0.0F, 18, 18, 128, 128);
+            private void blitSlotBg(GuiGraphics gui, int i, int j) {
+                gui.blit(STATS_ICON_LOCATION, i, j, 0.0F, 0.0F, 18, 18, 128, 128);
             }
 
         }

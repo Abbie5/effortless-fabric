@@ -11,6 +11,7 @@ import dev.effortless.screen.radial.RadialButtonSet;
 import dev.effortless.screen.radial.RadialSlot;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
@@ -82,7 +83,7 @@ public class RadialSection extends AbstractWidget {
     }
 
     @Override
-    public void render(PoseStack poseStack, int i, int j, float f) {
+    public void renderWidget(GuiGraphics gui, int i, int j, float f) {
         visibility = Math.min(visibility + 0.5f * f, 1f);
 
         hoveredSlot = null;
@@ -93,9 +94,9 @@ public class RadialSection extends AbstractWidget {
         var west = leftButtons.stream().map((entry) -> new Section(entry, AxisDirection.NEGATIVE)).toList();
         var east = rightButtons.stream().map((entry) -> new Section(entry, AxisDirection.POSITIVE)).toList();
 
-        renderRadialSlotBackgrounds(poseStack, i, j, regions);
-        renderRadialButtonBackgrounds(poseStack, i, j, west);
-        renderRadialButtonBackgrounds(poseStack, i, j, east);
+        renderRadialSlotBackgrounds(gui, i, j, regions);
+        renderRadialButtonBackgrounds(gui, i, j, west);
+        renderRadialButtonBackgrounds(gui, i, j, east);
 
 //        drawRadialSlotTexts(poseStack, minecraft.font, i, j, );
     }
@@ -182,7 +183,7 @@ public class RadialSection extends AbstractWidget {
         this.selectedButton = options;
     }
 
-    private void renderRadialSlotBackgrounds(PoseStack poseStack, int mouseX, int mouseY, List<Region> regions) {
+    private void renderRadialSlotBackgrounds(GuiGraphics gui, int mouseX, int mouseY, List<Region> regions) {
 
         double middleX = width / 2.0;
         double middleY = height / 2.0;
@@ -245,22 +246,21 @@ public class RadialSection extends AbstractWidget {
                 } else if (-0.2 <= x && x <= 0.2) {
                     textX -= minecraft.font.width(text) / 2;
                 }
-                minecraft.font.drawShadow(poseStack, text, (int) middleX + textX, (int) middleY + textY, WHITE_TEXT_COLOR);
+                gui.drawString(minecraft.font, text, (int) middleX + textX, (int) middleY + textY, WHITE_TEXT_COLOR, true);
             }
 
             // background tint
             RenderSystem.enableBlend();
-            RenderSystem.disableTexture();
             RenderSystem.defaultBlendFunc();
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             var tesselator = Tesselator.getInstance();
             var bufferBuilder = tesselator.getBuilder();
             bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-            bufferBuilder.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            bufferBuilder.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            bufferBuilder.vertex(middleX + x2m2, middleY + y2m2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            bufferBuilder.vertex(middleX + x1m2, middleY + y1m2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x1m1, middleY + y1m1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x2m1, middleY + y2m1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x2m2, middleY + y2m2, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x1m2, middleY + y1m2, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
             // category line
             color = slot.getTintColor();
@@ -270,30 +270,25 @@ public class RadialSection extends AbstractWidget {
             var y1m3 = Math.sin(begRad + innerGap) * categoryOuterEdge;
             var y2m3 = Math.sin(endRad - innerGap) * categoryOuterEdge;
 
-            bufferBuilder.vertex(middleX + x1m1, middleY + y1m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            bufferBuilder.vertex(middleX + x2m1, middleY + y2m1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            bufferBuilder.vertex(middleX + x2m3, middleY + y2m3, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-            bufferBuilder.vertex(middleX + x1m3, middleY + y1m3, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x1m1, middleY + y1m1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x2m1, middleY + y2m1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x2m3, middleY + y2m3, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+            bufferBuilder.vertex(middleX + x1m3, middleY + y1m3, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
             tesselator.end();
-            RenderSystem.enableTexture();
             RenderSystem.disableBlend();
 
             // icon
-            RenderSystem.enableTexture();
-            RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
             var iconX = (x1 + x2) * 0.5 * (ringOuterEdge * 0.55 + 0.45 * ringInnerEdge);
             var iconY = (y1 + y2) * 0.5 * (ringOuterEdge * 0.55 + 0.45 * ringInnerEdge);
 
-            RenderSystem.setShaderTexture(0, region.slot().getIcon());
-            blit(poseStack, (int) Math.round(middleX + iconX - 8), (int) Math.round(middleY + iconY - 8), 16, 16, 0, 0, 18, 18, 18, 18);
+            gui.blit(region.slot().getIcon(), (int) Math.round(middleX + iconX - 8), (int) Math.round(middleY + iconY - 8), 16, 16, 0, 0, 18, 18, 18, 18);
 
         }
 
     }
 
-    private void renderRadialButtonBackgrounds(PoseStack poseStack, int mouseX, int mouseY, List<Section> sections) {
+    private void renderRadialButtonBackgrounds(GuiGraphics gui, int mouseX, int mouseY, List<Section> sections) {
 
         double middleX = width / 2.0;
         double middleY = height / 2.0;
@@ -333,35 +328,28 @@ public class RadialSection extends AbstractWidget {
                 }
 
                 RenderSystem.enableBlend();
-                RenderSystem.disableTexture();
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.setShader(GameRenderer::getPositionColorShader);
                 var tesselator = Tesselator.getInstance();
                 var bufferBuilder = tesselator.getBuilder();
                 bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-                bufferBuilder.vertex(middleX + x1, middleY + y1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-                bufferBuilder.vertex(middleX + x1, middleY + y2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-                bufferBuilder.vertex(middleX + x2, middleY + y2, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-                bufferBuilder.vertex(middleX + x2, middleY + y1, getBlitOffset()).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+                bufferBuilder.vertex(middleX + x1, middleY + y1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+                bufferBuilder.vertex(middleX + x1, middleY + y2, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+                bufferBuilder.vertex(middleX + x2, middleY + y2, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+                bufferBuilder.vertex(middleX + x2, middleY + y1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
 
                 tesselator.end();
-                RenderSystem.enableTexture();
                 RenderSystem.disableBlend();
 
                 // icon
-                RenderSystem.enableTexture();
-                RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
-                RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-
-                RenderSystem.setShaderTexture(0, entry.getIcon());
-                blit(poseStack, (int) Math.round(middleX + x - 8), (int) Math.round(middleY + y - 8), 16, 16, 0, 0, 18, 18, 18, 18);
+                gui.blit(entry.getIcon(), (int) Math.round(middleX + x - 8), (int) Math.round(middleY + y - 8), 16, 16, 0, 0, 18, 18, 18, 18);
 
             }
         }
     }
 
-    public void renderTooltip(PoseStack poseStack, Screen screen, int mouseX, int mouseY) {
+    public void renderTooltip(GuiGraphics gui, Screen screen, int mouseX, int mouseY) {
         if (hoveredEntry == null /* highlightedOption != null && */) {
             return;
         }
@@ -379,7 +367,7 @@ public class RadialSection extends AbstractWidget {
 //        if (!keybind.isEmpty())
 //            keybindFormatted = ChatFormatting.GRAY + "(" + WordUtils.capitalizeFully(keybind) + ")";
 
-        screen.renderComponentTooltip(poseStack, tooltip, mouseX, mouseY);
+        gui.renderComponentTooltip(minecraft.font, tooltip, mouseX, mouseY);
     }
 
     private boolean inTriangle(double x1, double y1, double x2, double y2,

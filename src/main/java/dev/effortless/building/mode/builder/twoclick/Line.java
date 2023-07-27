@@ -103,8 +103,8 @@ public class Line extends DoubleClickBuilder {
 
         @Override
         public Vec3 lineVec() {
-            var pos = new BlockPos(center);
-            var bound = new BlockPos(planeVec());
+            var pos = BlockPos.containing(center);
+            var bound = BlockPos.containing(planeVec());
             var firstToSecond = bound.subtract(pos);
 
             firstToSecond = new BlockPos(Math.abs(firstToSecond.getX()), Math.abs(firstToSecond.getY()), Math.abs(firstToSecond.getZ()));

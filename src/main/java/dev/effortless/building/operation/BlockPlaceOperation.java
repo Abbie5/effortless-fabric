@@ -189,7 +189,7 @@ public final class BlockPlaceOperation extends BlockOperation {
             return BlockInteractionResult.FAIL_PLAYER_ITEM_NOT_BLOCK;
         }
 
-        if (player.getLevel().isClientSide()) {
+        if (player.level().isClientSide()) {
             return placeBlockClient(level, player, interactionHand, blockPos, blockState, preview);
         } else {
             return placeBlockServer(level, player, interactionHand, blockPos, blockState, false);
@@ -291,7 +291,7 @@ public final class BlockPlaceOperation extends BlockOperation {
         private final BlockPos blockPos;
 
         public BlockStatePlaceContext(Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, BlockState blockState) {
-            this(player.level, player, interactionHand, player.getItemInHand(interactionHand), blockHitResult, blockState);
+            this(player.level(), player, interactionHand, player.getItemInHand(interactionHand), blockHitResult, blockState);
         }
 
         public BlockStatePlaceContext(Level level, @Nullable Player player, InteractionHand interactionHand, ItemStack itemStack, BlockHitResult blockHitResult, BlockState blockState) {

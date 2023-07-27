@@ -24,7 +24,7 @@ public class Mirror implements Modifier {
     private static void blockStateMirrorX(Player player, MirrorSettings mirrorSettings, BlockPos oldBlockPos, BlockState oldBlockState, Map<BlockPos, BlockState> blockStates) {
         //find mirror position
         double x = mirrorSettings.position.x + (mirrorSettings.position.x - oldBlockPos.getX() - 0.5);
-        BlockPos newBlockPos = new BlockPos(x, oldBlockPos.getY(), oldBlockPos.getZ());
+        BlockPos newBlockPos = new BlockPos((int) x, oldBlockPos.getY(), oldBlockPos.getZ());
 
         //Randomizer bag synergy
 //		if (bagInventory != null) {
@@ -47,7 +47,7 @@ public class Mirror implements Modifier {
     private static void blockStateMirrorY(Player player, MirrorSettings mirrorSettings, BlockPos oldBlockPos, BlockState oldBlockState, Map<BlockPos, BlockState> blockStates) {
         //find mirror position
         double y = mirrorSettings.position.y + (mirrorSettings.position.y - oldBlockPos.getY() - 0.5);
-        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), y, oldBlockPos.getZ());
+        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), (int) y, oldBlockPos.getZ());
 
         //Randomizer bag synergy
 //		if (bagInventory != null) {
@@ -68,7 +68,7 @@ public class Mirror implements Modifier {
     private static void coordinateMirrorX(MirrorSettings mirrorSettings, BlockPos oldBlockPos, HashSet<BlockPos> coordinates) {
         //find mirror position
         double x = mirrorSettings.position.x + (mirrorSettings.position.x - oldBlockPos.getX() - 0.5);
-        BlockPos newBlockPos = new BlockPos(x, oldBlockPos.getY(), oldBlockPos.getZ());
+        BlockPos newBlockPos = new BlockPos((int) x, oldBlockPos.getY(), oldBlockPos.getZ());
         coordinates.add(newBlockPos);
 
         if (mirrorSettings.mirrorY) coordinateMirrorY(mirrorSettings, newBlockPos, coordinates);
@@ -78,7 +78,7 @@ public class Mirror implements Modifier {
     private static void coordinateMirrorY(MirrorSettings mirrorSettings, BlockPos oldBlockPos, HashSet<BlockPos> coordinates) {
         //find mirror position
         double y = mirrorSettings.position.y + (mirrorSettings.position.y - oldBlockPos.getY() - 0.5);
-        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), y, oldBlockPos.getZ());
+        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), (int) y, oldBlockPos.getZ());
         coordinates.add(newBlockPos);
 
         if (mirrorSettings.mirrorZ) coordinateMirrorZ(mirrorSettings, newBlockPos, coordinates);
@@ -87,14 +87,14 @@ public class Mirror implements Modifier {
     private static void coordinateMirrorZ(MirrorSettings mirrorSettings, BlockPos oldBlockPos, HashSet<BlockPos> coordinates) {
         //find mirror position
         double z = mirrorSettings.position.z + (mirrorSettings.position.z - oldBlockPos.getZ() - 0.5);
-        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), oldBlockPos.getY(), z);
+        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), oldBlockPos.getY(), (int) z);
         coordinates.add(newBlockPos);
     }
 
     private static void blockStateMirrorZ(Player player, MirrorSettings mirrorSettings, BlockPos oldBlockPos, BlockState oldBlockState, Map<BlockPos, BlockState> blockStates) {
         //find mirror position
         double z = mirrorSettings.position.z + (mirrorSettings.position.z - oldBlockPos.getZ() - 0.5);
-        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), oldBlockPos.getY(), z);
+        BlockPos newBlockPos = new BlockPos(oldBlockPos.getX(), oldBlockPos.getY(), (int) z);
 
         //Randomizer bag synergy
 //		if (bagInventory != null) {
